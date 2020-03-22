@@ -1,8 +1,8 @@
 package blocks
 
 import (
-    "github.com/harrisonthorne/chicky-chicky-go/items"
-    "github.com/harrisonthorne/chicky-chicky-go/render"
+use items;
+use render;
 )
 
 // DirtBlock is a cubeeee of dirttttt

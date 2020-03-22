@@ -1,8 +1,8 @@
 package types
 
 import (
-	"github.com/harrisonthorne/chicky-chicky-go/render"
-	"github.com/harrisonthorne/chicky-chicky-go/items"
+use render;
+use items;
 )
 
 // Animatable is an interface that can be added to objects

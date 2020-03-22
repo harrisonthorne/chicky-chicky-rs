@@ -1,8 +1,6 @@
 package blocks
 
-import (
-	"github.com/harrisonthorne/chicky-chicky-go/textures"
-)
+use textures;
 
 const baseDir = "./assets/photos/blocks/"
 

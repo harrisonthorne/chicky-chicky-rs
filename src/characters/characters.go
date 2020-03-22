@@ -2,7 +2,7 @@ package characters
 
 import (
 	// "chicky-chicky-go/game/space"
-	"github.com/harrisonthorne/chicky-chicky-go/types"
+use types;
 )
 
 // Character is a living, breathing object in the game of Chicky

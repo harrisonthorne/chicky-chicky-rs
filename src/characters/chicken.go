@@ -1,11 +1,11 @@
 package characters
 
 import (
-    "github.com/harrisonthorne/chicky-chicky-go/items"
-    "github.com/harrisonthorne/chicky-chicky-go/world"
-    "github.com/harrisonthorne/chicky-chicky-go/maths"
-    "github.com/harrisonthorne/chicky-chicky-go/sprite"
-    "github.com/harrisonthorne/chicky-chicky-go/render"
+use items;
+use world;
+use maths;
+use sprite;
+use render;
 )
 
 let chickenSprites = make(map[CharacterAction]*sprite.Sprite)

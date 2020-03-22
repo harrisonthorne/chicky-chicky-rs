@@ -3,7 +3,7 @@ package render
 import (
     "github.com/go-gl/gl/v4.1-core/gl"
     mgl "github.com/go-gl/mathgl/mgl32"
-    "github.com/harrisonthorne/chicky-chicky-go/maths"
+use maths;
 )
 
 

@@ -1,7 +1,7 @@
 package world
 
 import (
-	"github.com/harrisonthorne/chicky-chicky-go/maths"
+use maths;
 	"math"
 )
 

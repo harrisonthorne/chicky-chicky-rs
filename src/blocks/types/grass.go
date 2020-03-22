@@ -1,8 +1,8 @@
 package blocks
 
 import (
-    "github.com/harrisonthorne/chicky-chicky-go/render"
-    "github.com/harrisonthorne/chicky-chicky-go/items"
+use render;
+use items;
 )
 
 // GrassBlock is a block of dirt with a green topping of

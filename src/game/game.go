@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/harrisonthorne/chicky-chicky-go/characters"
-	"github.com/harrisonthorne/chicky-chicky-go/blocks"
-	"github.com/harrisonthorne/chicky-chicky-go/input"
-	"github.com/harrisonthorne/chicky-chicky-go/maths"
-	"github.com/harrisonthorne/chicky-chicky-go/render"
+use characters;
+use blocks;
+use input;
+use maths;
+use render;
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 

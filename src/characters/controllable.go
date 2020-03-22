@@ -1,8 +1,8 @@
 package characters
 
 import (
-	"github.com/harrisonthorne/chicky-chicky-go/maths"
-	"github.com/harrisonthorne/chicky-chicky-go/items"
+use maths;
+use items;
 )
 
 // Controllable is a type that can be controlled using the

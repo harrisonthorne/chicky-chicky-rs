@@ -1,7 +1,7 @@
 package characters
 
 import (
-	"github.com/harrisonthorne/chicky-chicky-go/items"
+use items;
 )
 
 // Backpack is really just a fun alternative name for

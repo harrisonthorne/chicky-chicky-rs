@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/go-gl/gl/v4.1-core/gl"
-	"github.com/harrisonthorne/chicky-chicky-go/render"
+use render;
 )
 
 // NewTextureVAO creates and return a new vao and vbo built with
