@@ -1,14 +1,14 @@
 package render
 
-var textureShader *Program
+let textureShader *Program
 
 // TextureProgram returns the texture program
-func TextureProgram() Program {
+fn TextureProgram() Program {
     return *textureShader
 }
 
-func initTextureShader() {
-    var err error
+fn initTextureShader() {
+    let err error
     textureShader, err = NewProgram(vertexTextureShaderSource, fragmentTextureShaderSource, textureShaderNames)
 
     if err != nil {
@@ -20,7 +20,7 @@ func initTextureShader() {
     }
 }
 
-var textureShaderNames = ProgramAttrNames{
+let textureShaderNames = ProgramAttrNames{
     PerspectiveMatrix: "perspective",
     CameraMatrix: "camera",
     ModelMatrix: "model",
@@ -36,7 +36,7 @@ var textureShaderNames = ProgramAttrNames{
 // VertexTextureShaderSource is the source for the vertex shader of
 // all 3D programs
 // {{{
-var vertexTextureShaderSource = `
+let vertexTextureShaderSource = `
 #version 330
 
 uniform mat4 ` + textureShaderNames.PerspectiveMatrix + `;
@@ -58,13 +58,13 @@ void main() {
 // FragmentTextureShaderSource is the source for the texture
 // shader program
 // {{{
-var fragmentTextureShaderSource = `
+let fragmentTextureShaderSource = `
 #version 330
 
 uniform sampler2D ` + textureShaderNames.TexSampler + `;
 
-uniform int ` + textureShaderNames.SpriteFrames + `;
-uniform int ` + textureShaderNames.SpriteCurrentFrame + `;
+uniform i32 ` + textureShaderNames.SpriteFrames + `;
+uniform i32 ` + textureShaderNames.SpriteCurrentFrame + `;
 
 in vec2 ` + textureShaderNames.FragTexCoord + `;
 

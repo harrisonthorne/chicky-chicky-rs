@@ -15,7 +15,7 @@ type PhysicalObject struct {
 
 	velocity     maths.Vec3
 	acceleration maths.Vec3
-	mass         float32 // In kilograms.
+	mass         f32 // In kilograms.
 
 	onGround    bool
 	pushingWall bool
@@ -25,29 +25,29 @@ type PhysicalObject struct {
 	wasPushingWall bool
 	wasAtCeiling   bool
 
-	OnGroundHit  func()
-	OnPush       func()
-	OnCeilingHit func()
+	OnGroundHit  fn()
+	OnPush       fn()
+	OnCeilingHit fn()
 
 	Hitbox *maths.AABC // Hitbox for collision calculation, but not kill calculation
 }
 
 // Position returns the PhysicalObject's position
-func (p *PhysicalObject) Position() maths.Vec3 {
+fn (p *PhysicalObject) Position() maths.Vec3 {
 	return p.Hitbox.CenterPos
 }
 
-func (p *PhysicalObject) AddPosition(v2 maths.Vec3) {
+fn (p *PhysicalObject) AddPosition(v2 maths.Vec3) {
 	p.Hitbox.CenterPos.Add(v2)
 }
 
 // SetPosition modifies the position of the PhysicalObject.
-func (p *PhysicalObject) SetPosition(pos maths.Vec3) {
+fn (p *PhysicalObject) SetPosition(pos maths.Vec3) {
 	p.Hitbox.CenterPos = pos
 }
 
 // Physics calculates physics on the PhysicalObject p.
-func (p *PhysicalObject) Physics(delta float32) {
+fn (p *PhysicalObject) Physics(delta f32) {
 	// no physics if p is frozen
 	if p.frozen {
 		return
@@ -75,7 +75,7 @@ func (p *PhysicalObject) Physics(delta float32) {
 // PhysicalObject. This is the only way to move a
 // PhysicalObject in the game; velocity and acceleration are
 // not publicly accessible.
-func (p *PhysicalObject) ApplyForce(newtons maths.Vec3) {
+fn (p *PhysicalObject) ApplyForce(newtons maths.Vec3) {
 	p.acceleration.X += newtons.X / p.mass
 	p.acceleration.Y += newtons.Y / p.mass
 	p.acceleration.Z += newtons.Z / p.mass
@@ -84,7 +84,7 @@ func (p *PhysicalObject) ApplyForce(newtons maths.Vec3) {
 // StopMotion immediately stops the motion of the
 // PhysicalObject. Velocity and acceleration are set to
 // zero.
-func (p *PhysicalObject) StopMotion() {
+fn (p *PhysicalObject) StopMotion() {
 	p.velocity.X = 0
 	p.velocity.Y = 0
 	p.velocity.Z = 0
@@ -95,7 +95,7 @@ func (p *PhysicalObject) StopMotion() {
 
 // CollidesWith returns whether or not the Collider
 // collides with another Collider
-func (p *PhysicalObject) CollidesWith(other *PhysicalObject) bool {
+fn (p *PhysicalObject) CollidesWith(other *PhysicalObject) bool {
 	return p.Hitbox.CollidesWith(other.Hitbox)
 }
 
@@ -103,7 +103,7 @@ func (p *PhysicalObject) CollidesWith(other *PhysicalObject) bool {
 // PhysicalObjects. If both objects are actively subject to
 // forces, momentum will take effect on both PhysicalObjects
 // and force will be applied to both of  them
-func (p *PhysicalObject) FixCollision(other *PhysicalObject) {
+fn (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 	if p.frozen || !p.CollidesWith(other) {
 		return
 	}
@@ -112,8 +112,8 @@ func (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 	switch {
 	case !other.frozen:
 		// fix both
-		firstBreach := calculateBreach(p, other)
-		secondBreach := calculateBreach(other, p)
+		firstBreach = calculateBreach(p, other)
+		secondBreach = calculateBreach(other, p)
 
 		firstBreach.Scale(0.5)
 		secondBreach.Scale(0.5)
@@ -123,7 +123,7 @@ func (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 
 		applyMomentum(p, other)
 	case other.frozen:
-		breach := calculateBreach(p, other)
+		breach = calculateBreach(p, other)
 
 		// fix p
 		fix(p, breach)
@@ -136,7 +136,7 @@ func (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 		breach = calculateBreach(p, other)
 
 		// smallest breach determines which side the object is on
-		minBreach := float32(math.Min(float64(breach.X), math.Min(float64(breach.Y), float64(breach.Z))))
+		minBreach = f32(math.Min(f64(breach.X), math.Min(f64(breach.Y), f64(breach.Z))))
 		switch minBreach {
 		case breach.X:
 			p.velocity.X = 0
@@ -148,7 +148,7 @@ func (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 	}
 }
 
-func calculateBreach(moving, static *PhysicalObject) (breach maths.Vec3) {
+fn calculateBreach(moving, static *PhysicalObject) (breach maths.Vec3) {
 	// breach really depends on which direction the moving
 	// PhysicalObject is travelling
 

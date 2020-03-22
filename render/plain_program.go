@@ -1,12 +1,12 @@
 package render
 
-var plainShader *Program
+let plainShader *Program
 
-func initPlainShader() {
+fn initPlainShader() {
 
 }
 
-var plainShaderNames = ProgramAttrNames{
+let plainShaderNames = ProgramAttrNames{
     PerspectiveMatrix: "perspective",
     CameraMatrix: "camera",
     ModelMatrix: "model",
@@ -17,7 +17,7 @@ var plainShaderNames = ProgramAttrNames{
 // VertexPlainShaderSource is the source for the vertex shader of
 // plain-color 3D programs
 // {{{
-var vertexPlainShaderSource = `
+let vertexPlainShaderSource = `
 #version 330
 
 uniform mat4 ` + plainShaderNames.PerspectiveMatrix + `;
@@ -39,7 +39,7 @@ void main() {
 // FragmentPlainShaderSource is the source for the texture
 // shader program
 // {{{
-var fragmentPlainShaderSource = `
+let fragmentPlainShaderSource = `
 #version 330
 
 in vec4 fragColor;

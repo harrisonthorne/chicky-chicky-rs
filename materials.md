@@ -3,7 +3,6 @@ Materials (stuff you can make into weapons and tools)
 From weakest to strongest:
 - Wood
 - Stone
-- Aluminum
+- Gold
 - Iron
-- Platinum
 - Titanium

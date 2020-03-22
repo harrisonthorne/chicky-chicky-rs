@@ -3,11 +3,11 @@ package blocks
 // StoneBlock is a block of rock
 type StoneBlock struct {
     Block
-    lifespan, health float32
+    lifespan, health f32
 }
 
 // NewStoneBlock creates a new GrassBlock and returns it
-func NewStoneBlock() *StoneBlock {
+fn NewStoneBlock() *StoneBlock {
 	return &StoneBlock{
         lifespan: 100,
         health: 100,

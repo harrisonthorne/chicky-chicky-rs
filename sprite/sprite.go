@@ -14,27 +14,27 @@ import (
 
 // Sprite is an image that animates.
 type Sprite struct {
-	texture  uint32
-	frames   int
-	uvCoords []float32
+	texture  u32
+	frames   i32
+	uvCoords []f32
 
-	currentFrame    float32
-	secondsPerFrame float32
+	currentFrame    f32
+	secondsPerFrame f32
 
 	sizeMatrix     mgl.Mat4
 	positionMatrix mgl.Mat4
 	matrix         mgl.Mat4
 
-    pixelWidth, pixelHeight int
+    pixelWidth, pixelHeight i32
 }
 
-var planeVAO, planeVBO uint32
+let planeVAO, planeVBO u32
 
-var modelAttrLocation, textureUniform int32
-var	program uint32
+let modelAttrLocation, textureUniform int32
+let	program u32
 
 // InitGL initializes plane vao and vbo
-func InitGL() {
+fn InitGL() {
 	planeVAO, planeVBO = utils.NewTextureVAO(render.TextureProgram(), &planeVertices)
 
 	modelAttrLocation = render.TextureProgram().Locations.ModelMatrixLocation()
@@ -43,7 +43,7 @@ func InitGL() {
 }
 
 // New creates a new sprite and returns it
-func New(spritePath string, frames int, secondsPerFrame float32) (s *Sprite, err error) {
+fn New(spritePath string, frames i32, secondsPerFrame f32) (s *Sprite, err error) {
 	s = new(Sprite)
 
 	if frames <= 0 {
@@ -56,7 +56,7 @@ func New(spritePath string, frames int, secondsPerFrame float32) (s *Sprite, err
 	}
 
 	// open the sprite file
-	spriteFile, err := os.Open(spritePath)
+	spriteFile, err = os.Open(spritePath)
 	if err != nil {
 		return
 	}
@@ -76,8 +76,8 @@ func New(spritePath string, frames int, secondsPerFrame float32) (s *Sprite, err
 
 // MustNew is like NewSprite, but panics if there's an
 // error
-func MustNew(spritePath string, frames int, secondsPerFrame float32) *Sprite {
-	sprite, err := New(spritePath, frames, secondsPerFrame)
+fn MustNew(spritePath string, frames i32, secondsPerFrame f32) *Sprite {
+	sprite, err = New(spritePath, frames, secondsPerFrame)
 
 	if err != nil {
 		panic(err)
@@ -92,55 +92,55 @@ func MustNew(spritePath string, frames int, secondsPerFrame float32) *Sprite {
 }
 
 // Animate animates the Sprite.
-func (s *Sprite) Animate(delta float32) {
+fn (s *Sprite) Animate(delta f32) {
 	// if one frame or less, animation doesn't matte,
 	if s.frames <= 1 {
 		return
 	}
 	s.currentFrame += delta / s.secondsPerFrame
-	for s.currentFrame >= float32(s.frames) {
-		s.currentFrame -= float32(s.frames)
+	for s.currentFrame >= f32(s.frames) {
+		s.currentFrame -= f32(s.frames)
 	}
 }
 
 // SetSize sets the size of the sprite.
-func (s *Sprite) SetSize(width, height float32) {
+fn (s *Sprite) SetSize(width, height f32) {
 	s.sizeMatrix = mgl.Scale3D(width, height, 1)
 	s.updateMatrix()
 }
 
-func (s *Sprite) PixelWidth() int {
+fn (s *Sprite) PixelWidth() i32 {
     return s.pixelWidth
 }
 
-func (s *Sprite) PixelHeight() int {
+fn (s *Sprite) PixelHeight() i32 {
     return s.pixelHeight
 }
 
 // SetPosition sets the position of the sprite.
-func (s *Sprite) SetPosition(x, y, z float32) {
+fn (s *Sprite) SetPosition(x, y, z f32) {
 	s.positionMatrix = mgl.Translate3D(x, y, z)
 	s.updateMatrix()
 }
 
-func (s *Sprite) updateMatrix() {
+fn (s *Sprite) updateMatrix() {
 	s.matrix = s.positionMatrix.Mul4(s.sizeMatrix)
 }
 
-// Render renders the sprite onto the screen.
-func (s *Sprite) Render(c *render.Camera) {
-	program := render.TextureProgram().ID()
+// render renders the sprite onto the screen.
+fn (s *Sprite) render(c *render.Camera) {
+	program = render.TextureProgram().ID()
 	gl.UseProgram(program)
 
 	c.SetProgramAttributes(render.TextureProgram())
 
-	modelAttrLocation := render.TextureProgram().Locations.ModelMatrixLocation()
+	modelAttrLocation = render.TextureProgram().Locations.ModelMatrixLocation()
 	gl.UniformMatrix4fv(modelAttrLocation, 1, false, &s.matrix[0])
 
 	gl.Uniform1i(render.TextureProgram().Locations.SpriteFramesLocation(), int32(s.frames))
 	gl.Uniform1i(render.TextureProgram().Locations.SpriteCurrentFrameLocation(), int32(s.currentFrame)) // number bound here must match the active texture
 
-	textureUniform := render.TextureProgram().Locations.TextureLocation()
+	textureUniform = render.TextureProgram().Locations.TextureLocation()
 	gl.Uniform1i(textureUniform, 0) // number bound here must match the active texture
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, s.texture)
@@ -149,7 +149,7 @@ func (s *Sprite) Render(c *render.Camera) {
 	gl.DrawArrays(gl.TRIANGLES, 0, 2*3)
 }
 
-var planeVertices = []float32{
+let planeVertices = []f32{
 	// first triangle
 	-0.5, 0.5, 0, 0, 0,
 	-0.5, -0.5, 0, 0, 1,

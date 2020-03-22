@@ -1,7 +1,7 @@
 package render
 
 // InitGL initializes shaders
-func InitGL() {
+fn InitGL() {
     initTextureShader()
     initPlainShader()
 }

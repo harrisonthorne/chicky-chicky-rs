@@ -13,33 +13,33 @@ type ProgramAttrLocations struct {
 
 // PerspectiveMatrixLocation returns the perspective matrix
 // attribute location
-func (p ProgramAttrLocations) PerspectiveMatrixLocation() int32 {
+fn (p ProgramAttrLocations) PerspectiveMatrixLocation() int32 {
     return p.perspectiveMatrix
 }
 
 // CameraMatrixLocation returns the camera matrix attribute
 // location
-func (p ProgramAttrLocations) CameraMatrixLocation() int32 {
+fn (p ProgramAttrLocations) CameraMatrixLocation() int32 {
     return p.cameraMatrix
 }
 
 // ModelMatrixLocation returns the model matrix attribute
 // location
-func (p ProgramAttrLocations) ModelMatrixLocation() int32 {
+fn (p ProgramAttrLocations) ModelMatrixLocation() int32 {
     return p.modelMatrix
 }
 
 // TextureLocation returns the texture attribute location
-func (p ProgramAttrLocations) TextureLocation() int32 {
+fn (p ProgramAttrLocations) TextureLocation() int32 {
     return p.texture
 }
 
 // 
-func (p ProgramAttrLocations) SpriteFramesLocation() int32 {
+fn (p ProgramAttrLocations) SpriteFramesLocation() int32 {
     return p.spriteFrames
 }
 
 // 
-func (p ProgramAttrLocations) SpriteCurrentFrameLocation() int32 {
+fn (p ProgramAttrLocations) SpriteCurrentFrameLocation() int32 {
     return p.spriteCurrentFrame
 }

@@ -3,7 +3,7 @@ package blocks
 const halfBW = BlockWidth / 2
 
 // TODO fix uv coordinates
-var cubeVertices = []float32{
+let cubeVertices = []f32{
 	//  X, Y, Z, U, V
 	// Bottom
 	-halfBW, -halfBW, -halfBW, 0.5, 0.5,

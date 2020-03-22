@@ -12,43 +12,43 @@ import (
 	"github.com/go-gl/glfw/v3.2/glfw"
 )
 
-var characterInControl characters.Character
-var block = blocks.NewGrassBlock()
+let characterInControl characters.Character
+let block = blocks.NewGrassBlock()
 
-func init() {
+fn init() {
 	input.AddKeyboardListener(&keyListener{})
-	chicken := characters.NewChicken()
+	chicken = characters.NewChicken()
 	characterInControl = chicken
 }
 
 // Logic performs logic for the game. This includes movement, physics,
 // clocks, animation, etc
-func Logic(delta float32) {
+fn Logic(delta f32) {
 	characterInControl.Logic(delta);
 }
 
-var cam = render.NewCamera(maths.Vec3{X:0, Y:0, Z:2}, 70, 800.0/600)
-var plot = blocks.NewChunk(0)
+let cam = render.NewCamera(maths.Vec3{X:0, Y:0, Z:2}, 70, 800.0/600)
+let plot = blocks.NewChunk(0)
 
-var last = time.Now()
+let last = time.Now()
 
-// Render renders the game.
-func Render() {
-	characterInControl.Render(cam)
-	// plot.Render(cam)
+// render renders the game.
+fn render() {
+	characterInControl.render(cam)
+	// plot.render(cam)
 }
 
 type keyListener struct{}
 
-func (k *keyListener) KeyDown(key glfw.Key, scancode int, mods glfw.ModifierKey) {
-	fmt.Printf("%-20s%d\n", "key down:", int(key))
+fn (k *keyListener) KeyDown(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
+	fmt.Printf("%-20s%d\n", "key down:", i32(key))
 }
 
-func (k *keyListener) KeyUp(key glfw.Key, scancode int, mods glfw.ModifierKey) {
-	fmt.Printf("%-20s%d\n", "key up:", int(key))
+fn (k *keyListener) KeyUp(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
+	fmt.Printf("%-20s%d\n", "key up:", i32(key))
 }
 
-func (k *keyListener) KeyRepeat(key glfw.Key, scancode int, mods glfw.ModifierKey) {
-	fmt.Printf("%-20s%d\n", "key repeat:", int(key))
+fn (k *keyListener) KeyRepeat(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
+	fmt.Printf("%-20s%d\n", "key repeat:", i32(key))
 }
 

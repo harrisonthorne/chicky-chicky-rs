@@ -15,18 +15,18 @@ import (
 // its ID is attempted to be accessed.
 type LazyTexture struct {
 	path string
-	id   uint32
+	id   u32
 }
 
-func NewLazyTexture(imagePath string) *LazyTexture {
+fn NewLazyTexture(imagePath string) *LazyTexture {
 	return &LazyTexture{path: imagePath}
 }
 
 // ID returns the texture ID, creating the texture if
 // necessary
-func (l *LazyTexture) ID() uint32 {
+fn (l *LazyTexture) ID() u32 {
 	if l.id == 0 {
-		imageFile, err := os.Open(l.path)
+		imageFile, err = os.Open(l.path)
 		if err != nil {
 			return 0
 		}
@@ -42,19 +42,19 @@ func (l *LazyTexture) ID() uint32 {
 
 // New creates a new texture with the image data from
 // the reader.
-func New(imageReader io.Reader) (uint32, error) {
-	img, _, err := image.Decode(imageReader)
+fn New(imageReader io.Reader) (u32, error) {
+	img, _, err = image.Decode(imageReader)
 	if err != nil {
 		return 0, err
 	}
 
-	rgba := image.NewRGBA(img.Bounds())
+	rgba = image.NewRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return 0, fmt.Errorf("unsupported stride")
 	}
 	draw.Draw(rgba, rgba.Bounds(), img, image.Point{0, 0}, draw.Over)
 
-	var texture uint32
+	let texture u32
 	gl.GenTextures(1, &texture)
 	gl.ActiveTexture(gl.TEXTURE0)
 	gl.BindTexture(gl.TEXTURE_2D, texture)
@@ -77,6 +77,6 @@ func New(imageReader io.Reader) (uint32, error) {
 }
 
 // Bind binds the provided texture for use with OpenGL.
-func Bind(texture uint32) {
+fn Bind(texture u32) {
 	gl.BindTexture(gl.TEXTURE_2D, texture)
 }

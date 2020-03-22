@@ -17,13 +17,13 @@ type Controllable interface {
     // Initiates an attack by the Controllable. Returns
     // whatever the Controllable might be holding, the
     // attack power, and where the Controllable was aiming
-	Attack() (with *items.Item, power float32, at maths.Vec2)
+	Attack() (with *items.Item, power f32, at maths.Vec2)
 }
 
 // TODO
 // // KeyDown handles a Controllable action when a key
 // // is pressed. Implemented from KeyboardListener.
-// func (c *Controllable) KeyDown(key glfw.Key, scancode int, mods glfw.ModifierKey) {
+// fn (c *Controllable) KeyDown(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
 // 	fmt.Printf("Key down: %v\n", key)
 //     if !c.inControl { return }
 
@@ -41,7 +41,7 @@ type Controllable interface {
 
 // // KeyUp handles a Controllable action when a key
 // // is released. Implemented from KeyboardListener.
-// func (c *Controllable) KeyUp(key glfw.Key, scancode int, mods glfw.ModifierKey) {
+// fn (c *Controllable) KeyUp(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
 // 	fmt.Printf("Key up: %v\n", key)
 //     if !c.inControl { return }
 

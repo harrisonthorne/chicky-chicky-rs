@@ -12,7 +12,7 @@ import (
 // the animation should be on, or the animation
 // itself.
 // type Animatable interface {
-// 	Animate(delta float32)
+// 	Animate(delta f32)
 // }
 
 // Flammable can be added to objects that can be ignited.
@@ -35,7 +35,7 @@ type Burnable interface {
 type Killable interface {
 	// Called when the Killable is hit. Returns any items that
 	// the Killable might drop when hit.
-	Hit(with interface{}, power float32) []items.Item
+	Hit(with interface{}, power f32) []items.Item
 
 	// Called when the Killable should be killed. Returns any
 	// items that might be dropped with the Killable dies.
@@ -48,19 +48,19 @@ type Killable interface {
 	IsAlive() bool
 // Returns the number of health points left on the
 	// Killable
-	HealthLeft() float32
+	HealthLeft() f32
 
 	// Returns the lifespan of health points on the Killable
-	Lifespan() float32
+	Lifespan() f32
 }
 
 // Renderable is implemented by anything that can be
 // rendered.
 type Renderable interface {
-	Render(c *render.Camera)
+	render(c *render.Camera)
 }
 
 // Logicable is on objects that should have logic calculated for them
 type Logicable interface {
-	Logic(delta float32)
+	Logic(delta f32)
 }

@@ -3,8 +3,9 @@ Ores
 From most common to most rare:
 - Coal
 - Pearls (oceans only)
-- Amber
 - Crystals (only on walls of caves; must have air next to it)
+- Amber
+- Gold
 - Titanium
 - Platinum
 

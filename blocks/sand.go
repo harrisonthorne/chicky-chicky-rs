@@ -4,11 +4,11 @@ package blocks
 // hand
 type SandBlock struct {
     Block
-    lifespan, health float32
+    lifespan, health f32
 }
 
 // NewSandBlock returns a new SandBlock
-func NewSandBlock() *SandBlock {
+fn NewSandBlock() *SandBlock {
     return &SandBlock{
         lifespan: 5,
         health: 5,

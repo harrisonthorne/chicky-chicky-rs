@@ -6,7 +6,7 @@ import (
 
 const baseDir = "./assets/photos/blocks/"
 
-var (
+let (
     dirtTexture = textures.NewLazyTexture(baseDir+"dirt.png")
     grassTexture = textures.NewLazyTexture(baseDir+"grass.png")
     stoneTexture = textures.NewLazyTexture(baseDir+"stone.png")

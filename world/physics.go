@@ -5,7 +5,7 @@ import (
 	"math"
 )
 
-type axis int
+type axis i32
 
 const (
 	xAxis axis = iota
@@ -14,9 +14,9 @@ const (
 )
 
 // fixes a collision given a breach value
-func fix(p *PhysicalObject, breach maths.Vec3) {
-	smallestNonZeroBreachAxis := xAxis
-	smallestNonZeroBreachValue := breach.X
+fn fix(p *PhysicalObject, breach maths.Vec3) {
+	smallestNonZeroBreachAxis = xAxis
+	smallestNonZeroBreachValue = breach.X
 
 	if (breach.Y < smallestNonZeroBreachValue && breach.Y != 0) || smallestNonZeroBreachValue == 0 {
 		smallestNonZeroBreachAxis = yAxis
@@ -34,22 +34,22 @@ func fix(p *PhysicalObject, breach maths.Vec3) {
 
 	switch smallestNonZeroBreachAxis {
 	case xAxis:
-		yPerX := p.velocity.Y / p.velocity.X
-		zPerX := p.velocity.Z / p.velocity.X
+		yPerX = p.velocity.Y / p.velocity.X
+		zPerX = p.velocity.Z / p.velocity.X
 
 		p.AddPosition(maths.Vec3{X: -breach.X})
 		p.AddPosition(maths.Vec3{Y: -breach.X * yPerX})
 		p.AddPosition(maths.Vec3{Z: -breach.X * zPerX})
 	case yAxis:
-		xPerY := p.velocity.X / p.velocity.Y
-		zPerY := p.velocity.Z / p.velocity.Y
+		xPerY = p.velocity.X / p.velocity.Y
+		zPerY = p.velocity.Z / p.velocity.Y
 
 		p.AddPosition(maths.Vec3{X: -breach.Y * xPerY})
 		p.AddPosition(maths.Vec3{Y: -breach.Y})
 		p.AddPosition(maths.Vec3{Z: -breach.Y * zPerY})
 	case zAxis:
-		xPerZ := p.velocity.X / p.velocity.Z
-		yPerZ := p.velocity.Y / p.velocity.Z
+		xPerZ = p.velocity.X / p.velocity.Z
+		yPerZ = p.velocity.Y / p.velocity.Z
 
 		p.AddPosition(maths.Vec3{X: -breach.Z * xPerZ})
 		p.AddPosition(maths.Vec3{Y: -breach.Z * yPerZ})
@@ -57,22 +57,22 @@ func fix(p *PhysicalObject, breach maths.Vec3) {
 	}
 }
 
-func applyMomentum(p1, p2 *PhysicalObject) {
+fn applyMomentum(p1, p2 *PhysicalObject) {
 	// velocity
-	vi1 := p1.velocity
-	vi2 := p2.velocity
+	vi1 = p1.velocity
+	vi2 = p2.velocity
 
 	// mass
-	m1 := p1.mass
-	m2 := p2.mass
+	m1 = p1.mass
+	m2 = p2.mass
 
 	// momentum = velocity * mass
-	pi1 := maths.Vec3{
+	pi1 = maths.Vec3{
 		X: vi1.X * m1, 
 		Y: vi1.Y * m1, 
 		Z: vi1.Z * m1,
 	}
-	pi2 := maths.Vec3{
+	pi2 = maths.Vec3{
 		X: vi2.X * m2, 
 		Y: vi2.Y * m2, 
 		Z: vi2.Z * m2,
@@ -80,12 +80,12 @@ func applyMomentum(p1, p2 *PhysicalObject) {
 
 	// kinetic energy = momentum * vel / 2 (who comes up
 	// with this crap?)
-	ei1 := maths.Vec3{
+	ei1 = maths.Vec3{
 		X: pi1.X * vi1.X / 2, 
 		Y: pi1.Y * vi1.Y / 2, 
 		Z: pi1.Z * vi1.Z / 2,
 	}
-	ei2 := maths.Vec3{
+	ei2 = maths.Vec3{
 		X: pi2.X * vi2.X / 2, 
 		Y: pi2.Y * vi2.Y / 2, 
 		Z: pi2.Z * vi2.Z / 2,
@@ -97,14 +97,14 @@ func applyMomentum(p1, p2 *PhysicalObject) {
 	// sum of final kinetic energies = sum of initial kinetic energies
 
 	// sum of momentum
-	sp := maths.Vec3{
+	sp = maths.Vec3{
 		X: pi1.X + pi2.X, 
 		Y: pi1.Y + pi2.Y, 
 		Z: pi1.Z + pi2.Z,
 	}
 
 	// sum of kinetic energy
-	sKE := maths.Vec3{
+	sKE = maths.Vec3{
 		X: ei1.X + ei2.X, 
 		Y: ei1.Y + ei2.Y, 
 		Z: ei1.Z + ei2.Z,
@@ -117,10 +117,10 @@ func applyMomentum(p1, p2 *PhysicalObject) {
 }
 
 // calculate final velocities along one axis
-func getFinalVelocities(m1, m2, sp, sKE float32) (first, second float32) {
-	sqrt := float32(math.Sqrt(float64(m2 * (sp*sp*(2*m2-m1) - 2*sKE*m1*(m1-m2)))))
-	vf2 := (m2*sp + sqrt) / (m2 * (m1 + m2))
-	vf1 := (sp - m2*vf2) / m1
+fn getFinalVelocities(m1, m2, sp, sKE f32) (first, second f32) {
+	sqrt = f32(math.Sqrt(f64(m2 * (sp*sp*(2*m2-m1) - 2*sKE*m1*(m1-m2)))))
+	vf2 = (m2*sp + sqrt) / (m2 * (m1 + m2))
+	vf1 = (sp - m2*vf2) / m1
 
 	return vf1, vf2
 }
