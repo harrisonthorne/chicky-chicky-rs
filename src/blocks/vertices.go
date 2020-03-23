@@ -1,6 +1,6 @@
 package blocks
 
-const halfBW = BlockWidth / 2
+const halfBW = BLOCK_WIDTH / 2
 
 // TODO fix uv coordinates
 let cubeVertices = []f32{

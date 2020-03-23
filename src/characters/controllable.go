@@ -8,7 +8,7 @@ use items;
 // Controllable is a type that can be controlled using the
 // mouse or keyboard. It implements both KeyboardListener
 // and MouseListener.
-type Controllable interface {
+trait Controllable {
     Move(direction Direction, super bool)
 	Down(super bool)       // Do something downward (fall or squat maybe?)
 	Jump(super bool)       // Do something when the space bar is pressed
@@ -23,7 +23,7 @@ type Controllable interface {
 // TODO
 // // KeyDown handles a Controllable action when a key
 // // is pressed. Implemented from KeyboardListener.
-// fn (c *Controllable) KeyDown(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
+// fn KeyDown(&self, key glfw.Key, scancode i32, mods glfw.ModifierKey) {
 // 	fmt.Printf("Key down: %v\n", key)
 //     if !c.inControl { return }
 
@@ -41,7 +41,7 @@ type Controllable interface {
 
 // // KeyUp handles a Controllable action when a key
 // // is released. Implemented from KeyboardListener.
-// fn (c *Controllable) KeyUp(key glfw.Key, scancode i32, mods glfw.ModifierKey) {
+// fn KeyUp(&self, key glfw.Key, scancode i32, mods glfw.ModifierKey) {
 // 	fmt.Printf("Key up: %v\n", key)
 //     if !c.inControl { return }
 

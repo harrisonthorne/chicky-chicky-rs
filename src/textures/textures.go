@@ -13,25 +13,25 @@ import (
 
 // LazyTexture will dynamically load a texture the instant
 // its ID is attempted to be accessed.
-type LazyTexture struct {
-	path string
+struct LazyTexture {
+	path String
 	id   u32
 }
 
-fn NewLazyTexture(imagePath string) *LazyTexture {
+fn newLazyTexture(imagePath String) *LazyTexture {
 	return &LazyTexture{path: imagePath}
 }
 
 // ID returns the texture ID, creating the texture if
 // necessary
-fn (l *LazyTexture) ID() u32 {
+fn ID(&self) u32 {
 	if l.id == 0 {
 		imageFile, err = os.Open(l.path)
 		if err != nil {
 			return 0
 		}
 
-		l.id, err = New(imageFile)
+		l.id, err = new(imageFile)
 		if err != nil {
 			panic(err)
 		}
@@ -40,15 +40,15 @@ fn (l *LazyTexture) ID() u32 {
 	return l.id
 }
 
-// New creates a new texture with the image data from
+// new creates a new texture with the image data from
 // the reader.
-fn New(imageReader io.Reader) (u32, error) {
+fn new(imageReader io.Reader) (u32, error) {
 	img, _, err = image.Decode(imageReader)
 	if err != nil {
 		return 0, err
 	}
 
-	rgba = image.NewRGBA(img.Bounds())
+	rgba = image.newRGBA(img.Bounds())
 	if rgba.Stride != rgba.Rect.Size().X*4 {
 		return 0, fmt.Errorf("unsupported stride")
 	}

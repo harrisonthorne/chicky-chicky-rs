@@ -10,7 +10,7 @@ const Gravity = -9.81
 
 // PhysicalObject is an object with physics, position,
 // velocity, and mass
-type PhysicalObject struct {
+struct PhysicalObject {
 	frozen bool // if true, the PhysicalObject will not move
 
 	velocity     maths.Vec3
@@ -25,29 +25,29 @@ type PhysicalObject struct {
 	wasPushingWall bool
 	wasAtCeiling   bool
 
-	OnGroundHit  fn()
+	OnGroundhit  fn()
 	OnPush       fn()
-	OnCeilingHit fn()
+	OnCeilinghit fn()
 
-	Hitbox *maths.AABC // Hitbox for collision calculation, but not kill calculation
+	hitbox *maths.AABC // hitbox for collision calculation, but not kill calculation
 }
 
 // Position returns the PhysicalObject's position
-fn (p *PhysicalObject) Position() maths.Vec3 {
-	return p.Hitbox.CenterPos
+fn Position(&self) maths.Vec3 {
+	return p.hitbox.CenterPos
 }
 
-fn (p *PhysicalObject) AddPosition(v2 maths.Vec3) {
-	p.Hitbox.CenterPos.Add(v2)
+fn AddPosition(&self, v2 maths.Vec3) {
+	p.hitbox.CenterPos.Add(v2)
 }
 
 // SetPosition modifies the position of the PhysicalObject.
-fn (p *PhysicalObject) SetPosition(pos maths.Vec3) {
-	p.Hitbox.CenterPos = pos
+fn SetPosition(&self, pos maths.Vec3) {
+	p.hitbox.CenterPos = pos
 }
 
 // Physics calculates physics on the PhysicalObject p.
-fn (p *PhysicalObject) Physics(delta f32) {
+fn Physics(&self, delta f32) {
 	// no physics if p is frozen
 	if p.frozen {
 		return
@@ -63,7 +63,7 @@ fn (p *PhysicalObject) Physics(delta f32) {
 	p.velocity.Add(p.acceleration)
 
 	p.velocity.Scale(delta) // converts to displacement
-	p.Hitbox.CenterPos.Add(p.velocity)
+	p.hitbox.CenterPos.Add(p.velocity)
 
 	// reset acceleration
 	p.acceleration.X = 0
@@ -71,11 +71,11 @@ fn (p *PhysicalObject) Physics(delta f32) {
 	p.acceleration.Z = 0
 }
 
-// ApplyForce applies a force, in Newtons, to the
+// ApplyForce applies a force, in newtons, to the
 // PhysicalObject. This is the only way to move a
 // PhysicalObject in the game; velocity and acceleration are
 // not publicly accessible.
-fn (p *PhysicalObject) ApplyForce(newtons maths.Vec3) {
+fn ApplyForce(&self, newtons maths.Vec3) {
 	p.acceleration.X += newtons.X / p.mass
 	p.acceleration.Y += newtons.Y / p.mass
 	p.acceleration.Z += newtons.Z / p.mass
@@ -84,7 +84,7 @@ fn (p *PhysicalObject) ApplyForce(newtons maths.Vec3) {
 // StopMotion immediately stops the motion of the
 // PhysicalObject. Velocity and acceleration are set to
 // zero.
-fn (p *PhysicalObject) StopMotion() {
+fn StopMotion(&self) {
 	p.velocity.X = 0
 	p.velocity.Y = 0
 	p.velocity.Z = 0
@@ -95,15 +95,15 @@ fn (p *PhysicalObject) StopMotion() {
 
 // CollidesWith returns whether or not the Collider
 // collides with another Collider
-fn (p *PhysicalObject) CollidesWith(other *PhysicalObject) bool {
-	return p.Hitbox.CollidesWith(other.Hitbox)
+fn CollidesWith(&self, other *PhysicalObject) bool {
+	return p.hitbox.CollidesWith(other.hitbox)
 }
 
 // FixCollision fixes a collision between two
 // PhysicalObjects. If both objects are actively subject to
 // forces, momentum will take effect on both PhysicalObjects
 // and force will be applied to both of  them
-fn (p *PhysicalObject) FixCollision(other *PhysicalObject) {
+fn FixCollision(&self, other *PhysicalObject) {
 	if p.frozen || !p.CollidesWith(other) {
 		return
 	}
@@ -136,7 +136,7 @@ fn (p *PhysicalObject) FixCollision(other *PhysicalObject) {
 		breach = calculateBreach(p, other)
 
 		// smallest breach determines which side the object is on
-		minBreach = f32(math.Min(f64(breach.X), math.Min(f64(breach.Y), f64(breach.Z))))
+		minBreach = math.Min(breach.X), math.Min(f64(breach.Y), f64(breach.Z)) as f64 as f32
 		switch minBreach {
 		case breach.X:
 			p.velocity.X = 0
@@ -155,25 +155,25 @@ fn calculateBreach(moving, static *PhysicalObject) (breach maths.Vec3) {
 	// calculate X
 	switch {
 	case moving.velocity.X > 0:
-		breach.X = moving.Hitbox.CenterPos.X + moving.Hitbox.HalfSize.X - (static.Hitbox.CenterPos.X - static.Hitbox.HalfSize.X)
+		breach.X = moving.hitbox.CenterPos.X + moving.hitbox.HalfSize.X - (static.hitbox.CenterPos.X - static.hitbox.HalfSize.X)
 	case moving.velocity.X < 0:
-		breach.X = moving.Hitbox.CenterPos.X - moving.Hitbox.HalfSize.X - (static.Hitbox.CenterPos.X + static.Hitbox.HalfSize.X)
+		breach.X = moving.hitbox.CenterPos.X - moving.hitbox.HalfSize.X - (static.hitbox.CenterPos.X + static.hitbox.HalfSize.X)
 	}
 
 	// calculate Y
 	switch {
 	case moving.velocity.Y > 0:
-		breach.Y = moving.Hitbox.CenterPos.Y + moving.Hitbox.HalfSize.Y - (static.Hitbox.CenterPos.Y - static.Hitbox.HalfSize.Y)
+		breach.Y = moving.hitbox.CenterPos.Y + moving.hitbox.HalfSize.Y - (static.hitbox.CenterPos.Y - static.hitbox.HalfSize.Y)
 	case moving.velocity.Y < 0:
-		breach.Y = moving.Hitbox.CenterPos.Y - moving.Hitbox.HalfSize.Y - (static.Hitbox.CenterPos.Y + static.Hitbox.HalfSize.Y)
+		breach.Y = moving.hitbox.CenterPos.Y - moving.hitbox.HalfSize.Y - (static.hitbox.CenterPos.Y + static.hitbox.HalfSize.Y)
 	}
 
 	// calculate Z
 	switch {
 	case moving.velocity.Z > 0:
-		breach.Z = moving.Hitbox.CenterPos.Z + moving.Hitbox.HalfSize.Z - (static.Hitbox.CenterPos.Z - static.Hitbox.HalfSize.Z)
+		breach.Z = moving.hitbox.CenterPos.Z + moving.hitbox.HalfSize.Z - (static.hitbox.CenterPos.Z - static.hitbox.HalfSize.Z)
 	case moving.velocity.Z < 0:
-		breach.Z = moving.Hitbox.CenterPos.Z - moving.Hitbox.HalfSize.Z - (static.Hitbox.CenterPos.Z + static.Hitbox.HalfSize.Z)
+		breach.Z = moving.hitbox.CenterPos.Z - moving.hitbox.HalfSize.Z - (static.hitbox.CenterPos.Z + static.hitbox.HalfSize.Z)
 	}
 	return
 }

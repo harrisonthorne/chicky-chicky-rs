@@ -13,7 +13,7 @@ use utils;
 )
 
 // Sprite is an image that animates.
-type Sprite struct {
+struct Sprite {
 	texture  u32
 	frames   i32
 	uvCoords []f32
@@ -35,15 +35,15 @@ let	program u32
 
 // InitGL initializes plane vao and vbo
 fn InitGL() {
-	planeVAO, planeVBO = utils.NewTextureVAO(render.TextureProgram(), &planeVertices)
+	planeVAO, planeVBO = utils.newTextureVAO(render.TextureProgram(), &planeVertices)
 
 	modelAttrLocation = render.TextureProgram().Locations.ModelMatrixLocation()
 	textureUniform = gl.GetUniformLocation(program, gl.Str("tex\x00"))
     program = render.TextureProgram().ID()
 }
 
-// New creates a new sprite and returns it
-fn New(spritePath string, frames i32, secondsPerFrame f32) (s *Sprite, err error) {
+// new creates a new sprite and returns it
+fn new(spritePath String, frames i32, secondsPerFrame f32) (s *Sprite, err error) {
 	s = new(Sprite)
 
 	if frames <= 0 {
@@ -52,7 +52,7 @@ fn New(spritePath string, frames i32, secondsPerFrame f32) (s *Sprite, err error
 			secondsPerFrame = 1
 		}
 	} else if secondsPerFrame <= 0 {
-		return nil, errors.New("secondsPerFrame cannot be less than or equal to 0 if frames is greater than 0")
+		return nil, errors.new("secondsPerFrame cannot be less than or equal to 0 if frames is greater than 0")
 	}
 
 	// open the sprite file
@@ -62,7 +62,7 @@ fn New(spritePath string, frames i32, secondsPerFrame f32) (s *Sprite, err error
 	}
 
 	// assign the sprite texture
-	s.texture, err = textures.New(spriteFile)
+	s.texture, err = textures.new(spriteFile)
 	if err != nil {
 		return
 	}
@@ -74,10 +74,10 @@ fn New(spritePath string, frames i32, secondsPerFrame f32) (s *Sprite, err error
 	return
 }
 
-// MustNew is like NewSprite, but panics if there's an
+// Mustnew is like newSprite, but panics if there's an
 // error
-fn MustNew(spritePath string, frames i32, secondsPerFrame f32) *Sprite {
-	sprite, err = New(spritePath, frames, secondsPerFrame)
+fn Mustnew(spritePath String, frames i32, secondsPerFrame f32) *Sprite {
+	sprite, err = new(spritePath, frames, secondsPerFrame)
 
 	if err != nil {
 		panic(err)
@@ -92,43 +92,43 @@ fn MustNew(spritePath string, frames i32, secondsPerFrame f32) *Sprite {
 }
 
 // Animate animates the Sprite.
-fn (s *Sprite) Animate(delta f32) {
+fn Animate(&self, delta f32) {
 	// if one frame or less, animation doesn't matte,
 	if s.frames <= 1 {
 		return
 	}
 	s.currentFrame += delta / s.secondsPerFrame
-	for s.currentFrame >= f32(s.frames) {
-		s.currentFrame -= f32(s.frames)
+	for s.currentFrame >= s.frames as f32 {
+		s.currentFrame -= s.frames as f32
 	}
 }
 
 // SetSize sets the size of the sprite.
-fn (s *Sprite) SetSize(width, height f32) {
+fn SetSize(&self, width, height f32) {
 	s.sizeMatrix = mgl.Scale3D(width, height, 1)
 	s.updateMatrix()
 }
 
-fn (s *Sprite) PixelWidth() i32 {
+fn PixelWidth(&self) i32 {
     return s.pixelWidth
 }
 
-fn (s *Sprite) PixelHeight() i32 {
+fn PixelHeight(&self) i32 {
     return s.pixelHeight
 }
 
 // SetPosition sets the position of the sprite.
-fn (s *Sprite) SetPosition(x, y, z f32) {
+fn SetPosition(&self, x, y, z f32) {
 	s.positionMatrix = mgl.Translate3D(x, y, z)
 	s.updateMatrix()
 }
 
-fn (s *Sprite) updateMatrix() {
+fn updateMatrix(&self) {
 	s.matrix = s.positionMatrix.Mul4(s.sizeMatrix)
 }
 
 // render renders the sprite onto the screen.
-fn (s *Sprite) render(c *render.Camera) {
+fn render(&self, c *render.Camera) {
 	program = render.TextureProgram().ID()
 	gl.UseProgram(program)
 

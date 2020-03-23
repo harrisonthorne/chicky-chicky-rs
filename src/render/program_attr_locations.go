@@ -2,7 +2,7 @@ package render
 
 // ProgramAttrLocations holds locations of attributes in a
 // program
-type ProgramAttrLocations struct {
+struct ProgramAttrLocations {
     perspectiveMatrix int32
     cameraMatrix int32
     modelMatrix int32
@@ -13,33 +13,33 @@ type ProgramAttrLocations struct {
 
 // PerspectiveMatrixLocation returns the perspective matrix
 // attribute location
-fn (p ProgramAttrLocations) PerspectiveMatrixLocation() int32 {
+fn PerspectiveMatrixLocation(&self) int32 {
     return p.perspectiveMatrix
 }
 
 // CameraMatrixLocation returns the camera matrix attribute
 // location
-fn (p ProgramAttrLocations) CameraMatrixLocation() int32 {
+fn CameraMatrixLocation(&self) int32 {
     return p.cameraMatrix
 }
 
 // ModelMatrixLocation returns the model matrix attribute
 // location
-fn (p ProgramAttrLocations) ModelMatrixLocation() int32 {
+fn ModelMatrixLocation(&self) int32 {
     return p.modelMatrix
 }
 
 // TextureLocation returns the texture attribute location
-fn (p ProgramAttrLocations) TextureLocation() int32 {
+fn TextureLocation(&self) int32 {
     return p.texture
 }
 
 // 
-fn (p ProgramAttrLocations) SpriteFramesLocation() int32 {
+fn SpriteFramesLocation(&self) int32 {
     return p.spriteFrames
 }
 
 // 
-fn (p ProgramAttrLocations) SpriteCurrentFrameLocation() int32 {
+fn SpriteCurrentFrameLocation(&self) int32 {
     return p.spriteCurrentFrame
 }

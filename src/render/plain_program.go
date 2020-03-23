@@ -33,7 +33,7 @@ void main() {
     fragColor = ` + plainShaderNames.InColor + `
     gl_Position = ` + textureShaderNames.PerspectiveMatrix + ` * ` + textureShaderNames.CameraMatrix + ` * ` + textureShaderNames.ModelMatrix + ` * vec4(` + textureShaderNames.InVertex + `, 1);
 }
-` + "\x00" // any string being passed to OpenGL needs to terminate with the null character
+` + "\x00" // any String being passed to OpenGL needs to terminate with the null character
 // }}}
 
 // FragmentPlainShaderSource is the source for the texture

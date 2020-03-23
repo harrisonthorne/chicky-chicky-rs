@@ -9,7 +9,7 @@ fn TextureProgram() Program {
 
 fn initTextureShader() {
     let err error
-    textureShader, err = NewProgram(vertexTextureShaderSource, fragmentTextureShaderSource, textureShaderNames)
+    textureShader, err = newProgram(vertexTextureShaderSource, fragmentTextureShaderSource, textureShaderNames)
 
     if err != nil {
 		println("vertexTextureShaderSource:")
@@ -52,7 +52,7 @@ void main() {
     ` + textureShaderNames.FragTexCoord + ` = ` + textureShaderNames.VertTexCoord + `;
     gl_Position = ` + textureShaderNames.PerspectiveMatrix + ` * ` + textureShaderNames.CameraMatrix + ` * ` + textureShaderNames.ModelMatrix + ` * vec4(` + textureShaderNames.InVertex + `, 1);
 }
-` + "\x00" // any string being passed to OpenGL needs to terminate with the null character
+` + "\x00" // any String being passed to OpenGL needs to terminate with the null character
 // }}}
 
 // FragmentTextureShaderSource is the source for the texture

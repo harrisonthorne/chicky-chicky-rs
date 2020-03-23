@@ -7,34 +7,34 @@ import (
 )
 
 // Program is an OpenGL program
-type Program struct {
+struct Program {
 	id                                 u32
     Locations ProgramAttrLocations
 }
 
 // ProgramAttrNames holds names for program attributes
-type ProgramAttrNames struct {
-    PerspectiveMatrix string
-    CameraMatrix string
-    ModelMatrix string
-    InVertex string
-    OutVertex string
-    InColor string
-    OutColor string
-    VertTexCoord string
-    FragTexCoord string
-    TexSampler string
-	SpriteFrames string
-	SpriteCurrentFrame string
+struct ProgramAttrNames {
+    PerspectiveMatrix String
+    CameraMatrix String
+    ModelMatrix String
+    InVertex String
+    OutVertex String
+    InColor String
+    OutColor String
+    VertTexCoord String
+    FragTexCoord String
+    TexSampler String
+	SpriteFrames String
+	SpriteCurrentFrame String
 }
 
 // ID returns the program's OpenGL ID
-fn (p Program) ID() u32 {
+fn ID(&self) u32 {
     return p.id
 }
 
-// NewProgram creates and returns a new OpenGL program.
-fn NewProgram(vertexShaderSource, fragmentShaderSource string, names ProgramAttrNames) (p *Program, err error) {
+// newProgram creates and returns a new OpenGL program.
+fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttrNames) (p *Program, err error) {
 	p = new(Program)
 
 	p.id, err = compileProgram(vertexShaderSource, fragmentShaderSource)
@@ -53,7 +53,7 @@ fn NewProgram(vertexShaderSource, fragmentShaderSource string, names ProgramAttr
     return
 }
 
-fn compileProgram(vertexShaderStr, fragmentShaderStr string) (program u32, err error) {
+fn compileProgram(vertexShaderStr, fragmentShaderStr String) (program u32, err error) {
 	vertexShader, err = compileShader(vertexShaderStr, gl.VERTEX_SHADER)
 	if err != nil {
 		return
@@ -76,7 +76,7 @@ fn compileProgram(vertexShaderStr, fragmentShaderStr string) (program u32, err e
 		let logLength int32
 		gl.GetProgramiv(program, gl.INFO_LOG_LENGTH, &logLength)
 
-		log = strings.Repeat("\x00", i32(logLength+1))
+		log = strings.Repeat("\x00", logLength+1) as i32
 		gl.GetProgramInfoLog(program, logLength, nil, gl.Str(log))
 
 		err = fmt.Errorf("failed to link program: %v", log)
@@ -89,7 +89,7 @@ fn compileProgram(vertexShaderStr, fragmentShaderStr string) (program u32, err e
 	return
 }
 
-fn compileShader(source string, shaderType u32) (shader u32, err error) {
+fn compileShader(source String, shaderType u32) (shader u32, err error) {
 	shader = gl.CreateShader(shaderType)
 
 	cString, free = gl.Strs(source)
@@ -103,7 +103,7 @@ fn compileShader(source string, shaderType u32) (shader u32, err error) {
 		let logLength int32
 		gl.GetShaderiv(shader, gl.INFO_LOG_LENGTH, &logLength)
 
-		log = strings.Repeat("\x00", i32(logLength+1))
+		log = strings.Repeat("\x00", logLength+1) as i32
 		gl.GetShaderInfoLog(shader, logLength, nil, gl.Str(log))
 
 		return 0, fmt.Errorf("failed to compile shaderType %d: %v", shaderType, log)

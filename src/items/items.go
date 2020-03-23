@@ -1,13 +1,13 @@
 package items
 
 // Item is anything that can be held in a user's backpack
-type Item interface {
+trait Item {
 	RenderIcon(x, y i32)
-	Name() string
+	Name() String
 }
 
 // Tool is an item that can degrade as it is used
-type Tool interface {
+trait Tool {
 	Item
 	ToolType() ToolType
 	Degrade(by f32)
@@ -15,7 +15,7 @@ type Tool interface {
 
 // Weapon is an item (more of a Tool) that may have
 // additional special features in the future
-type Weapon interface {
+trait Weapon {
 	Item
 	Degrade(by f32)
 }
