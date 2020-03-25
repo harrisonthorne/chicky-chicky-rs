@@ -79,8 +79,8 @@ fn kill(&self) []items.Item {
     return []items.Item(tmp)
 }
 
-// IsAlive returns true if the chicken is alive
-fn IsAlive(&self) bool {
+// is_alive returns true if the chicken is alive
+fn is_alive(&self) bool {
 	return true
 }
 

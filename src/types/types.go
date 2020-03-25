@@ -41,13 +41,13 @@ trait killable {
 	// killable can still be alive even if it has no health
 	// left. Any killables determined to be dead are removed
 	// from the world
-	IsAlive() bool
+	is_alive() bool
 // Returns the number of health points left on the
 	// killable
-	HealthLeft() f32
+	health_left() f32
 
 	// Returns the lifespan of health points on the killable
-	Lifespan() f32
+	lifespan() f32
 }
 
 // Renderable is implemented by anything that can be

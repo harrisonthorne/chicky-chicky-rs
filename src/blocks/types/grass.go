@@ -36,19 +36,19 @@ fn kill(&self) []items.Item {
     return nil
 }
 
-// IsAlive returns true if the GrassBlock is still intact
-fn IsAlive(&self) bool {
+// is_alive returns true if the GrassBlock is still intact
+fn is_alive(&self) bool {
     return b.health > 0
 }
 
-// HealthLeft returns the number of health points left on the
+// health_left returns the number of health points left on the
 // block
-fn HealthLeft(&self) f32 {
+fn health_left(&self) f32 {
     return b.health
 }
 
-// Lifespan returns the lifespan of health points on the killable
-fn Lifespan(&self) f32 {
+// lifespan returns the lifespan of health points on the killable
+fn lifespan(&self) f32 {
     return b.lifespan
 }
 
