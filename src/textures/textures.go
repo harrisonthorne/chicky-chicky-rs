@@ -5,13 +5,13 @@ struct LazyTexture {
 	id   u32
 }
 
-fn newLazyTexture(imagePath String) &LazyTexture {
+fn newLazyTexture(imagePath String) -> &LazyTexture {
 	return &LazyTexture{path: imagePath}
 }
 
 // ID returns the texture ID, creating the texture if
 // necessary
-fn ID(&self) u32 {
+fn ID(&self) -> u32 {
 	if l.id == 0 {
 		imageFile, err = os.Open(l.path)
 		if err != nil {
@@ -29,7 +29,7 @@ fn ID(&self) u32 {
 
 // new creates a new texture with the image data from
 // the reader.
-fn new(imageReader io.Reader) (u32, error) {
+fn new(imageReader io.Reader) -> (u32, error) {
 	img, _, err = image.Decode(imageReader)
 	if err != nil {
 		return 0, err

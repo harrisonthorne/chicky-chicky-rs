@@ -8,7 +8,7 @@ struct DirtBlock {
 }
 
 // newDirtBlock creates and returns a new DirtBlock
-fn new_dirt_block() &DirtBlock {
+fn new_dirt_block() -> &DirtBlock {
 	return &DirtBlock {
         lifespan: 15,
         health: 15,
@@ -16,31 +16,31 @@ fn new_dirt_block() &DirtBlock {
 }
 
 // hit is called with the DirtBlock is hit
-fn hit(&self, with interface{}, power f32) -> &[items.Item] {
+fn hit(&self, with interface{}, power f32) -> -> &[items.Item] {
     return nil
 }
 
 // kill is called when the DirtBlock is obliterated. Returns
 // Dirt.
-fn kill(&self) -> []items.Item {
+fn kill(&self) -> -> []items.Item {
     b.health = 0
     return nil //[]items.Item{items.Dirt}
 }
 
 // is_alive returns true if the DirtBlock is still intact
-fn is_alive(&self) bool {
+fn is_alive(&self) -> bool {
     return b.health > 0
 }
 
 // health_left returns the number of health points left on
 // the DirtBlock
-fn health_left(&self) f32 {
+fn health_left(&self) -> f32 {
     return b.health
 }
 
 // lifespan returns the lifespan of health points on the
 // DirtBlock
-fn lifespan(&self) f32 {
+fn lifespan(&self) -> f32 {
     return b.lifespan
 }
 

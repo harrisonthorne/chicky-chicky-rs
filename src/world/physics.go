@@ -112,7 +112,7 @@ fn applyMomentum(p1, p2 &PhysicalObject) {
 }
 
 // calculate final velocities along one axis
-fn getFinalVelocities(m1, m2, sp, sKE f32) (first, second f32) {
+fn getFinalVelocities(m1, m2, sp, sKE f32) -> (first, second f32) {
 	sqrt = math.Sqrt(m2 * (sp*sp*(2*m2-m1) - 2*sKE*m1*(m1-m2))) as f64 as f32
 	vf2 = (m2*sp + sqrt) / (m2 * (m1 + m2))
 	vf1 = (sp - m2*vf2) / m1

@@ -33,7 +33,7 @@ fn InitGL() {
 }
 
 // new creates a new sprite and returns it
-fn new(spritePath String, frames i32, secondsPerFrame f32) (s &Sprite, err error) {
+fn new(spritePath String, frames i32, secondsPerFrame f32) -> (s &Sprite, err error) {
 	s = new(Sprite)
 
 	if frames <= 0 {
@@ -66,7 +66,7 @@ fn new(spritePath String, frames i32, secondsPerFrame f32) (s &Sprite, err error
 
 // Mustnew is like newSprite, but panics if there's an
 // error
-fn Mustnew(spritePath String, frames i32, secondsPerFrame f32) &Sprite {
+fn Mustnew(spritePath String, frames i32, secondsPerFrame f32) -> &Sprite {
 	sprite, err = new(spritePath, frames, secondsPerFrame)
 
 	if err != nil {
@@ -99,11 +99,11 @@ fn SetSize(&self, width, height f32) {
 	s.updateMatrix()
 }
 
-fn PixelWidth(&self) i32 {
+fn PixelWidth(&self) -> i32 {
     return s.pixelWidth
 }
 
-fn PixelHeight(&self) i32 {
+fn PixelHeight(&self) -> i32 {
     return s.pixelHeight
 }
 

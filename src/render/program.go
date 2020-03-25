@@ -22,12 +22,12 @@ struct ProgramAttrNames {
 }
 
 // ID returns the program's OpenGL ID
-fn ID(&self) u32 {
+fn ID(&self) -> u32 {
     return p.id
 }
 
 // newProgram creates and returns a new OpenGL program.
-fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttrNames) (p &Program, err error) {
+fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttrNames) -> (p &Program, err error) {
 	p = new(Program)
 
 	p.id, err = compileProgram(vertexShaderSource, fragmentShaderSource)
@@ -46,7 +46,7 @@ fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttr
     return
 }
 
-fn compileProgram(vertexShaderStr, fragmentShaderStr String) (program u32, err error) {
+fn compileProgram(vertexShaderStr, fragmentShaderStr String) -> (program u32, err error) {
 	vertexShader, err = compileShader(vertexShaderStr, gl.VERTEX_SHADER)
 	if err != nil {
 		return
@@ -82,7 +82,7 @@ fn compileProgram(vertexShaderStr, fragmentShaderStr String) (program u32, err e
 	return
 }
 
-fn compileShader(source String, shaderType u32) (shader u32, err error) {
+fn compileShader(source String, shaderType u32) -> (shader u32, err error) {
 	shader = gl.CreateShader(shaderType)
 
 	cString, free = gl.Strs(source)

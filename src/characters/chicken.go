@@ -35,12 +35,12 @@ struct Chicken {
 }
 
 // newChicken creates and initializes a new Chicken
-fn newChicken() &Chicken {
+fn newChicken() -> &Chicken {
 	return &Chicken{action: ActionWalk}
 }
 
 // Move moves the chicken!
-fn Move(&self, direction Direction, super bool)  {
+fn Move(&self, direction Direction, super bool) ->  {
     if super {
         c.action = ActionRun
     } else {
@@ -68,19 +68,19 @@ fn Stop(&self) {
 }
 
 // hit hits the chicken with the object and power specified.
-fn hit(&self, with interface{}, power f32) []items.Item {
+fn hit(&self, with interface{}, power f32) -> []items.Item {
     return nil
 }
 
 // kill kills the chicken, dropping its inventory
-fn kill(&self) []items.Item {
+fn kill(&self) -> []items.Item {
     tmp = c.backpack
 	c.backpack = make([]items.Item, 1)
     return []items.Item(tmp)
 }
 
 // is_alive returns true if the chicken is alive
-fn is_alive(&self) bool {
+fn is_alive(&self) -> bool {
 	return true
 }
 

@@ -3,7 +3,7 @@
 let textureShader &Program
 
 // TextureProgram returns the texture program
-fn TextureProgram() Program {
+fn TextureProgram() -> Program {
     return &textureShader
 }
 

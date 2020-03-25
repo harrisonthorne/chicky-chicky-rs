@@ -8,7 +8,7 @@ struct Camera {
 }
 
 // newCamera constructs and returns a new Camera object
-fn newCamera(position maths.Vec3, fov f32, aspectRatio f32) &Camera {
+fn newCamera(position maths.Vec3, fov f32, aspectRatio f32) -> &Camera {
 	c = &Camera{position: position, fov: fov, aspectRatio: aspectRatio}
 	c.UpdatePerspectiveMatrix()
     c.orientation = mgl.LookAt(position.X, position.Y, position.Z, 0, 0, 0, 0, 1, 0)
@@ -27,7 +27,7 @@ fn SetPosition(&self, pos maths.Vec3) {
 }
 
 // Position returns the position of Camera c
-fn Position(&self) maths.Vec3 {
+fn Position(&self) -> maths.Vec3 {
 	return c.position
 }
 
@@ -46,7 +46,7 @@ fn UpdatePerspectiveMatrix(&self) {
 
 // UpdateOrientationMatrix updates the orientation (position,
 // rotation) matrix of Camera c
-fn UpdateOrientationMatrix(&self) mgl.Mat4 {
+fn UpdateOrientationMatrix(&self) -> mgl.Mat4 {
 	return mgl.Translate3D(c.position.X, c.position.Y, c.position.Z);
 }
 
@@ -61,7 +61,7 @@ fn SetProgramAttributes(&self, p Program) {
 
 // Matrices returns both the perspective and orientation
 // matrices of Camera c.
-fn Matrices(&self) (perspective mgl.Mat4, orientation mgl.Mat4) {
+fn Matrices(&self) -> (perspective mgl.Mat4, orientation mgl.Mat4) {
 	perspective = c.perspective
 	orientation = c.orientation
 	return

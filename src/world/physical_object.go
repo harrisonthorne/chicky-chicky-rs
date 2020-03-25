@@ -28,7 +28,7 @@ struct PhysicalObject {
 }
 
 // Position returns the PhysicalObject's position
-fn Position(&self) maths.Vec3 {
+fn Position(&self) -> maths.Vec3 {
 	return p.hitbox.CenterPos
 }
 
@@ -90,7 +90,7 @@ fn StopMotion(&self) {
 
 // CollidesWith returns whether or not the Collider
 // collides with another Collider
-fn CollidesWith(&self, other &PhysicalObject) bool {
+fn CollidesWith(&self, other &PhysicalObject) -> bool {
 	return p.hitbox.CollidesWith(other.hitbox)
 }
 
@@ -143,7 +143,7 @@ fn FixCollision(&self, other &PhysicalObject) {
 	}
 }
 
-fn calculateBreach(moving, static &PhysicalObject) (breach maths.Vec3) {
+fn calculateBreach(moving, static &PhysicalObject) -> (breach maths.Vec3) {
 	// breach really depends on which direction the moving
 	// PhysicalObject is travelling
 

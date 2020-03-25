@@ -7,7 +7,7 @@ struct StoneBlock {
 }
 
 // newStoneBlock creates a new GrassBlock and returns it
-fn newStoneBlock() &StoneBlock {
+fn newStoneBlock() -> &StoneBlock {
 	return &StoneBlock{
         lifespan: 100,
         health: 100,
