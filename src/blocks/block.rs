@@ -6,23 +6,23 @@ const BLOCK_WIDTH: f32 = 0.5; // in meters
 
 /// Block block block block block block block block
 trait Block: Killable + Renderable {
-    get_matrix() *Mat4;
-    set_matrix(mat Mat4);
+    get_matrix() -> Mat4;
+    set_matrix(mat: Mat4);
 
     set_grid_pos(pos: [i64; 3]);
-    get_grid_pos() pos: [i64; 3];
+    get_grid_pos() -> [i64; 3];
 }
-
-let cube_vao: u32;
-let cube_vbo: u32;
 
 /// Initializes OpenGL-specific functionality for the
 /// blocks package.
+/// TODO This should be moved to the topmost function to be passed to other functions. It should
+/// not be a public global. Refusing to make this function public.
 fn init_gl() {
     let (cube_vao, cube_vbo) = utils.new_texture_vao(render::texture_program(), &cube_vertices);
 }
 
-let rotation: [f64; 3];
+// TODO
+// let rotation: [f64; 3];
 
 fn render_block(c: &render::Camera, mat: &Mat4, texture: u32) {
     gl.use_program(render.texture_program().id());
