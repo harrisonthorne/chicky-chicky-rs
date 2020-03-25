@@ -1,16 +1,3 @@
-
-
-import (
-	"fmt"
-	"image"
-	"image/draw"
-	_ "image/png" // imported for png support for textures
-	"io"
-	"os"
-
-	"github.com/go-gl/gl/v4.1-core/gl"
-)
-
 // LazyTexture will dynamically load a texture the instant
 // its ID is attempted to be accessed.
 struct LazyTexture {
@@ -18,7 +5,7 @@ struct LazyTexture {
 	id   u32
 }
 
-fn newLazyTexture(imagePath String) *LazyTexture {
+fn newLazyTexture(imagePath String) &LazyTexture {
 	return &LazyTexture{path: imagePath}
 }
 

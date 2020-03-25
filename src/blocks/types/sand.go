@@ -8,7 +8,7 @@ struct SandBlock {
 }
 
 // newSandBlock returns a new SandBlock
-fn newSandBlock() *SandBlock {
+fn newSandBlock() &SandBlock {
     return &SandBlock{
         lifespan: 5,
         health: 5,

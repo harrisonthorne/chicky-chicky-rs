@@ -1,9 +1,3 @@
-
-
-import (
-	"github.com/go-gl/glfw/v3.2/glfw"
-)
-
 let (
 	keyboards []KeyboardListener
 	mice []MouseListener
@@ -12,7 +6,7 @@ let (
 // KeyCallback is a function for the key callback of Manager
 // m. When this callback is called, respective functions of
 // all children KeyboardListeners are called
-fn KeyCallback(w *glfw.Window, key glfw.Key, scancode i32, action glfw.Action, mods glfw.ModifierKey) {
+fn KeyCallback(w &glfw.Window, key glfw.Key, scancode i32, action glfw.Action, mods glfw.ModifierKey) {
 	switch(action) {
 	case glfw.Press:
 		for _, kl = range keyboards {

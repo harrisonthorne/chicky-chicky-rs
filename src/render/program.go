@@ -1,11 +1,4 @@
 
-
-import (
-	"fmt"
-	"github.com/go-gl/gl/v4.1-core/gl"
-	"strings"
-)
-
 // Program is an OpenGL program
 struct Program {
 	id                                 u32
@@ -34,7 +27,7 @@ fn ID(&self) u32 {
 }
 
 // newProgram creates and returns a new OpenGL program.
-fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttrNames) (p *Program, err error) {
+fn newProgram(vertexShaderSource, fragmentShaderSource String, names ProgramAttrNames) (p &Program, err error) {
 	p = new(Program)
 
 	p.id, err = compileProgram(vertexShaderSource, fragmentShaderSource)

@@ -1,9 +1,5 @@
-
-
-import (
 use items;
 use render;
-)
 
 // DirtBlock is a cubeeee of dirttttt
 struct DirtBlock {
@@ -12,7 +8,7 @@ struct DirtBlock {
 }
 
 // newDirtBlock creates and returns a new DirtBlock
-fn newDirtBlock() *DirtBlock {
+fn newDirtBlock() &DirtBlock {
 	return &DirtBlock {
         lifespan: 15,
         health: 15,
@@ -50,6 +46,6 @@ fn Lifespan(&self) f32 {
 }
 
 // render renders the DirtBlock
-fn render(&self, c *render.Camera) {
+fn render(&self, c &render.Camera) {
 
 }

@@ -1,22 +1,18 @@
-
-
-import (
 use render;
 use items;
-)
 
 // GrassBlock is a block of dirt with a green topping of
 // grass
 type GrassBlock struct {
 	Block
 	lifespan, health f32
-    matrix *Mat4
+    matrix &Mat4
 
 	gridX, gridY, gridZ i32
 }
 
 // newGrassBlock creates a new GrassBlock and returns it
-fn newGrassBlock() *GrassBlock {
+fn newGrassBlock() &GrassBlock {
 	return &GrassBlock{
 		lifespan: 15,
 		health:   15,
@@ -24,7 +20,7 @@ fn newGrassBlock() *GrassBlock {
 }
 
 // render renders the GrassBlock
-fn render(&self, c *render.Camera) {
+fn render(&self, c &render.Camera) {
 	renderBlock(c, b.Matrix(), grassTexture.ID())
 }
 
@@ -58,7 +54,7 @@ fn Lifespan(&self) f32 {
 
 // Matrix returns a pointer to the orientation matrix of
 // this block
-fn Matrix(&self) *Mat4 {
+fn Matrix(&self) &Mat4 {
     return b.matrix
 }
 

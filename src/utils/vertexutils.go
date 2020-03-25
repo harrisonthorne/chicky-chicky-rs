@@ -1,9 +1,4 @@
-
-
-import (
-	"github.com/go-gl/gl/v4.1-core/gl"
 use render;
-)
 
 // newTextureVAO creates and return a new vao and vbo built with
 // the vertices passed in. Each vertex should consist of

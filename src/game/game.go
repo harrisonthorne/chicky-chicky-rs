@@ -1,16 +1,8 @@
-
-
-import (
-	"fmt"
-	"time"
-
 use characters;
 use blocks;
 use input;
 use maths;
 use render;
-	"github.com/go-gl/glfw/v3.2/glfw"
-)
 
 let characterInControl characters.Character
 let block = blocks.newGrassBlock()

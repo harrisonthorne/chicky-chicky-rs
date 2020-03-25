@@ -49,7 +49,7 @@ impl World {
 
     }
 
-    fn render(&self, c *render.Camera) {
+    fn render(&self, c &render.Camera) {
         eyeChunkX = c.Position().X / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;
         eyeChunkY = c.Position().Y / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;
         eyeChunkZ = c.Position().Z / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;

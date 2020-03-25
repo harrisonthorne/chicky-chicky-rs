@@ -1,11 +1,6 @@
-
-
-import (
 use maths;
-	"math"
-)
 
-type axis i32
+type axis = i32;
 
 const (
 	xAxis axis = iota
@@ -14,7 +9,7 @@ const (
 )
 
 // fixes a collision given a breach value
-fn fix(p *PhysicalObject, breach maths.Vec3) {
+fn fix(p &PhysicalObject, breach maths.Vec3) {
 	smallestNonZeroBreachAxis = xAxis
 	smallestNonZeroBreachValue = breach.X
 
@@ -57,7 +52,7 @@ fn fix(p *PhysicalObject, breach maths.Vec3) {
 	}
 }
 
-fn applyMomentum(p1, p2 *PhysicalObject) {
+fn applyMomentum(p1, p2 &PhysicalObject) {
 	// velocity
 	vi1 = p1.velocity
 	vi2 = p2.velocity

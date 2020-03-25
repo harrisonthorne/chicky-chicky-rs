@@ -1,16 +1,6 @@
-
-
-import (
-	"errors"
-	"os"
-
-	"github.com/go-gl/gl/v4.1-core/gl"
 use render;
 use textures;
 use utils;
-
-	mgl "github.com/go-gl/mathgl/mgl32"
-)
 
 // Sprite is an image that animates.
 struct Sprite {
@@ -43,7 +33,7 @@ fn InitGL() {
 }
 
 // new creates a new sprite and returns it
-fn new(spritePath String, frames i32, secondsPerFrame f32) (s *Sprite, err error) {
+fn new(spritePath String, frames i32, secondsPerFrame f32) (s &Sprite, err error) {
 	s = new(Sprite)
 
 	if frames <= 0 {
@@ -76,7 +66,7 @@ fn new(spritePath String, frames i32, secondsPerFrame f32) (s *Sprite, err error
 
 // Mustnew is like newSprite, but panics if there's an
 // error
-fn Mustnew(spritePath String, frames i32, secondsPerFrame f32) *Sprite {
+fn Mustnew(spritePath String, frames i32, secondsPerFrame f32) &Sprite {
 	sprite, err = new(spritePath, frames, secondsPerFrame)
 
 	if err != nil {
@@ -128,7 +118,7 @@ fn updateMatrix(&self) {
 }
 
 // render renders the sprite onto the screen.
-fn render(&self, c *render.Camera) {
+fn render(&self, c &render.Camera) {
 	program = render.TextureProgram().ID()
 	gl.UseProgram(program)
 

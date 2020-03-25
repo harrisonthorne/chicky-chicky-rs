@@ -1,12 +1,3 @@
-
-
-import (
-    "github.com/go-gl/gl/v4.1-core/gl"
-    mgl "github.com/go-gl/mathgl/mgl32"
-use maths;
-)
-
-
 // Camera is a camera
 struct Camera {
 	position    maths.Vec3
@@ -17,7 +8,7 @@ struct Camera {
 }
 
 // newCamera constructs and returns a new Camera object
-fn newCamera(position maths.Vec3, fov f32, aspectRatio f32) *Camera {
+fn newCamera(position maths.Vec3, fov f32, aspectRatio f32) &Camera {
 	c = &Camera{position: position, fov: fov, aspectRatio: aspectRatio}
 	c.UpdatePerspectiveMatrix()
     c.orientation = mgl.LookAt(position.X, position.Y, position.Z, 0, 0, 0, 0, 1, 0)

@@ -4,7 +4,7 @@ use maths;
 use sprite;
 use render;
 
-let chickenSprites = make(map[CharacterAction]*sprite.Sprite)
+let chickenSprites = make(map[CharacterAction]&sprite.Sprite)
 
 // InitGL initializes chicken sprites
 fn InitGL() {
@@ -26,7 +26,7 @@ fn InitGL() {
 // Chicken is the main character of this game. we ain't
 // callin it chicky chicky for nothing folks
 struct Chicken {
-	*world.PhysicalObject
+	&world.PhysicalObject
 	Character
 
 	backpack Backpack
@@ -35,7 +35,7 @@ struct Chicken {
 }
 
 // newChicken creates and initializes a new Chicken
-fn newChicken() *Chicken {
+fn newChicken() &Chicken {
 	return &Chicken{action: ActionWalk}
 }
 
@@ -97,6 +97,6 @@ fn Animate(&self, delta f32) {
 }
 
 // render renders the chicken onto the screen
-fn render(&self, cam *render.Camera) {
+fn render(&self, cam &render.Camera) {
 	chickenSprites[c.action].render(cam)
 }

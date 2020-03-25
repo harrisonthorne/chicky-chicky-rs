@@ -1,9 +1,4 @@
-
-
-import (
 use maths;
-	"math"
-)
 
 // Gravity is the gravity acceleration constant (m/s/s)
 const Gravity = -9.81
@@ -29,7 +24,7 @@ struct PhysicalObject {
 	OnPush       fn()
 	OnCeilinghit fn()
 
-	hitbox *maths.AABC // hitbox for collision calculation, but not kill calculation
+	hitbox &maths.AABC // hitbox for collision calculation, but not kill calculation
 }
 
 // Position returns the PhysicalObject's position
@@ -95,7 +90,7 @@ fn StopMotion(&self) {
 
 // CollidesWith returns whether or not the Collider
 // collides with another Collider
-fn CollidesWith(&self, other *PhysicalObject) bool {
+fn CollidesWith(&self, other &PhysicalObject) bool {
 	return p.hitbox.CollidesWith(other.hitbox)
 }
 
@@ -103,7 +98,7 @@ fn CollidesWith(&self, other *PhysicalObject) bool {
 // PhysicalObjects. If both objects are actively subject to
 // forces, momentum will take effect on both PhysicalObjects
 // and force will be applied to both of  them
-fn FixCollision(&self, other *PhysicalObject) {
+fn FixCollision(&self, other &PhysicalObject) {
 	if p.frozen || !p.CollidesWith(other) {
 		return
 	}
@@ -148,7 +143,7 @@ fn FixCollision(&self, other *PhysicalObject) {
 	}
 }
 
-fn calculateBreach(moving, static *PhysicalObject) (breach maths.Vec3) {
+fn calculateBreach(moving, static &PhysicalObject) (breach maths.Vec3) {
 	// breach really depends on which direction the moving
 	// PhysicalObject is travelling
 

@@ -1,10 +1,10 @@
 
 
-let textureShader *Program
+let textureShader &Program
 
 // TextureProgram returns the texture program
 fn TextureProgram() Program {
-    return *textureShader
+    return &textureShader
 }
 
 fn initTextureShader() {

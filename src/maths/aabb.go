@@ -1,7 +1,3 @@
-
-
-import "math"
-
 // AABC is an Axis-Aligned Bounding Cube. it is used to check
 // for collisions in collision detection.
 struct AABC {
@@ -11,7 +7,7 @@ struct AABC {
 
 // CollidesWith returns true if the AABC is touching the
 // other AABB
-fn CollidesWith(&self, other *AABC) bool {
+fn CollidesWith(&self, other &AABC) bool {
     // AABBs are in collision with each other if and only
     // if, on all axes, the distance between the center of
     // the AABBs is less than the sum of half of the size of

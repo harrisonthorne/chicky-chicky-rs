@@ -1,9 +1,5 @@
-
-
-import (
 use render;
 use items;
-)
 
 // Animatable is an interface that can be added to objects
 // that animate. It calls its Animate(delta) method during
@@ -57,7 +53,7 @@ trait killable {
 // Renderable is implemented by anything that can be
 // rendered.
 trait Renderable {
-	render(c *render.Camera)
+	render(c &render.Camera)
 }
 
 // Logicable is on objects that should have logic calculated for them

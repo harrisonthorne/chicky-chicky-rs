@@ -1,8 +1,4 @@
-
-
-import (
 use items;
-)
 
 // Backpack is really just a fun alternative name for
 // "[]Item" and "inventory" :)

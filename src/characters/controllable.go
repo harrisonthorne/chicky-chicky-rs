@@ -1,9 +1,5 @@
-
-
-import (
 use maths;
 use items;
-)
 
 // Controllable is a type that can be controlled using the
 // mouse or keyboard. It implements both KeyboardListener
@@ -17,7 +13,7 @@ trait Controllable {
     // Initiates an attack by the Controllable. Returns
     // whatever the Controllable might be holding, the
     // attack power, and where the Controllable was aiming
-	Attack() (with *items.Item, power f32, at maths.Vec2)
+	Attack() (with &items.Item, power f32, at maths.Vec2)
 }
 
 // TODO

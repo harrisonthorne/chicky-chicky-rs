@@ -1,6 +1,6 @@
 
 
-let plainShader *Program
+let plainShader &Program
 
 fn initPlainShader() {
 
