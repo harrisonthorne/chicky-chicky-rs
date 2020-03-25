@@ -23,14 +23,14 @@ trait Controllable {
 // 	fmt.Printf("Key down: %v\n", key)
 //     if !c.inControl { return }
 
-// 	switch key {
-// 	case glfw.KeyA:
+// 	match key {
+// 	glfw.KeyA =>
 // 		c.Move(DirectionLeft, false)
-// 	case glfw.KeyS:
+// 	glfw.KeyS =>
 // 		c.Down(false)
-// 	case glfw.KeyD:
+// 	glfw.KeyD =>
 // 		c.Move(DirectionRight, false)
-// 	case glfw.KeySpace:
+// 	glfw.KeySpace =>
 //         c.Jump(false)
 // 	}
 // }

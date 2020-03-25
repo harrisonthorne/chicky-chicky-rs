@@ -27,22 +27,22 @@ fn fix(p &PhysicalObject, breach maths.Vec3) {
 		return
 	}
 
-	switch smallestNonZeroBreachAxis {
-	case xAxis:
+	match smallestNonZeroBreachAxis {
+	xAxis =>
 		yPerX = p.velocity.Y / p.velocity.X
 		zPerX = p.velocity.Z / p.velocity.X
 
 		p.AddPosition(maths.Vec3{X: -breach.X})
 		p.AddPosition(maths.Vec3{Y: -breach.X * yPerX})
 		p.AddPosition(maths.Vec3{Z: -breach.X * zPerX})
-	case yAxis:
+	yAxis =>
 		xPerY = p.velocity.X / p.velocity.Y
 		zPerY = p.velocity.Z / p.velocity.Y
 
 		p.AddPosition(maths.Vec3{X: -breach.Y * xPerY})
 		p.AddPosition(maths.Vec3{Y: -breach.Y})
 		p.AddPosition(maths.Vec3{Z: -breach.Y * zPerY})
-	case zAxis:
+	zAxis =>
 		xPerZ = p.velocity.X / p.velocity.Z
 		yPerZ = p.velocity.Y / p.velocity.Z
 

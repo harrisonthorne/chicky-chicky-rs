@@ -7,16 +7,16 @@ let (
 // m. When this callback is called, respective functions of
 // all children KeyboardListeners are called
 fn KeyCallback(w &glfw.Window, key glfw.Key, scancode i32, action glfw.Action, mods glfw.ModifierKey) {
-	switch(action) {
-	case glfw.Press:
+	match(action) {
+	glfw.Press =>
 		for _, kl = range keyboards {
 			kl.KeyDown(key, scancode, mods)
 		}
-	case glfw.Release:
+	glfw.Release =>
 		for _, kl = range keyboards {
 			kl.KeyUp(key, scancode, mods)
 		}
-	case glfw.Repeat:
+	glfw.Repeat =>
 		for _, kl = range keyboards {
 			kl.KeyRepeat(key, scancode, mods)
 		}
@@ -27,8 +27,8 @@ fn KeyCallback(w &glfw.Window, key glfw.Key, scancode i32, action glfw.Action, m
 // Manager m. When this callback is called, respective
 // functions of all children MouseListeners are called
 fn MouseCallback() {
-	// switch(action) {
-	// case glfw.Repeat:
+	// match(action) {
+	// glfw.Repeat =>
     // for _, kl = range m.keyboards {
     // 	kl.KeyRepeat(key, scancode, mods)
     // }

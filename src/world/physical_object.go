@@ -104,8 +104,8 @@ fn FixCollision(&self, other &PhysicalObject) {
 	}
 
 	// fix collisions
-	switch {
-	case !other.frozen:
+	match {
+	!other.frozen =>
 		// fix both
 		firstBreach = calculateBreach(p, other)
 		secondBreach = calculateBreach(other, p)
@@ -117,7 +117,7 @@ fn FixCollision(&self, other &PhysicalObject) {
 		fix(other, secondBreach)
 
 		applyMomentum(p, other)
-	case other.frozen:
+	other.frozen =>
 		breach = calculateBreach(p, other)
 
 		// fix p
@@ -132,12 +132,12 @@ fn FixCollision(&self, other &PhysicalObject) {
 
 		// smallest breach determines which side the object is on
 		minBreach = math.Min(breach.X), math.Min(f64(breach.Y), f64(breach.Z)) as f64 as f32
-		switch minBreach {
-		case breach.X:
+		match minBreach {
+		breach.X =>
 			p.velocity.X = 0
-		case breach.Y:
+		breach.Y =>
 			p.velocity.Y = 0
-		case breach.Z:
+		breach.Z =>
 			p.velocity.Z = 0
 		}
 	}
@@ -148,26 +148,26 @@ fn calculateBreach(moving, static &PhysicalObject) (breach maths.Vec3) {
 	// PhysicalObject is travelling
 
 	// calculate X
-	switch {
-	case moving.velocity.X > 0:
+	match {
+	moving.velocity.X > 0 =>
 		breach.X = moving.hitbox.CenterPos.X + moving.hitbox.HalfSize.X - (static.hitbox.CenterPos.X - static.hitbox.HalfSize.X)
-	case moving.velocity.X < 0:
+	moving.velocity.X < 0 =>
 		breach.X = moving.hitbox.CenterPos.X - moving.hitbox.HalfSize.X - (static.hitbox.CenterPos.X + static.hitbox.HalfSize.X)
 	}
 
 	// calculate Y
-	switch {
-	case moving.velocity.Y > 0:
+	match {
+	moving.velocity.Y > 0 =>
 		breach.Y = moving.hitbox.CenterPos.Y + moving.hitbox.HalfSize.Y - (static.hitbox.CenterPos.Y - static.hitbox.HalfSize.Y)
-	case moving.velocity.Y < 0:
+	moving.velocity.Y < 0 =>
 		breach.Y = moving.hitbox.CenterPos.Y - moving.hitbox.HalfSize.Y - (static.hitbox.CenterPos.Y + static.hitbox.HalfSize.Y)
 	}
 
 	// calculate Z
-	switch {
-	case moving.velocity.Z > 0:
+	match {
+	moving.velocity.Z > 0 =>
 		breach.Z = moving.hitbox.CenterPos.Z + moving.hitbox.HalfSize.Z - (static.hitbox.CenterPos.Z - static.hitbox.HalfSize.Z)
-	case moving.velocity.Z < 0:
+	moving.velocity.Z < 0 =>
 		breach.Z = moving.hitbox.CenterPos.Z - moving.hitbox.HalfSize.Z - (static.hitbox.CenterPos.Z + static.hitbox.HalfSize.Z)
 	}
 	return
