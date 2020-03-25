@@ -1,4 +1,4 @@
-package world
+
 
 import (
 use maths;

@@ -1,4 +1,4 @@
-package blocks
+
 
 // SandBlock is a block of sand, easy to destroy/collect by
 // hand

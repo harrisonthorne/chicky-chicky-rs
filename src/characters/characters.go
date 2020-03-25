@@ -1,4 +1,4 @@
-package characters
+
 
 import (
 	// "chicky-chicky-go/game/space"

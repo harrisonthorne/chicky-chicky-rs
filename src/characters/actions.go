@@ -1,4 +1,4 @@
-package characters
+
 
 
 // CharacterAction specifies what a certain character is

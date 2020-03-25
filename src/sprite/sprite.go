@@ -1,4 +1,4 @@
-package sprite
+
 
 import (
 	"errors"

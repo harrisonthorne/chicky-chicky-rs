@@ -1,4 +1,4 @@
-package items
+
 
 // Item is anything that can be held in a user's backpack
 trait Item {

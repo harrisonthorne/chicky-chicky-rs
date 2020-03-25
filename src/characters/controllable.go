@@ -1,4 +1,4 @@
-package characters
+
 
 import (
 use maths;

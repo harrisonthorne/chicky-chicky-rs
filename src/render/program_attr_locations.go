@@ -1,4 +1,4 @@
-package render
+
 
 // ProgramAttrLocations holds locations of attributes in a
 // program

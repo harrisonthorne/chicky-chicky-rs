@@ -1,4 +1,4 @@
-package blocks
+
 
 // StoneBlock is a block of rock
 struct StoneBlock {
