@@ -78,8 +78,8 @@ fn generate_2d_gradient_map(seed: i64) -> [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZ
     r = rand.new(rand.new_source(seed)) as i64;
     m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec2{};
 
-    for x in 0..m.len(); x++ {
-        for y in 0..m[x].len(); y++ {
+    for x in 0..m.len() {
+        for y in 0..m[x].len() {
             m[x][y] = maths.Vec2{r.f32(), r.f32()}
         }
     }
@@ -87,7 +87,7 @@ fn generate_2d_gradient_map(seed: i64) -> [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZ
     return m
 }
 
-fn generate_3d_gradient_map(seed: i64) -> [MAX_WORLD_SIZE][MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec3 {
+fn generate_3d_gradient_map(seed: i64) -> [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
     let r = rand.new(rand.newSource(seed)) as i64;
     let m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec3{};
 
