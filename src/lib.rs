@@ -1,5 +1,6 @@
 mod blocks;
 mod traits;
+mod world;
 
 const FPS: f32 = 60.0;
 
