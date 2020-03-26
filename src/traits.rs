@@ -2,7 +2,7 @@ use render;
 use items;
 
 /// Animatable is an interface that can be added to objects
-/// that animate. It calls its Animate(delta) method during
+/// that animate. It calls its `animate()` method during
 /// every logical loop to compute whether or not the
 /// animation should advance to the next frame, which frame
 /// the animation should be on, or the animation
@@ -20,7 +20,7 @@ pub trait Flammable {
 }
 
 /// Burnable can be added to objects that can be burned.  Its
-/// Burn() method will be called when an offending object is
+/// burn() method will be called when an offending object is
 /// placed next to it.
 pub trait Burnable {
     fn burn();
