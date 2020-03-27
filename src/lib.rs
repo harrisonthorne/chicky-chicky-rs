@@ -1,6 +1,13 @@
 mod blocks;
-mod traits;
+mod characters;
+mod game;
+mod items;
+mod maths;
+mod sprite;
+mod textures;
+mod utils;
 mod world;
+mod traits;
 
 const FPS: f32 = 60.0;
 
@@ -39,18 +46,6 @@ fn main() {
 
         // update time
         last_update = now;
-    }
-}
-
-fn start_glfw() {
-    // I believe this ensures that our program always runs on the same process
-    runtime.lock_os_thread();
-
-    window.set_key_callback(input.KeyCallback);
-    window.make_context_current();
-
-    if let Err(e) = gl.init() {
-        panic("{}", e);
     }
 }
 
