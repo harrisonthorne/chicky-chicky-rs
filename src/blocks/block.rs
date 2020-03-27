@@ -6,11 +6,11 @@ const BLOCK_WIDTH: f32 = 0.5; // in meters
 
 /// Block block block block block block block block
 trait Block: Killable + Renderable {
-    get_matrix() -> Mat4;
-    set_matrix(mat: Mat4);
+    fn get_matrix() -> Mat4;
+    fn set_matrix(mat: Mat4);
 
-    set_grid_pos(pos: [i64; 3]);
-    get_grid_pos() -> [i64; 3];
+    fn set_grid_pos(pos: [i64; 3]);
+    fn get_grid_pos() -> [i64; 3];
 }
 
 /// Initializes OpenGL-specific functionality for the

@@ -1,19 +1,18 @@
-use maths;
 use items;
 
 // Controllable is a type that can be controlled using the
 // mouse or keyboard. It implements both KeyboardListener
 // and MouseListener.
 trait Controllable {
-    Move(direction Direction, super bool)
-	Down(super bool)       // Do something downward (fall or squat maybe?)
-	Jump(super bool)       // Do something when the space bar is pressed
-	Stop()      // Nothing is happening anymore
+    fn move(direction: Direction, super: bool);
+    fn down(super: bool);       // Do something downward (fall or squat maybe?)
+    fn jump(super: bool);       // Do something when the space bar is pressed
+    fn stop();      // Nothing is happening anymore
 
-    // Initiates an attack by the Controllable. Returns
-    // whatever the Controllable might be holding, the
-    // attack power, and where the Controllable was aiming
-	Attack() (with &items.Item, power f32, at maths.Vec2)
+    /// Initiates an attack by the Controllable. Returns
+    /// whatever the Controllable might be holding, the
+    /// attack power, and where the Controllable was aiming
+    fn attack(with: &items::Item, power: f32, who: impl Character);
 }
 
 // TODO

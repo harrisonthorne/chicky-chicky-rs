@@ -51,7 +51,7 @@ impl Chunk {
                 for k 0..self.blocks[i][j].len() {
                     match self.blocks[i][j][k] {
                         None => continue,
-                        Some(block) => block.render(c);
+                        Some(block) => block.render(c),
                     }
                 }
             }
