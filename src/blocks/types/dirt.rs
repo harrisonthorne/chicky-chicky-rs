@@ -10,7 +10,7 @@ struct DirtBlock {
 impl DirtBlock {
     /// Creates and returns a new DirtBlock
     fn new() -> Self {
-        return Self {
+        Self {
             lifespan: 15,
             health: 15,
         }

@@ -1,8 +1,8 @@
 mod camera;
-mod plain_program;
+// mod plain_program;
 mod program_attr_locations;
 mod program;
-mod texture_program;
+// mod texture_program;
 
 pub use self::camera::*;
 pub use self::plain_program::*;

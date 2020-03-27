@@ -1,49 +1,60 @@
-let plain_shader: &Program
-
-let plain_shader_names = ProgramAttrNames{
+const plain_shader_names: ProgramAttrNames = ProgramAttrNames {
     perspective_matrix: "perspective",
     camera_matrix: "camera",
     model_matrix: "model",
     in_color: "color",
     out_color: "outputColor",
-}
+    frag_color: "fragColor",
+    tex_sampler: "texSampler",
+};
 
-// VertexPlainShaderSource is the source for the vertex shader of
-// plain-color 3D programs
-// {{{
-let vertexPlainShaderSource = `
+
+/// The source for the vertex shader of plain-color 3D programs
+pub const vertex_plain_shader_source: String = format!( // {{{
+    r#"
 #version 330
 
-uniform mat4 ` + plainShaderNames.PerspectiveMatrix + `;
-uniform mat4 ` + plainShaderNames.CameraMatrix + `;
-uniform mat4 ` + plainShaderNames.ModelMatrix + `;
+uniform mat4 {perspective_matrix};
+uniform mat4 {camera_matrix};
+uniform mat4 {model_matrix};
 
-in vec3 ` + plainShaderNames.InVertex + `;
-in vec4 ` + plainShaderNames.InColor + `;
-out vec4 fragColor;
+in vec3 {in_vertex};
+in vec4 {in_color};
+out vec4 frag_color;
 
 void main() {
-    ` + textureShaderNames.FragTexCoord + ` = ` + textureShaderNames.VertTexCoord + `;
-    fragColor = ` + plainShaderNames.InColor + `
-    gl_Position = ` + textureShaderNames.PerspectiveMatrix + ` * ` + textureShaderNames.CameraMatrix + ` * ` + textureShaderNames.ModelMatrix + ` * vec4(` + textureShaderNames.InVertex + `, 1);
+    {frag_tex_coord} = {vert_tex_coord};
+    {frag_color} = {in_color};
+    gl_Position = {perspective_matrix} * {camera_matrix} * {model_matrix} * vec4({in_vertex}, 1);
 }
-` + "\x00" // any String being passed to OpenGL needs to terminate with the null character
+"#,
+    perspective_matrix = plain_shader_names.perspective_matrix,
+    camera_matrix = plain_shader_names.camera_matrix,
+    model_matrix = plain_shader_names.model_matrix,
+    in_vertex = plain_shader_names.in_vertex,
+    in_color = plain_shader_names.in_color,
+    frag_color = plain_shader_names.frag_color,
+    vert_tex_coord = plain_shader_names.vert_tex_coord,
+    frag_tex_coord = plain_shader_names.frag_tex_coord,
+);
 // }}}
 
-// FragmentPlainShaderSource is the source for the texture
-// shader program
-// {{{
-let fragmentPlainShaderSource = `
+/// The source for the texture shader program
+pub const fragment_plain_shader_source: String = format!( // {{{
+    r#"
 #version 330
 
-in vec4 fragColor;
-out vec4 ` + textureShaderNames.OutColor + `;
+in vec4 frag_color;
+out vec4 {out_color};
 
 void main() {
-    ` + textureShaderNames.OutColor + ` = texture(` + textureShaderNames.TexSampler + `, ` + textureShaderNames.FragTexCoord + `);
+    {out_color} = texture({tex_sampler}, {frag_tex_coord});
 }
-` + "\x00"
-
+"#,
+    out_color = plain_shader_names.out_color,
+    tex_sampler = plain_shader_names.tex_sampler,
+    frag_tex_coord = plain_shader_names.frag_tex_coord,
+);
 // }}}
 
 // vim: foldmethod=marker

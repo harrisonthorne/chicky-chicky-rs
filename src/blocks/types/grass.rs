@@ -5,7 +5,7 @@ use items;
 /// grass
 struct GrassBlock {
     lifespan: f32, health: f32,
-    matrix: &Mat4,
+    matrix: Mat4,
 
     gridX: i32, gridY: i32, gridZ: i32,
 }
@@ -29,13 +29,13 @@ impl Block for GrassBlock {
 
     // hit is called when the killable is hit. Returns any items that
     // the killable might drop when hit.
-    fn hit(&self, with: impl Any, power: f32) -> &[items.Item] {
+    fn hit(&self, with: impl Any, power: f32) -> &[items::Item] {
         &[]
     }
 
     // kill is called when the killable should be killed.
     // Returns grass and dirt.
-    fn kill(&self) -> [items.Item] {
+    fn kill(&self) -> [items::Item] {
         &[]
     }
 

@@ -2,13 +2,13 @@
 /// hand
 struct SandBlock {
     lifespan: f32, 
-    health f32,
+    health: f32,
 }
 
 impl SandBlock {
     /// Returns a new SandBlock
-    fn new() -> Sel {
-        Sself {
+    fn new() -> Self {
+        Self {
             lifespan: 5,
             health: 5,
         }

@@ -19,22 +19,6 @@ struct Sprite {
     pixel_height: i32,
 }
 
-let plane_vao: u32;
-let plane_vbo: u32;
-
-let model_attr_location: u32;
-let texture_uniform: i32;
-let program: u32;
-
-/// Initializes plane vao and vbo
-fn init_gl() {
-    (plane_vao, plane_vbo) = utils::new_texture_vao(render.texture_program(), &plane_vertices);
-
-    model_attr_location = render.texture_program().locations.model_matrix_location();
-    texture_uniform = gl.get_uniform_location(program, gl.str("tex\x00"));
-    program = render::texture_program().id();
-}
-
 /// Creates a new sprite and returns it
 impl Sprite {
     fn new(sprite_path: String, frames: i32, seconds_per_frame: f32) -> Result<Self, Box<dyn Error>> {
@@ -85,7 +69,7 @@ impl Sprite {
     }
 
     fn get_pixel_height(&self) -> i32 {
-        return self.pixel_height
+        self.pixel_height
     }
 
     /// Sets the position of the sprite.
@@ -122,7 +106,7 @@ impl Sprite {
 
 }
 
-let plane_vertices: [f32] = [
+const plane_vertices: [f32] = [
     // first triangle
     -0.5, 0.5, 0, 0, 0,
     -0.5, -0.5, 0, 0, 1,

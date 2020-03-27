@@ -1,4 +1,4 @@
-use maths;
+use crate::maths;
 
 /// The gravity acceleration constant (m/s/s)
 const GRAVITY: f32 = -9.81;
@@ -23,13 +23,13 @@ struct PhysicalObject {
     was_pushing_wall: bool,
     was_at_ceiling: bool,
 
-    hitbox: &maths::AABC, // hitbox for collision calculation, but not kill calculation
+    hitbox: maths::AABC, // hitbox for collision calculation, but not kill calculation
 }
 
 impl PhysicalObject {
     /// Returns the PhysicalObject's position
     fn position(&self) -> Vec3 {
-        return self.hitbox.center_pos;
+        self.hitbox.center_pos;
     }
 
     fn add_position(&self, v2: Vec3) {
@@ -87,7 +87,7 @@ impl PhysicalObject {
 
     /// Returns whether or not the PhysicalObjects collide.
     fn collides_with(&self, other: &PhysicalObject) -> bool {
-        return self.hitbox.CollidesWith(other.hitbox);
+        self.hitbox.collides_with(other.hitbox)
     }
 
     /// FixCollision fixes a collision between two PhysicalObjects. If both objects are actively

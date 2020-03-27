@@ -1,5 +1,4 @@
 use crate::blocks;
-use crate::maths;
 use crate::render;
 use rand;
 
@@ -16,8 +15,8 @@ struct World {
     humidity_gradient_vectors:    [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
     temperature_gradient_vectors: [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
 
-    caveGradientVectors: [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
-    oreGradientVectors:  [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    cave_gradient_vectors: [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    ore_gradient_vectors:  [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
     render_distance: i32,
 }
 
@@ -44,17 +43,17 @@ impl World {
     /// Serializes the world into a big String that can be parsed to
     /// recreate the world.
     pub fn stringify(&self) -> String {
-        return ""
+        ""
     }
 
     pub fn generate_chunk(&self, x, y, z i32) {
 
     }
 
-    fn render(&self, c &render.Camera) {
-        eyeChunkX = c.Position().X / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;
-        eyeChunkY = c.Position().Y / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;
-        eyeChunkZ = c.Position().Z / (blocks.BLOCK_WIDTH * blocks.CHUNK_SIZE) as i32;
+    fn render(&self, c: &render.Camera) {
+        let eye_chunk_x = c.position().x / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
+        let eye_chunk_y = c.position().y / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
+        let eye_chunk_z = c.position().z / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
 
         for x in (eyeChunkX - w.renderDistance)..(eyeChunkX+w.renderDistance) {
             if x < 0 || x >= w.terrain.len() {
@@ -86,7 +85,7 @@ fn generate_2d_gradient_map(seed: i64) -> [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZ
         }
     }
 
-    return m
+    m
 }
 
 fn generate_3d_gradient_map(seed: i64) -> [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {

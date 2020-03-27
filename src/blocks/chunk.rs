@@ -48,7 +48,7 @@ impl Chunk {
     fn render(&self, c: render::Camera) {
         for i in 0..self.blocks.len() {
             for j in 0..self.blocks[i].len() {
-                for k 0..self.blocks[i][j].len() {
+                for k in 0..self.blocks[i][j].len() {
                     match self.blocks[i][j][k] {
                         None => continue,
                         Some(block) => block.render(c),

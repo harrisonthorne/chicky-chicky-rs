@@ -4,9 +4,9 @@ use items;
 // mouse or keyboard. It implements both KeyboardListener
 // and MouseListener.
 trait Controllable {
-    fn move(direction: Direction, super: bool);
-    fn down(super: bool);       // Do something downward (fall or squat maybe?)
-    fn jump(super: bool);       // Do something when the space bar is pressed
+    fn r#move(direction: Direction, sup: bool);
+    fn down(sup: bool);       // Do something downward (fall or squat maybe?)
+    fn jump(sup: bool);       // Do something when the space bar is pressed
     fn stop();      // Nothing is happening anymore
 
     /// Initiates an attack by the Controllable. Returns

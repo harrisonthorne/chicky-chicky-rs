@@ -24,7 +24,7 @@ impl Program {
 
     /// Returns the program's OpenGL ID
     fn id(&self) -> u32 {
-        return p.id
+        p.id
     }
 
     /// Creates and returns a new OpenGL program.
@@ -70,8 +70,6 @@ fn compile_program(vertex_shader_str: string, fragment_shader_str: string) -> Re
 
     gl.delete_shader(vertex_shader);
     gl.delete_shader(fragment_shader);
-
-    return
 }
 
 fn compile_shader(source: string, shaderType: u32) -> Result<u32, Box<dyn Error>> {

@@ -1,8 +1,8 @@
-let textureShader: Program;
+let texture_shader: Program;
 
 /// Returns the texture program
 fn texture_program() -> &Program {
-    return &textureShader
+    &texture_shader
 }
 
 fn init_texture_shader() -> Result<(), Box<dyn Error>> {

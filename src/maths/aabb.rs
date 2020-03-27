@@ -29,6 +29,6 @@ impl AABC {
         let y_collision = y_center_delta < y_half_size_sum;
         let z_collision = z_center_delta < z_half_size_sum;
 
-        return x_collision && y_collision && z_collision
+        x_collision && y_collision && z_collision
     }
 }
