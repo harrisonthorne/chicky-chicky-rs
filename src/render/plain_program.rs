@@ -1,17 +1,11 @@
+let plain_shader: &Program
 
-
-let plainShader &Program
-
-fn initPlainShader() {
-
-}
-
-let plainShaderNames = ProgramAttrNames{
-    PerspectiveMatrix: "perspective",
-    CameraMatrix: "camera",
-    ModelMatrix: "model",
-    InColor: "color",
-    OutColor: "outputColor",
+let plain_shader_names = ProgramAttrNames{
+    perspective_matrix: "perspective",
+    camera_matrix: "camera",
+    model_matrix: "model",
+    in_color: "color",
+    out_color: "outputColor",
 }
 
 // VertexPlainShaderSource is the source for the vertex shader of

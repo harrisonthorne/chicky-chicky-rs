@@ -1,36 +1,33 @@
+let textureShader: Program;
 
-
-let textureShader &Program
-
-// TextureProgram returns the texture program
-fn TextureProgram() -> Program {
+/// Returns the texture program
+fn texture_program() -> &Program {
     return &textureShader
 }
 
-fn initTextureShader() {
-    let err error
-    textureShader, err = newProgram(vertexTextureShaderSource, fragmentTextureShaderSource, textureShaderNames)
+fn init_texture_shader() -> Result<(), Box<dyn Error>> {
+    textureShader, err = Program::new(vertex_texture_shader_source, fragment_texture_shader_source, texture_shader_names)
 
     if err != nil {
-		println("vertexTextureShaderSource:")
-		println(vertexTextureShaderSource)
-		println("fragmentTextureShaderSource:")
-		println(fragmentTextureShaderSource)
-        panic(err)
+        println!("vertexTextureShaderSource:");
+        println!(vertex_texture_shader_source);
+        println!("fragmentTextureShaderSource:");
+        println!(fragment_texture_shader_source);
+        panic!(err);
     }
 }
 
-let textureShaderNames = ProgramAttrNames{
-    PerspectiveMatrix: "perspective",
-    CameraMatrix: "camera",
-    ModelMatrix: "model",
-    InVertex: "vert",
-    VertTexCoord: "vertTexCoord",
-    FragTexCoord: "fragTexCoord",
-    TexSampler: "tex",
-    OutColor: "outputColor",
-    SpriteFrames: "spriteFrames",
-    SpriteCurrentFrame: "spriteCurrentFrame",
+let texture_shader_names = ProgramAttrNames{
+    perspective_matrix: "perspective",
+    camera_matrix: "camera",
+    model_matrix: "model",
+    in_vertex: "vert",
+    vert_tex_coord: "vertTexCoord",
+    frag_tex_coord: "fragTexCoord",
+    tex_sampler: "tex",
+    out_color: "outputColor",
+    sprite_frames: "spriteFrames",
+    sprite_current_frame: "spriteCurrentFrame",
 }
 
 // VertexTextureShaderSource is the source for the vertex shader of
