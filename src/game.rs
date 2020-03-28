@@ -3,26 +3,18 @@ use crate::render;
 
 const FPS: f32 = 60.0;
 
-fn start() {
+fn start(texture_program: WebGlShader) {
     let chicken = characters::new_chicken();
     let character_in_control = chicken;
-    let cam = render::Camera::new(Vec3{X:0, Y:0, Z:2}, 70, 800.0/600);
+    let cam = render::Camera::new(Vec3 { X: 0, Y: 0, Z: 2 }, 70, 800.0 / 600);
     let last = time::now();
 
-    /// Initializes plane vao and vbo
-    let plane_vao: u32;
-    let plane_vbo: u32;
+    /// Initialize plane vao and vbo
+    let (plane_vao, plane_vbo) = utils::new_texture_vao(render.texture_program(), &plane_vertices);
 
-    let model_attr_location: u32;
-    let texture_uniform: i32;
-    let program: u32;
-
-        (plane_vao, plane_vbo) = utils::new_texture_vao(render.texture_program(), &plane_vertices);
-
-        model_attr_location = render::texture_program().locations.model_matrix_location();
-        texture_uniform = gl.get_uniform_location(program, gl.str("tex\x00"));
-        program = render::texture_program().id();
-
+    let model_attr_location = texture_program.locations.model_matrix_location();
+    let texture_uniform = gl.get_uniform_location(program, gl.str("tex\x00"));
+    let program = texture_program.id();
 
     last_update = time.Now();
 
@@ -32,7 +24,7 @@ fn start() {
         // run no faster than specified fps
         let delta_seconds = (now - last_update).num_seconds();
         if delta_seconds < 1.0 / FPS {
-            time.sleep(time.Second * time.duration((1.0/FPS) - delta_seconds));
+            time.sleep(time.Second * time.duration((1.0 / FPS) - delta_seconds));
             continue;
         }
 

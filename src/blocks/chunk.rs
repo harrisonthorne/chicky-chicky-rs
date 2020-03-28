@@ -1,19 +1,19 @@
 use crate::render;
 use webgl_matrix::Mat4;
 
-const CHUNK_SIZE: i32 = 64;
+pub const CHUNK_SIZE: i32 = 64;
 
 // Chunk contains a three-dimensional array of blocks
-struct Chunk {
+pub struct Chunk {
     blocks: [[[Option<Box<dyn Block>>; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
     grid_x: i64,
     grid_y: i64,
     grid_z: i64,
-    matrix: Mat4::identity(),
+    matrix: Mat4,
 }
 
 impl Chunk {
-    fn new(grid_x: i64, grid_y: i64, grid_z: i64) -> Self {
+    pub fn new(grid_x: i64, grid_y: i64, grid_z: i64) -> Self {
         let c = Self {
             blocks: [[[None; CHUNK_SIZE]; CHUNK_SIZE]; CHUNK_SIZE],
             grid_x,
@@ -35,17 +35,17 @@ impl Chunk {
     }
 
     /// Returns the block at the array position.
-    fn at(&self, i: i32, j: i32, k: i32) -> &Block {
+    pub fn at(&self, i: i32, j: i32, k: i32) -> &Block {
         self.blocks[i][j][k]
     }
 
     /// Sets the block at the array index.
-    fn set(&mut self, i: i32, j: i32, k: i32, b: impl Block) {
+    pub fn set(&mut self, i: i32, j: i32, k: i32, b: impl Block) {
         self.blocks[i][j][k] = &b;
     }
 
     /// Renders the Chunk.
-    fn render(&self, c: render::Camera) {
+    pub fn render(&self, c: render::Camera) {
         for i in 0..self.blocks.len() {
             for j in 0..self.blocks[i].len() {
                 for k in 0..self.blocks[i][j].len() {

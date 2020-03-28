@@ -1,11 +1,15 @@
+mod physics;
+
 use crate::maths;
+use webgl_matrix::Vec3;
+use super::physics;
 
 /// The gravity acceleration constant (m/s/s)
 const GRAVITY: f32 = -9.81;
 
 /// PhysicalObject is an object with physics, position,
 /// velocity, and mass
-struct PhysicalObject {
+pub struct PhysicalObject {
     /// if true, the PhysicalObject will not move
     frozen: bool,
 
@@ -92,7 +96,7 @@ impl PhysicalObject {
 
     /// FixCollision fixes a collision between two PhysicalObjects. If both objects are actively
     /// subject to forces, momentum will take effect on both PhysicalObjects and force will be
-    /// applied to both of  them
+    /// applied to both of them
     fn fix_collision(&self, other: &PhysicalObject) {
         if self.frozen || !self.collides_with(other) {
             return;
@@ -101,37 +105,37 @@ impl PhysicalObject {
         // fix collisions
         if !other.frozen {
             // fix both
-            first_breach = calculate_breach(p, other);
-            second_breach = calculate_breach(other, p);
+            let first_breach = calculate_breach(self, other);
+            let second_breach = calculate_breach(other, self);
 
             first_breach.scale(0.5);
             second_breach.scale(0.5);
 
-            fix(p, first_breach);
+            fix(self, first_breach);
             fix(other, second_breach);
 
-            apply_momentum(p, other);
+            apply_momentum(self, other);
         } else if other.frozen {
-            breach = calculate_breach(p, other);
+            let breach = calculate_breach(self, other);
 
             // fix p
-            fix(p, breach);
+            fix(self, breach);
 
             // now, we need to determine on which side of
             // `other` p is on. if it's on the top or bottom,
             // velocity stops on the y axis. if left or right, x
             // axis. first, re-calculate the breach now that
             // we've fixed the objects:
-            breach = calculate_breach(p, other);
+            breach = calculate_breach(self, other);
 
             // smallest breach determines which side the object is on
-            min_breach = breach.x.min(breach.y.min(breach.z));
+            let min_breach = breach.x.min(breach.y.min(breach.z));
 
-            if breach.x == minBreach {
+            if breach.x == min_breach {
                 self.velocity.x = 0;
-            } else if breach.y == minBreach {
+            } else if breach.y == min_breach {
                 self.velocity.y = 0;
-            } else if breach.z == minBreach {
+            } else if breach.z == min_breach {
                 self.velocity.z = 0;
             }
         }
@@ -140,6 +144,8 @@ impl PhysicalObject {
 
 /// Returns a breach.
 fn calculate_breach(moving: &PhysicalObject, still: &PhysicalObject) -> Vec3 {
+    let breach = Vec3::zeros();
+
     // breach really depends on which direction the moving
     // PhysicalObject is travelling
 

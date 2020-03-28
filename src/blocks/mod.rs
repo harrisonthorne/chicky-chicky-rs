@@ -1,8 +1,8 @@
-mod block;
-mod chunk;
+pub mod block;
+pub mod chunk;
 // mod textures;
-mod vertices;
-mod types;
+pub mod vertices;
+pub mod types;
 
 pub use self::block::*;
 pub use self::chunk::*;

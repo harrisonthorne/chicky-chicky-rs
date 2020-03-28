@@ -1,7 +1,9 @@
+use std::collections::VecDeque;
 use crate::blocks;
 use crate::render;
 use webgl_matrix::{Vec3};
 use rand;
+use crate::blocks::chunk::Chunk;
 
 mod physical_object;
 
@@ -47,28 +49,28 @@ impl World {
         ""
     }
 
-    pub fn generate_chunk(&self, x, y, z i32) {
+    pub fn generate_chunk(&self, x: i32, y: i32, z: i32) {
 
     }
 
-    fn render(&self, c: &render.Camera) {
-        let eye_chunk_x = c.position().x / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
-        let eye_chunk_y = c.position().y / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
-        let eye_chunk_z = c.position().z / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE) as i32;
+    fn render(&self, c: &render::Camera) {
+        let eye_chunk_x = c.position().x / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE);
+        let eye_chunk_y = c.position().y / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE);
+        let eye_chunk_z = c.position().z / (blocks::BLOCK_WIDTH * blocks::CHUNK_SIZE);
 
-        for x in (eyeChunkX - w.renderDistance)..(eyeChunkX+w.renderDistance) {
-            if x < 0 || x >= w.terrain.len() {
+        for x in (eye_chunk_x - self.renderDistance)..(eye_chunk_x+self.renderDistance) {
+            if x < 0 || x >= self.terrain.len() {
                 continue;
             }
-            for y in (eyeChunkY - w.renderDistance)..(eyeChunkY+w.renderDistance) {
-                if y < 0 || y >= w.terrain[x].len() {
+            for y in (eye_chunk_y - self.renderDistance)..(eye_chunk_y+self.renderDistance) {
+                if y < 0 || y >= self.terrain[x].len() {
                     continue;
                 }
-                for z in (eyeChunkZ - w.renderDistance)..(eyeChunkZ+w.renderDistance) {
-                    if z < 0 || z >= w.terrain[x][y].len() {
+                for z in (eye_chunk_z - self.renderDistance)..(eye_chunk_z+self.renderDistance) {
+                    if z < 0 || z >= self.terrain[x][y].len() {
                         continue;
                     }
-                    w.terrain[x][y][z].render(c);
+                    self.terrain[x][y][z].render(c);
                 }
             }
         }
@@ -77,12 +79,12 @@ impl World {
 
 
 fn generate_2d_gradient_map(seed: i64) -> [[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
-    r = rand.new(rand.new_source(seed)) as i64;
-    m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec3{};
+    let r = rand::StdRng::from_seed(seed).unwrap();
+    let m = [[Vec3::zeros(); MAX_WORLD_SIZE]; MAX_WORLD_SIZE];
 
     for x in 0..m.len() {
         for y in 0..m[x].len() {
-            m[x][y] = maths.Vec3{r.f32(), r.f32()}
+            m[x][y] = maths.Vec3{r.next_f32(), r.next_f32()}
         }
     }
 
@@ -90,13 +92,13 @@ fn generate_2d_gradient_map(seed: i64) -> [[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZ
 }
 
 fn generate_3d_gradient_map(seed: i64) -> [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
-    let r = rand.new(rand.newSource(seed)) as i64;
-    let m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec3{};
+    let r = rand::StdRng::from_seed(seed).unwrap();
+    let m = [[[Vec3::zeros(); MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE];
 
     for x in 0..m.len() {
         for y in 0..m[x].len() {
             for z 0..m[x][y].len() {
-                m[x][y][z] = maths.Vec3{r.f32(), r.f32(), r.f32()}
+                m[x][y][z] = maths.Vec3{r.next_f32(), r.next_f32(), r.next_f32()}
             }
         }
     }

@@ -1,5 +1,5 @@
 /// A camera.
-struct Camera {
+pub struct Camera {
     position:    Vec3,
     fov:         f32,
     perspective: Mat4, // perspective matrix

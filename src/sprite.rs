@@ -84,18 +84,18 @@ impl Sprite {
 
     /// Renders the sprite onto the screen.
     fn render(&self, c: &render::Camera) {
-        program = render::texture_program().id();
+        program = texture_program.id();
         gl.use_program(program);
 
-        c.set_program_attributes(render::texture_program());
+        c.set_program_attributes(texture_program);
 
-        let model_attr_location = render::texture_program().locations.model_matrix_location();
+        let model_attr_location = texture_program.locations.model_matrix_location();
         gl.uniform_matrix_4fv(model_attr_location, 1, false, &self.matrix[0]);
 
-        gl.uniform_1i(render::texture_program().locations.sprite_frames_location(), self.frames);
-        gl.uniform_1i(render::texture_program().locations.sprite_current_frame_location(), self.current_frame); // number bound here must match the active texture
+        gl.uniform_1i(texture_program.locations.sprite_frames_location(), self.frames);
+        gl.uniform_1i(texture_program.locations.sprite_current_frame_location(), self.current_frame); // number bound here must match the active texture
 
-        texture_uniform = render::texture_program().locations.texture_location();
+        texture_uniform = texture_program.locations.texture_location();
         gl.uniform_1i(texture_uniform, 0); // number bound here must match the active texture
         gl.active_texture(gl.texture0);
         gl.bind_texture(gl.TEXTURE_2D, self.texture);

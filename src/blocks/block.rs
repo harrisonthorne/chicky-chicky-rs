@@ -2,10 +2,10 @@ use crate::render;
 use crate::types;
 use crate::utils;
 
-const BLOCK_WIDTH: f32 = 0.5; // in meters
+pub const BLOCK_WIDTH: f32 = 0.5; // in meters
 
 /// Block block block block block block block block
-trait Block: Killable + Renderable {
+pub trait Block: Killable + Renderable {
     fn get_matrix() -> Mat4;
     fn set_matrix(mat: Mat4);
 
@@ -17,14 +17,11 @@ trait Block: Killable + Renderable {
 /// blocks package.
 /// TODO This should be moved to the topmost function to be passed to other functions. It should
 /// not be a public global. Refusing to make this function public.
-fn init_gl() {
-    let (cube_vao, cube_vbo) = utils.new_texture_vao(render::texture_program(), &cube_vertices);
+pub fn init_gl() {
+    let (cube_vao, cube_vbo) = utils.new_texture_vao(texture_program, &cube_vertices);
 }
 
-// TODO
-// let rotation: [f64; 3];
-
-fn render_block(c: &render::Camera, mat: &Mat4, texture: u32) {
+pub fn render_block(c: &render::Camera, mat: &Mat4, texture: u32) {
     gl.use_program(render.texture_program().id());
     gl.bind_vertex_array(cube_vao);
 
