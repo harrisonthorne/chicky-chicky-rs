@@ -5,8 +5,6 @@ use webgl_matrix::{Vec3};
 use rand;
 use crate::blocks::chunk::Chunk;
 
-mod physical_object;
-
 const MAX_WORLD_SIZE: i32 = 1024; // in chunks. 1024 yields thousands upon thousands of blocks in each direction
 
 // World contains a slice of Plots
