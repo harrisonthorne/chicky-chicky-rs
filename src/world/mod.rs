@@ -11,12 +11,12 @@ struct World {
     terrain: VecDeque<VecDeque<VecDeque<Chunk>>>,
     seed:    i64,
 
-    height_gradient_vectors:      [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
-    humidity_gradient_vectors:    [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
-    temperature_gradient_vectors: [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    height_gradient_vectors:      [[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    humidity_gradient_vectors:    [[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    temperature_gradient_vectors: [[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
 
-    cave_gradient_vectors: [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
-    ore_gradient_vectors:  [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    cave_gradient_vectors: [[[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
+    ore_gradient_vectors:  [[[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE],
     render_distance: i32,
 }
 
@@ -75,27 +75,27 @@ impl World {
 }
 
 
-fn generate_2d_gradient_map(seed: i64) -> [[Vec2; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
+fn generate_2d_gradient_map(seed: i64) -> [[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
     r = rand.new(rand.new_source(seed)) as i64;
-    m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec2{};
+    m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vector3{};
 
     for x in 0..m.len() {
         for y in 0..m[x].len() {
-            m[x][y] = maths.Vec2{r.f32(), r.f32()}
+            m[x][y] = maths.Vector3{r.f32(), r.f32()}
         }
     }
 
     m
 }
 
-fn generate_3d_gradient_map(seed: i64) -> [[[Vec3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
+fn generate_3d_gradient_map(seed: i64) -> [[[Vector3; MAX_WORLD_SIZE]; MAX_WORLD_SIZE]; MAX_WORLD_SIZE] {
     let r = rand.new(rand.newSource(seed)) as i64;
-    let m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vec3{};
+    let m = [MAX_WORLD_SIZE][MAX_WORLD_SIZE][MAX_WORLD_SIZE]maths.Vector3{};
 
     for x in 0..m.len() {
         for y in 0..m[x].len() {
             for z 0..m[x][y].len() {
-                m[x][y][z] = maths.Vec3{r.f32(), r.f32(), r.f32()}
+                m[x][y][z] = maths.Vector3{r.f32(), r.f32(), r.f32()}
             }
         }
     }

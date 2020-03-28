@@ -9,8 +9,8 @@ struct PhysicalObject {
     /// if true, the PhysicalObject will not move
     frozen: bool,
 
-    velocity: Vec3,
-    acceleration: Vec3,
+    velocity: Vector3,
+    acceleration: Vector3,
 
     /// In kilograms.
     mass: f32,
@@ -28,16 +28,16 @@ struct PhysicalObject {
 
 impl PhysicalObject {
     /// Returns the PhysicalObject's position
-    fn position(&self) -> Vec3 {
+    fn position(&self) -> Vector3 {
         self.hitbox.center_pos;
     }
 
-    fn add_position(&self, v2: Vec3) {
+    fn add_position(&self, v2: Vector3) {
         self.hitbox.center_pos.Add(v2)
     }
 
     /// Modifies the position of the PhysicalObject.
-    fn set_position(&self, pos: Vec3) {
+    fn set_position(&self, pos: Vector3) {
         self.hitbox.center_pos = pos
     }
 
@@ -68,7 +68,7 @@ impl PhysicalObject {
 
     /// Applies a force, in newtons, to the PhysicalObject. This is the only way to move a
     /// PhysicalObject in the game; velocity and acceleration are not publicly accessible.
-    fn apply_force(&self, newtons: Vec3) {
+    fn apply_force(&self, newtons: Vector3) {
         self.acceleration.x += newtons.x / self.mass;
         self.acceleration.y += newtons.y / self.mass;
         self.acceleration.z += newtons.z / self.mass;
@@ -139,7 +139,7 @@ impl PhysicalObject {
 }
 
 /// Returns a breach.
-fn calculate_breach(moving: &PhysicalObject, still: &PhysicalObject) -> Vec3 {
+fn calculate_breach(moving: &PhysicalObject, still: &PhysicalObject) -> Vector3 {
     // breach really depends on which direction the moving
     // PhysicalObject is travelling
 

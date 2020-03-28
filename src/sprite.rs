@@ -11,9 +11,9 @@ struct Sprite {
     current_frame:    f32,
     seconds_per_frame: f32,
 
-    size_matrix:     Mat4,
-    position_matrix: Mat4,
-    matrix:         Mat4,
+    size_matrix:     Matrix4,
+    position_matrix: Matrix4,
+    matrix:         Matrix4,
 
     pixel_width: i32, 
     pixel_height: i32,
