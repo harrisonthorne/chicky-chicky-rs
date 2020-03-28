@@ -1,10 +1,11 @@
 use render;
+use web_sys::WebGlRenderingContext;
 
 /// Creates and returns a new vao and vbo built with
 /// the vertices passed in. Each vertex should consist of
 /// five f32 values. The first three values are XYZ
 /// coordinates. The last two are UV coordinates for textures
-fn new_texture_vao(program: render::Program, vertices: &[f32]) -> (u32, u32) {
+fn new_texture_vao(gl: WebGlRenderingContext, program: render::Program, vertices: &[f32]) -> (u32, u32) {
     let mut vao: u32 = 0;
     let mut vbo: u32 = 0;
 

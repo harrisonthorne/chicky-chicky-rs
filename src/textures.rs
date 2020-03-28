@@ -1,3 +1,7 @@
+use web_sys::WebGlRenderingContext;
+use std::error::Error;
+use fs;
+
 /// LazyTexture will dynamically load a texture the instant
 /// its ID is attempted to be accessed.
 struct LazyTexture {
@@ -17,7 +21,7 @@ impl LazyTexture {
     /// necessary
     fn id(&mut self) -> Result<u32, Box<dyn Error>> {
         if self.id == 0 {
-            let image_file = os.open(self.path)?;
+            let image_file = fs::open(self.path)?;
             self.id = new_texture(image_file)?;
         }
 
@@ -29,7 +33,7 @@ impl LazyTexture {
 
 /// Creates a new texture with the image data from
 /// the reader.
-fn new_texture(image_reader: io.Reader) -> Result<u32, Box<dyn Error>> {
+fn new_texture(gl: WebGlRenderingContext, image_reader: io::Reader) -> Result<u32, Box<dyn Error>> {
     let img = image::decode(image_reader)?;
 
     let rgba = image::new_rgba(img.bounds());
@@ -62,6 +66,6 @@ fn new_texture(image_reader: io.Reader) -> Result<u32, Box<dyn Error>> {
 }
 
 // Bind binds the provided texture for use with OpenGL.
-pub fn bind(texture: u32) {
+pub fn bind(gl: WebGlRenderingContext, texture: u32) {
     gl.bind_texture(gl.TEXTURE_2D, texture);
 }
