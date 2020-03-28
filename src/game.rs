@@ -6,7 +6,7 @@ const FPS: f32 = 60.0;
 fn start() {
     let chicken = characters::new_chicken();
     let character_in_control = chicken;
-    let cam = render::Camera::new(Vector3{X:0, Y:0, Z:2}, 70, 800.0/600);
+    let cam = render::Camera::new(Vec3{X:0, Y:0, Z:2}, 70, 800.0/600);
     let last = time::now();
 
     /// Initializes plane vao and vbo

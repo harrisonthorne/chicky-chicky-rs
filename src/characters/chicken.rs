@@ -68,7 +68,7 @@ impl Controllable for Chicken {
     /// Jumps the chicken
     fn jump(&self, super bool) {
         if self.hitbox != nil {
-            self.ApplyForce(maths.Vector3{X: 0, Y: 6, Z: 0})
+            self.ApplyForce(maths.Vec3{X: 0, Y: 6, Z: 0})
         }
     }
 

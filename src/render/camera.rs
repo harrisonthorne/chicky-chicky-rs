@@ -1,15 +1,15 @@
 /// A camera.
 struct Camera {
-    position:    Vector3,
+    position:    Vec3,
     fov:         f32,
-    perspective: Matrix4, // perspective matrix
-    orientation: Matrix4, // stores position and rotation of the camera
+    perspective: Mat4, // perspective matrix
+    orientation: Mat4, // stores position and rotation of the camera
     aspect_ratio: f32,
 }
 
 impl Camera {
     /// Constructs and returns a new Camera object.
-    fn new(position: Vector3, fov: f32, aspectRatio: f32) -> Self {
+    fn new(position: Vec3, fov: f32, aspectRatio: f32) -> Self {
         let c = Self{position, fov, aspect_ratio};
         c.update_perspective_matrix();
         c.orientation = look_at(position.x, position.y, position.z, 0, 0, 0, 0, 1, 0);
@@ -23,13 +23,13 @@ impl Camera {
     }
 
     /// Sets the position of the Camera.
-    fn set_position(&mut self, pos: Vector3) {
+    fn set_position(&mut self, pos: Vec3) {
         self.position = pos;
         self.update_orientation_matrix();
     }
 
     /// Returns the position of the Camera.
-    fn position(&self) -> Vector3 {
+    fn position(&self) -> Vec3 {
         self.position
     }
 
@@ -63,7 +63,7 @@ impl Camera {
 
     /// Returns both the perspective and orientation
     /// matrices of the Camera.
-    fn get_matrices(&self) -> (Matrix4, Matrix4) {
+    fn get_matrices(&self) -> (Mat4, Mat4) {
         (self.perspective, self.orientation)
     }
 }

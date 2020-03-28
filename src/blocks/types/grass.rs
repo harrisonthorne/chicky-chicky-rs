@@ -5,7 +5,7 @@ use items;
 /// grass
 struct GrassBlock {
     lifespan: f32, health: f32,
-    matrix: Matrix4,
+    matrix: Mat4,
 
     gridX: i32, gridY: i32, gridZ: i32,
 }
@@ -57,12 +57,12 @@ impl Block for GrassBlock {
 
     // Matrix returns a pointer to the orientation matrix of
     // this block
-    fn matrix(&self) -> &Matrix4 {
+    fn matrix(&self) -> &Mat4 {
         self.matrix
     }
 
     // SetMatrix sets the matrix of the block
-    fn set_matrix(&self, mat Matrix4) {
+    fn set_matrix(&self, mat Mat4) {
         self.matrix = &mat
     }
 

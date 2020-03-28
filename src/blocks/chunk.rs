@@ -1,5 +1,5 @@
 use crate::render;
-use webgl_matrix::Matrix4;
+use webgl_matrix::Mat4;
 
 const CHUNK_SIZE: i32 = 64;
 
@@ -9,7 +9,7 @@ struct Chunk {
     grid_x: i64,
     grid_y: i64,
     grid_z: i64,
-    matrix: Matrix4::identity(),
+    matrix: Mat4::identity(),
 }
 
 impl Chunk {

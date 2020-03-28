@@ -1,15 +1,15 @@
 
 
-// Vector3 is a vector with two components. This is intended
+// Vec3 is a vector with two components. This is intended
 // for use with velocity, position, and acceleration.
-struct Vector3 {
+struct Vec3 {
     X f32
     Y f32
 }
 
 // Add adds the components of v2 to the matching
-// components of Vector3 v1
-fn Add(&self, v2 Vector3) {
+// components of Vec3 v1
+fn Add(&self, v2 Vec3) {
     v.X += v2.X
     v.Y += v2.Y
 }
@@ -20,18 +20,18 @@ fn Scale(&self, scalar f32) {
     v.Y *= scalar
 }
 
-// Vector3 is a vector with three components. This is intended
+// Vec3 is a vector with three components. This is intended
 // for use with three-dimensional velocity, position, and
 // acceleration.
-struct Vector3 {
+struct Vec3 {
     X f32
     Y f32
     Z f32
 }
 
 // Add adds the components of v2 to the matching
-// components of Vector3 v1
-fn Add(&self, v2 Vector3) {
+// components of Vec3 v1
+fn Add(&self, v2 Vec3) {
     v.X += v2.X
     v.Y += v2.Y
     v.Z += v2.Z

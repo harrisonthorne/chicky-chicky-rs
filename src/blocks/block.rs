@@ -6,8 +6,8 @@ const BLOCK_WIDTH: f32 = 0.5; // in meters
 
 /// Block block block block block block block block
 trait Block: Killable + Renderable {
-    fn get_matrix() -> Matrix4;
-    fn set_matrix(mat: Matrix4);
+    fn get_matrix() -> Mat4;
+    fn set_matrix(mat: Mat4);
 
     fn set_grid_pos(pos: [i64; 3]);
     fn get_grid_pos() -> [i64; 3];
@@ -24,7 +24,7 @@ fn init_gl() {
 // TODO
 // let rotation: [f64; 3];
 
-fn render_block(c: &render::Camera, mat: &Matrix4, texture: u32) {
+fn render_block(c: &render::Camera, mat: &Mat4, texture: u32) {
     gl.use_program(render.texture_program().id());
     gl.bind_vertex_array(cube_vao);
 

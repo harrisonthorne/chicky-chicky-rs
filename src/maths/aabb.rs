@@ -1,8 +1,8 @@
 /// AABC is an Axis-Aligned Bounding Cube. it is used to check
 /// for collisions in collision detection.
 struct AABC {
-    center_pos: Vector3,
-    half_size:  Vector3,
+    center_pos: Vec3,
+    half_size:  Vec3,
 }
 
 impl AABC {
