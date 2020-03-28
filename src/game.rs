@@ -1,6 +1,8 @@
 use crate::characters;
 use crate::render;
 
+const FPS: f32 = 60.0;
+
 fn start() {
     let chicken = characters::new_chicken();
     let character_in_control = chicken;

@@ -4,31 +4,15 @@ struct Program {
     locations: ProgramAttrLocations,
 }
 
-/// Holds names for program attributes
-struct ProgramAttrNames {
-    perspective_matrix: string,
-    camera_matrix: string,
-    model_matrix: string,
-    in_vertex: string,
-    out_vertex: string,
-    in_color: string,
-    out_color: string,
-    vert_tex_coord: string,
-    frag_tex_coord: string,
-    tex_sampler: string,
-    sprite_frames: string,
-    sprite_current_frame: string,
-}
-
 impl Program {
 
     /// Returns the program's OpenGL ID
-    fn id(&self) -> u32 {
+    pub fn id(&self) -> u32 {
         p.id
     }
 
     /// Creates and returns a new OpenGL program.
-    fn new(vertex_shader_source: string, fragment_shader_source: string, names: program_attr_names) -> Result<Program, Box<dyn Error>> {
+    pub fn new(vertex_shader_source: string, fragment_shader_source: string, names: ProgramAttrNames) -> Result<Program, Box<dyn Error>> {
         let p: Self = Default::default();
 
         p.id = compile_program(vertex_shader_source, fragment_shader_source)?;

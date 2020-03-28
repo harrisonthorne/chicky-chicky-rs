@@ -1,23 +1,4 @@
-let texture_shader: Program;
-
-/// Returns the texture program
-fn texture_program() -> &Program {
-    &texture_shader
-}
-
-fn init_texture_shader() -> Result<(), Box<dyn Error>> {
-    textureShader, err = Program::new(vertex_texture_shader_source, fragment_texture_shader_source, texture_shader_names)
-
-    if err != nil {
-        println!("vertexTextureShaderSource:");
-        println!(vertex_texture_shader_source);
-        println!("fragmentTextureShaderSource:");
-        println!(fragment_texture_shader_source);
-        panic!(err);
-    }
-}
-
-let texture_shader_names = ProgramAttrNames{
+const texture_shader_names: ProgramAttrNames = ProgramAttrNames {
     perspective_matrix: "perspective",
     camera_matrix: "camera",
     model_matrix: "model",
@@ -28,62 +9,73 @@ let texture_shader_names = ProgramAttrNames{
     out_color: "outputColor",
     sprite_frames: "spriteFrames",
     sprite_current_frame: "spriteCurrentFrame",
-}
+};
 
-// VertexTextureShaderSource is the source for the vertex shader of
-// all 3D programs
-// {{{
-let vertexTextureShaderSource = `
+/// The source for the vertex shader of all 3D programs
+pub const vertex_texture_shader_source: String = format!(
+    // {{{
+    r#"
 #version 330
 
-uniform mat4 ` + textureShaderNames.PerspectiveMatrix + `;
-uniform mat4 ` + textureShaderNames.CameraMatrix + `;
-uniform mat4 ` + textureShaderNames.ModelMatrix + `;
+uniform mat4 {perspective_matrix};
+uniform mat4 {camera_matrix};
+uniform mat4 {model_matrix};
 
-in vec3 ` + textureShaderNames.InVertex + `;
-in vec2 ` + textureShaderNames.VertTexCoord + `;
+in vec3 {in_vertex};
+in vec2 {vert_tex_coord};
 
-out vec2 ` + textureShaderNames.FragTexCoord + `;
+out vec2 {frag_tex_coord};
 
 void main() {
-    ` + textureShaderNames.FragTexCoord + ` = ` + textureShaderNames.VertTexCoord + `;
-    gl_Position = ` + textureShaderNames.PerspectiveMatrix + ` * ` + textureShaderNames.CameraMatrix + ` * ` + textureShaderNames.ModelMatrix + ` * vec4(` + textureShaderNames.InVertex + `, 1);
+    {frag_tex_coord} = {vert_tex_coord};
+    gl_Position = {perspective_matrix} * {camera_matrix} * {model_matrix} * vec4({in_vertex}, 1);
 }
-` + "\x00" // any String being passed to OpenGL needs to terminate with the null character
-// }}}
+"#,
+    perspective_matrix = texture_shader_names.perspective_matrix,
+    camera_matrix = texture_shader_names.camera_matrix,
+    model_matrix = texture_shader_names.model_matrix,
+    in_vertex = texture_shader_names.in_vertex,
+    vert_tex_coord = texture_shader_names.vert_tex_coord,
+    frag_tex_coord = texture_shader_names.frag_tex_coord,
+    // }}}
+);
 
-// FragmentTextureShaderSource is the source for the texture
-// shader program
-// {{{
-let fragmentTextureShaderSource = `
+/// The source for the texture shader program
+pub const fragment_texture_shader_source: String = format!(
+    // {{{
+    r#"
 #version 330
 
-uniform sampler2D ` + textureShaderNames.TexSampler + `;
+uniform sampler2D {tex_sampler};
 
-uniform i32 ` + textureShaderNames.SpriteFrames + `;
-uniform i32 ` + textureShaderNames.SpriteCurrentFrame + `;
+uniform int {sprite_frames};
+uniform int {sprite_current_frame};
 
-in vec2 ` + textureShaderNames.FragTexCoord + `;
+in vec2 {frag_tex_coord};
 
-out vec4 ` + textureShaderNames.OutColor + `;
+out vec4 {out_color};
 
 void main() {
-	vec4 texColor;
-	if (` + textureShaderNames.SpriteFrames + ` == 0) {
-		texColor = texture(` + textureShaderNames.TexSampler + `, ` + textureShaderNames.FragTexCoord + `);
-	} else {
-		float width = 1.0 / ` + textureShaderNames.SpriteFrames + `;
-		float spriteStartX = width * ` + textureShaderNames.SpriteCurrentFrame + `;
-		float texX = spriteStartX + float(` + textureShaderNames.FragTexCoord + `.x) / ` + textureShaderNames.SpriteFrames + `;
-		texColor = texture(` + textureShaderNames.TexSampler + `, vec2(texX, ` + textureShaderNames.FragTexCoord + `.y));
-	}
-	if (texColor.a < 0.05)
-		discard;
+        vec4 texColor;
+        if ({sprite_frames} == 0) {
+                texColor = texture({tex_sampler}, {frag_tex_coord});
+        } else {
+                float width = 1.0 / {sprite_frames};
+                float spriteStartX = width * {sprite_current_frame};
+                float texX = spriteStartX + float({frag_tex_coord}.x) / {sprite_frames};
+                texColor = texture({tex_sampler}, vec2(texX, {frag_tex_coord}.y));
+        }
+        if (texColor.a < 0.05) discard;
 
-	` + textureShaderNames.OutColor + ` = texColor;
+        {out_color} = texColor;
 }
-` + "\x00"
-
-// }}}
+"#,
+    sprite_frames = texture_shader_names.sprite_frames;
+    sprite_current_frame = texture_shader_names.sprite_current_frame;
+    out_color = texture_shader_names.out_color,
+    tex_sampler = texture_shader_names.tex_sampler,
+    frag_tex_coord = texture_shader_names.frag_tex_coord,
+    // }}}
+);
 
 // vim: foldmethod=marker
