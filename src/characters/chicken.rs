@@ -1,101 +1,129 @@
-use items;
-use world;
-use maths;
-use sprite;
-use render;
+use crate::characters::{Character, CharacterAction, Direction, FacingDirection};
+use crate::items;
+use crate::maths::AABC;
+use cgmath::Vector3;
+use crate::items::{Item, Backpack, ItemStack};
+use crate::traits::Killable;
+use crate::engine::traits::{Logicable, Renderable};
+use crate::engine::physics::PhysicalObject;
 
-/// The main character of this game. we ain't
-/// callin it chicky chicky for nothing folks
+/// The main character of this game. we ain't callin it chicky chicky for nothing folks
+#[derive(Debug)]
 struct Chicken {
-    physical: world::PhysicalObject,
+    physical: PhysicalObject,
     backpack: Backpack,
     action: CharacterAction,
-    direction: Direction,
-    chicken_sprites: HashMap<CharacterAction, Sprite>,
+    facing: FacingDirection,
+    health: f32,
+    lifespan: f32,
+    // chicken_sprites: HashMap<CharacterAction, Sprite>,
 }
 
 impl Chicken {
     /// Creates and initializes a new Chicken
     fn new() -> Self {
+        // let c: Self = Default::default();
+
+        // c.chicken_sprites[CharacterAction::Nothing] =
+        //     Sprite::must_new("assets/photos/chicken/stand.png", 0, 0);
+        // c.chicken_sprites[CharacterAction::Run] =
+        //     Sprite::must_new("assets/photos/chicken/sprint.png", 4, 0.15);
+        // c.chicken_sprites[CharacterAction::Walk] =
+        //     Sprite::must_new("assets/photos/chicken/walk.png", 4, 0.2);
+        // c.chicken_sprites[CharacterAction::Squat] =
+        //     Sprite::must_new("assets/photos/chicken/squat.png", 0, 0);
+        // c.chicken_sprites[CharacterAction::Push] =
+        //     Sprite::must_new("assets/photos/chicken/push.png", 4, 0.75);
+        // c.chicken_sprites[CharacterAction::Fall] =
+        //     Sprite::must_new("assets/photos/chicken/fall.png", 2, 0.1);
+
         Default::default()
-    }
-
-    /// Initializes chicken sprites
-    fn init_gl() {
-        let chicken_height = 0.5f32;		// in meters
-        let chicken_width = 0.5f32*13/12 as f32;	// in meters
-
-        self.chicken_sprites[CharacterAction::Nothing] = sprite::must_new("assets/photos/chicken/stand.png", 0, 0);
-        self.chicken_sprites[CharacterAction::Run] = sprite::must_new("assets/photos/chicken/sprint.png", 4, 0.15);
-        self.chicken_sprites[CharacterAction::Walk] = sprite::must_new("assets/photos/chicken/walk.png", 4, 0.2);
-        self.chicken_sprites[CharacterAction::Squat] = sprite::must_new("assets/photos/chicken/squat.png", 0, 0);
-        self.chicken_sprites[CharacterAction::Push] = sprite::must_new("assets/photos/chicken/push.png", 4, 0.75);
-        self.chicken_sprites[CharacterAction::Fall] = sprite::must_new("assets/photos/chicken/fall.png", 2, 0.1);
-
-        for k in chicken_sprites {
-            chicken_sprites[k].set_size(chicken_height, chicken_width)
-        }
-    }
-
-    // Logic performs logic for the Chicken.
-    fn logic(&self, delta: f32) {
-        self.animate(delta);
-    }
-
-    // Animate moves and calculates sprite frames for the
-    // Chicken
-    fn animate(&self, delta: f32) {
-        chicken_sprites[self.action].animate(delta);
-    }
-
-    // render renders the chicken onto the screen
-    fn render(&self, cam: &render::Camera) {
-        chicken_sprites[self.action].render(cam);
     }
 }
 
-impl Controllable for Chicken {
-    /// Moves the chicken!
-    fn r#move(&self, direction Direction, super bool) ->  {
-        if super {
-            self.action = ActionRun
-        } else {
-            self.action = ActionWalk
+impl Default for Chicken {
+    fn default() -> Self {
+        Self {
+            physical: PhysicalObject::new(2.0, AABC {
+                center_pos: Vector3::from((0.0, 0.0, 0.0)),
+                half_size: Vector3::from((0.0, 0.0, 0.0)),
+            }),
+            backpack: Default::default(),
+            action: Default::default(),
+            facing: Default::default(),
+            health: Default::default(),
+            lifespan: Default::default(),
+
         }
-        self.direction = direction
+    }
+}
+
+impl Logicable for Chicken {
+    fn logic(&mut self, _delta_sec: f32) -> bool {
+        false
+    }
+}
+
+impl Renderable for Chicken {
+    fn render(&self) -> bool {
+        false
+    }
+}
+
+impl Character for Chicken {
+    /// Walks the chicken
+    fn walk(&mut self, direction: Direction, sup: bool) {
+        if sup {
+            self.action = CharacterAction::Run;
+        } else {
+            self.action = CharacterAction::Walk;
+        }
+
+        match direction {
+            Direction::Left => self.facing = FacingDirection::Left,
+            Direction::Right => self.facing = FacingDirection::Right,
+            _ => (),
+        }
     }
 
     /// Jumps the chicken
-    fn jump(&self, super bool) {
-        if self.hitbox != nil {
-            self.ApplyForce(maths.Vec3{X: 0, Y: 6, Z: 0})
-        }
+    fn jump(&mut self, _sup: bool) {
+        self.physical.apply_force(Vector3::from((0.0, 6.0, 0.0)));
     }
 
     /// Squats the chicken
-    fn down(&self, super bool) {
-        self.Stop()
-            self.action = ActionSquat
+    fn down(&mut self, _sup: bool) {
+        self.stop();
+        self.action = CharacterAction::Squat;
     }
 
     /// Stops the chicken's movement
-    fn stop(&self) {
-        self.action = ActionNothing
+    fn stop(&mut self) {
+        self.action = CharacterAction::Nothing;
+    }
+
+    fn attack<K: Killable>(&self, _with: Option<&items::Item>, _power: f32, _who: K) {
+
     }
 }
 
 impl Killable for Chicken {
     /// Hits the chicken with the object and power specified.
-    fn hit(&self, with: Item, power: f32) -> [items.Item] {
-
+    fn hit(&mut self, _with: Option<Item>, _power: f32) -> &[items::ItemStack] {
+        &[]
     }
 
     /// Kills the chicken, dropping its inventory
-    fn kill(&self) -> []items.Item {
-        tmp = self.backpack;
-            self.backpack = make([]items.Item, 1);
+    fn kill(&mut self) -> &[ItemStack] {
+        &self.backpack
+    }
 
-            []items.Item(tmp)
+    fn health_left(&self) -> f32 {
+        self.health
+    }
+
+    fn lifespan(&self) -> f32 {
+        self.lifespan
     }
 
     /// Returns true if the chicken is alive
