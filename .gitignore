@@ -2,3 +2,4 @@ tags
 Netrw*
 target/
 *.pdf
+clippy.err
