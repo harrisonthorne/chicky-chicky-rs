@@ -38,7 +38,7 @@ fn make_texture_render_pipeline(
 
     // describes how colors are stored and processed throughout the pipeline
     let color_states = [wgpu::ColorStateDescriptor {
-        format: engine.get_swapchain_descriptor().format,
+        format: engine.get_swap_chain_descriptor().format,
         color_blend: wgpu::BlendDescriptor::REPLACE,
         alpha_blend: wgpu::BlendDescriptor::REPLACE,
 
