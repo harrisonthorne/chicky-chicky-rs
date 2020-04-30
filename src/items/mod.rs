@@ -2,12 +2,13 @@ mod food;
 mod material;
 mod resource;
 
+use crate::blocks::Block;
 use food::Food;
 use material::Material;
 use resource::Resource;
-use crate::blocks::Block;
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum Item {
     Resource(Resource),
     Tool(Tool),
@@ -18,6 +19,7 @@ pub enum Item {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub struct Tool {
     tool_type: ToolType,
     material: Material,
@@ -26,6 +28,7 @@ pub struct Tool {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum ToolType {
     Shovel,
     Axe,
@@ -42,6 +45,7 @@ pub struct Weapon {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum WeaponType {
     Sword,
     Bow,
