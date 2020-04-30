@@ -1,15 +1,14 @@
 use crate::characters::{Character, CharacterAction, Direction, FacingDirection};
-use crate::items;
-use crate::maths::AABC;
-use cgmath::Vector3;
-use crate::items::{Item, Backpack, ItemStack};
-use crate::traits::Killable;
-use crate::engine::traits::{Logicable, Renderable};
 use crate::engine::physics::PhysicalObject;
+use crate::items;
+use crate::items::{Backpack, Item, ItemStack};
+use crate::maths::AABC;
+use crate::traits::{Killable, Logicable, Renderable};
+use cgmath::Vector3;
 
 /// The main character of this game. we ain't callin it chicky chicky for nothing folks
 #[derive(Debug)]
-struct Chicken {
+pub struct Chicken {
     physical: PhysicalObject,
     backpack: Backpack,
     action: CharacterAction,
@@ -21,7 +20,7 @@ struct Chicken {
 
 impl Chicken {
     /// Creates and initializes a new Chicken
-    fn new() -> Self {
+    pub fn new() -> Self {
         // let c: Self = Default::default();
 
         // c.chicken_sprites[CharacterAction::Nothing] =
@@ -44,29 +43,31 @@ impl Chicken {
 impl Default for Chicken {
     fn default() -> Self {
         Self {
-            physical: PhysicalObject::new(2.0, AABC {
-                center_pos: Vector3::from((0.0, 0.0, 0.0)),
-                half_size: Vector3::from((0.0, 0.0, 0.0)),
-            }),
+            physical: PhysicalObject::new(
+                2.0,
+                AABC {
+                    center_pos: Vector3::from((0.0, 0.0, 0.0)),
+                    half_size: Vector3::from((0.0, 0.0, 0.0)),
+                },
+            ),
             backpack: Default::default(),
             action: Default::default(),
             facing: Default::default(),
             health: Default::default(),
             lifespan: Default::default(),
-
         }
     }
 }
 
 impl Logicable for Chicken {
-    fn logic(&mut self, _delta_sec: f32) -> bool {
-        false
+    fn logic(&mut self, _delta_sec: f32) {
+        todo!()
     }
 }
 
 impl Renderable for Chicken {
-    fn render(&self) -> bool {
-        false
+    fn render(&self) {
+        todo!()
     }
 }
 
@@ -102,9 +103,9 @@ impl Character for Chicken {
         self.action = CharacterAction::Nothing;
     }
 
-    fn attack<K: Killable>(&self, _with: Option<&items::Item>, _power: f32, _who: K) {
+    fn attack<K: Killable>(&self, _with: Option<&items::Item>, _power: f32, _who: K) {}
 
-    }
+    fn render(&self) { }
 }
 
 impl Killable for Chicken {

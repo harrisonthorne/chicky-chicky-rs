@@ -3,11 +3,11 @@ mod climate;
 use crate::blocks::chunk::Chunk;
 use std::collections::VecDeque;
 
-// potentially allowing infinite worlds
+// NOTE: potentially allowing infinite worlds
 // const MAX_WORLD_SIZE: i32 = 1024; // in chunks. 1024 yields thousands upon thousands of blocks in each direction
 
-// World contains a slice of Plots
-struct World {
+/// A world.
+pub struct World {
     chunks: VecDeque<VecDeque<VecDeque<Chunk>>>,
     seed: i64,
     render_distance: i32,

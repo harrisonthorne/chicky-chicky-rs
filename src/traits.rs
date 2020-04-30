@@ -31,3 +31,14 @@ pub trait Killable {
     /// Returns the lifespan, or max health points on the Killable
     fn lifespan(&self) -> f32;
 }
+
+/// Renderable describes an object that can be rendered.
+pub trait Renderable {
+    fn render(&self);
+}
+
+/// Logicable describes an object that can be updated, such as an object with physics or an
+/// animated sprite.
+pub trait Logicable {
+    fn logic(&mut self, delta_sec: f32);
+}

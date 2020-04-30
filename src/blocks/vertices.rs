@@ -1,51 +1,160 @@
+use super::render::Vertex;
+
 const BLOCK_WIDTH: f32 = 1.0;
 const HALF_BLOCK_WIDTH: f32 = BLOCK_WIDTH / 2.0;
 
 // TODO fix uv coordinates
-// TODO use indices, not all vertices
-#[rustfmt::skip]
-const CUBE_VERTICES: &[f32] = &[
+// indices are not possible with differing uv coordinates
+const CUBE_VERTICES: &[Vertex] = &[
     //  X, Y, Z, U, V
     // Bottom
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 1.0, 0.5,
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 0.0,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 1.0, 0.5,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 1.0, 0.0,
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 0.0,
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.0],
+    },
     // Top
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.0, 0.5,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.0, 0.0,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.0, 0.0,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 0.0,
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.0],
+    },
     // Front
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.0, 1.0,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 1.0,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.0, 0.5,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 1.0,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 0.5,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.0, 0.5,
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.5],
+    },
     // Back
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 1.0,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.0, 1.0,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.0, 1.0,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.0, 0.5,
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.0, 0.5],
+    },
     // Left
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 1.0, 1.0,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 1.0,
-    -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 1.0, 1.0,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 1.0, 0.5,
-    -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 0.5, 0.5,
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 1.0],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.5],
+    },
+    Vertex {
+        position: [-HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
     // Right
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 1.0,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 1.0, 1.0,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 1.0, 0.5,
-    HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 1.0,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, 1.0, 0.5,
-    HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, 0.5, 0.5,
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 1.0],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],
+        uv_coords: [1.0, 0.5],
+    },
+    Vertex {
+        position: [HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH, HALF_BLOCK_WIDTH],
+        uv_coords: [0.5, 0.5],
+    },
 ];

@@ -1,5 +1,5 @@
 use super::*;
-use crate::engine::Renderable;
+use crate::traits::Renderable;
 
 pub const CHUNK_SIZE: usize = 64;
 
@@ -30,11 +30,9 @@ impl Chunk {
     pub fn set(&mut self, i: usize, j: usize, k: usize, b: Block) {
         self.blocks[i][j][k] = b;
     }
-}
 
-impl Renderable for Chunk {
     /// Renders the Chunk.
-    fn render(&self) -> bool {
+    fn render(&self) {
         for i in 0..self.blocks.len() {
             for j in 0..self.blocks[i].len() {
                 for k in 0..self.blocks[i][j].len() {
@@ -42,7 +40,5 @@ impl Renderable for Chunk {
                 }
             }
         }
-
-        true
     }
 }

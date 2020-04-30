@@ -1,10 +1,9 @@
-mod chicken;
+pub mod chicken;
 
 pub use chicken::*;
 
-use crate::engine::traits::{Logicable, Renderable};
-use crate::traits::Killable;
 use crate::items;
+use crate::traits::*;
 
 pub enum Direction {
     Up,
@@ -26,6 +25,9 @@ pub trait Character: Killable + Logicable + Renderable {
     /// whatever the Controllable might be holding, the
     /// attack power, and where the Controllable was aiming
     fn attack<K: Killable>(&self, with: Option<&items::Item>, power: f32, who: K);
+
+    /// REnders the character.
+    fn render(&self);
 }
 
 /// Specifies what a certain character is doing.

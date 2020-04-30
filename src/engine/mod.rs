@@ -3,8 +3,6 @@ pub mod physics;
 pub mod texture;
 pub mod traits;
 
-use std::collections::HashMap;
-use std::hash::Hash;
 use std::time::Instant;
 use winit::{
     event::*,
@@ -12,22 +10,22 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
+pub use camera::*;
 pub use texture::*;
 pub use traits::*;
 
-pub struct Engine<K: Hash + Eq + 'static> {
+pub type UseDepth = bool;
+
+pub struct Engine {
     device: wgpu::Device,
     queue: wgpu::Queue,
     swap_chain_descriptor: wgpu::SwapChainDescriptor,
-    uniform_bind_group_layout: wgpu::BindGroupLayout,
 
     fps: f32,
     last_update_time: Instant,
-    logicables: Vec<Box<dyn Logicable>>,
-    renderables: HashMap<K, Vec<Box<dyn Renderable>>>,
     input_listeners: Vec<Box<dyn InputListener>>,
-
-    render_pipelines: HashMap<K, wgpu::RenderPipeline>,
+    runner: Option<Box<dyn Runner>>,
+    modifiers: ModifiersState,
 }
 
 struct EngineState {
@@ -40,12 +38,9 @@ struct EngineState {
     depth_texture: texture::Texture,
 
     camera: camera::Camera,
-    uniforms: Uniforms,
-    uniform_buffer: wgpu::Buffer,
-    uniform_bind_group: wgpu::BindGroup,
 }
 
-impl<K: Hash + Eq + 'static> Engine<K> {
+impl Engine {
     pub fn new(fps: f32) -> Self {
         let (device, queue) = {
             // the adapter is used to create the device and the queue
@@ -69,36 +64,20 @@ impl<K: Hash + Eq + 'static> Engine<K> {
             present_mode: wgpu::PresentMode::Vsync,
         };
 
-        let uniform_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                bindings: &[wgpu::BindGroupLayoutBinding {
-                    binding: 0,
-
-                    // camera manipulates vertices, hence visible to vertex shader stages
-                    visibility: wgpu::ShaderStage::VERTEX,
-
-                    ty: wgpu::BindingType::UniformBuffer {
-                        // buffer will not change size
-                        dynamic: false,
-                    },
-                }],
-            });
         Self {
             fps,
             device,
             queue,
             swap_chain_descriptor,
-            uniform_bind_group_layout,
             last_update_time: Instant::now(),
-            logicables: Vec::new(),
-            renderables: Vec::new(),
             input_listeners: Vec::new(),
-            render_pipelines: HashMap::new(),
+            modifiers: Default::default(),
+            runner: None,
         }
     }
 
     /// Consumes the Engine and starts it.
-    pub fn start(mut self) {
+    pub fn start(mut self) -> ! {
         let event_loop = EventLoop::new();
 
         let mut state = self.make_state(&event_loop);
@@ -109,43 +88,58 @@ impl<K: Hash + Eq + 'static> Engine<K> {
                     ref event,
                     window_id,
                 } if window_id == state.window.id() => {
-                    if self.input(event) {
-                        *control_flow = ControlFlow::Wait;
-                    } else {
-                        match event {
-                            WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                            WindowEvent::KeyboardInput { input, .. } => match input {
-                                // exit on <esc>
-                                KeyboardInput {
-                                    state: ElementState::Pressed,
-                                    virtual_keycode: Some(VirtualKeyCode::Escape),
-                                    ..
-                                } => *control_flow = ControlFlow::Exit,
-                                _ => *control_flow = ControlFlow::Wait,
-                            },
-                            WindowEvent::Resized(physical_size) => {
-                                self.resize(*physical_size, &mut state);
-                                *control_flow = ControlFlow::Wait;
-                            },
-                            WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                                // new_inner_size is &mut, so we have to dereference it twice
-                                self.resize(**new_inner_size, &mut state);
-                                *control_flow = ControlFlow::Wait;
-                            },
+                    match event {
+                        WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                        WindowEvent::KeyboardInput { input, .. } => match input {
+                            // exit on <esc>
+                            KeyboardInput {
+                                state: ElementState::Pressed,
+                                virtual_keycode: Some(VirtualKeyCode::Escape),
+                                ..
+                            } => *control_flow = ControlFlow::Exit,
                             _ => *control_flow = ControlFlow::Wait,
+                        },
+                        WindowEvent::Resized(physical_size) => {
+                            self.resize(*physical_size, &mut state);
+                            *control_flow = ControlFlow::Wait;
                         }
+                        WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                            // new_inner_size is &mut, so we have to dereference it twice
+                            self.resize(**new_inner_size, &mut state);
+                            *control_flow = ControlFlow::Wait;
+                        }
+                        _ => *control_flow = ControlFlow::Wait,
                     }
                 }
-                Event::MainEventsCleared => if self.logic(&mut state) {
-                    state.window.request_redraw();
-                },
+                Event::MainEventsCleared => {
+                    if self.logic() {
+                        state.window.request_redraw();
+                    }
+                }
                 Event::RedrawRequested(_) => {
                     self.render(&mut state);
                     *control_flow = ControlFlow::Wait;
                 }
+                Event::DeviceEvent { event, .. } => {
+                    if self.input(&event) {
+                        *control_flow = ControlFlow::Wait;
+                    } else {
+                        match event {
+                            DeviceEvent::Key(input) => {
+                                match input.state {
+                                    ElementState::Pressed => if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
+                                        *control_flow = ControlFlow::Exit;
+                                    }
+                                    _ => *control_flow = ControlFlow::Wait,
+                                }
+                            }
+                            _ => *control_flow = ControlFlow::Wait,
+                        }
+                    }
+                }
                 _ => *control_flow = ControlFlow::Wait,
             }
-        });
+        })
     }
 
     fn make_state(&mut self, event_loop: &EventLoop<()>) -> EngineState {
@@ -156,7 +150,9 @@ impl<K: Hash + Eq + 'static> Engine<K> {
         // The surface is used to create the swap_chain
         let surface = wgpu::Surface::create(&window);
 
-        let swap_chain = self.device.create_swap_chain(&surface, &self.swap_chain_descriptor);
+        let swap_chain = self
+            .device
+            .create_swap_chain(&surface, &self.swap_chain_descriptor);
 
         // make camera
         let camera = camera::Camera {
@@ -166,32 +162,15 @@ impl<K: Hash + Eq + 'static> Engine<K> {
             target: (0.0, 0.0, 0.0).into(),
             // which way is "up"
             up: cgmath::Vector3::unit_y(),
-            aspect: self.swap_chain_descriptor.width as f32 / self.swap_chain_descriptor.height as f32,
+            aspect: self.swap_chain_descriptor.width as f32
+                / self.swap_chain_descriptor.height as f32,
             fovy: 45.0,
             znear: 0.1,
             zfar: 100.0,
         };
 
-        // uniforms
-        let mut uniforms = Uniforms::new();
-        uniforms.update_view_proj(&camera);
-
-        let uniform_buffer = self.device
-            .create_buffer_mapped(1, wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST) // COPY_DST will be important later
-            .fill_from_slice(&[uniforms]);
-
-        let uniform_bind_group = self.device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &self.uniform_bind_group_layout,
-            bindings: &[wgpu::Binding {
-                binding: 0,
-                resource: wgpu::BindingResource::Buffer {
-                    buffer: &uniform_buffer,
-                    range: 0..std::mem::size_of_val(&uniforms) as wgpu::BufferAddress,
-                },
-            }],
-        });
-
-        let depth_texture = texture::Texture::make_depth_texture(&self.device, &self.swap_chain_descriptor);
+        let depth_texture =
+            texture::Texture::make_depth_texture(&self.device, &self.swap_chain_descriptor);
 
         EngineState {
             window,
@@ -200,32 +179,12 @@ impl<K: Hash + Eq + 'static> Engine<K> {
             swap_chain,
             depth_texture,
             camera,
-            uniforms,
-            uniform_buffer,
-            uniform_bind_group,
         }
     }
 
-    /// "Registers" a Logicable with the Engine so that the Engine will perform logic for it.
-    /// Logicables can return false in their logic() function to remove themselves from the
-    /// Engine's Logicables.
-    pub fn register_logicable<L: Logicable + 'static>(&mut self, logicable: L) {
-        self.logicables.push(Box::new(logicable));
-    }
-
-    /// "Registers" a Renderable with the Engine so that the Engine will render it. Renderables can
-    /// return false in their render() function to remove themselves from the Engine's Renderables.
-    pub fn register_renderable<R: Renderable + 'static>(&mut self, pipeline: K, renderable: R) {
-        if let Some(v) = self.renderables.get_mut(&pipeline) {
-            v.push(Box::new(renderable));
-        } else {
-            self.renderables.insert(pipeline, vec![Box::new(renderable)]);
-        }
-    }
-
-    /// "Registers" a render pipeline that the Engine can use to render Renderables.
-    pub fn register_render_pipeline(&mut self, key: K, pipeline: wgpu::RenderPipeline) {
-        self.render_pipelines.insert(key, pipeline);
+    /// Sets the runnrer that will update and render the scene for the Engine.
+    pub fn set_runner<R: Runner + 'static>(&mut self, r: R) {
+        self.runner = Some(Box::new(r));
     }
 
     /// If we want to support resizing in our application, we're going to need to recreate the
@@ -247,103 +206,68 @@ impl<K: Hash + Eq + 'static> Engine<K> {
 
     /// input() returns a bool to indicate whether an event has been fully processed. If the method
     /// returns true, the main loop won't process the event any further.
-    fn input(&mut self, _event: &WindowEvent) -> bool {
+    fn input(&mut self, event: &DeviceEvent) -> bool {
+        for input_listener in &mut self.input_listeners {
+            let input_processed = match event {
+                DeviceEvent::ModifiersChanged(state) => {
+                    self.modifiers = *state;
+                    return true
+                }
+                DeviceEvent::Key(input) => {
+                    match input.state {
+                        ElementState::Pressed => input_listener.key_down(input.virtual_keycode, self.modifiers),
+                        ElementState::Released => input_listener.key_up(input.virtual_keycode, self.modifiers),
+                    }
+                }
+                _ => false,
+            };
+
+            if input_processed {
+                return true;
+            }
+        }
+
         false
     }
 
     /// Perform logic for all logicables. Returns true if logic was performed; false otherwise.
-    fn logic(&mut self, state: &mut EngineState) -> bool {
-        // skip logic if we're moving faster than the frame rate
-        if self.last_update_time.elapsed().as_secs_f32() < 1.0 / self.fps {
-            false
-        } else {
-            self.update_uniforms(state);
+    fn logic(&mut self) -> bool {
+        if let Some(updater) = &mut self.runner {
+            // skip logic if we're moving faster than the frame rate
+            let delta_sec = self.last_update_time.elapsed().as_secs_f32();
+            if delta_sec < 1.0 / self.fps {
+                false
+            } else {
+                // update last update time
+                self.last_update_time = Instant::now();
 
-            // update all logicables
-            for l in self.logicables.iter_mut() {
-                let delta = self.last_update_time.elapsed().as_secs_f32();
-                l.logic(delta);
+                // update via the updater
+                updater.update(delta_sec)
             }
-
-            // update last update time
-            self.last_update_time = Instant::now();
-
-            true
+        } else {
+            false
         }
     }
 
     fn render(&mut self, state: &mut EngineState) {
-        // First we need to get a frame to render to. This will include a wgpu::Texture and
-        // wgpu::TextureView that will hold the actual image we're drawing to
-        let frame = state.swap_chain.get_next_texture();
+        if let Some(renderer) = &self.runner {
+            // First we need to get a frame to render to. This will include a wgpu::Texture and
+            // wgpu::TextureView that will hold the actual image we're drawing to
+            let frame = state.swap_chain.get_next_texture();
 
-        // We also need to create a CommandEncoder to create the actual commands to send to the gpu. Most
-        // modern graphics frameworks expect commands to be stored in a command buffer before being sent to
-        // the gpu. The encoder builds a command buffer that we can then send to the gpu.
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+            // We also need to create a CommandEncoder to create the actual commands to send to the gpu. Most
+            // modern graphics frameworks expect commands to be stored in a command buffer before being sent to
+            // the gpu. The encoder builds a command buffer that we can then send to the gpu.
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
-        {
-            // TODO
-            let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                    attachment: &frame.view,
-                    resolve_target: None,
-                    load_op: wgpu::LoadOp::Clear,
-                    store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color {
-                        r: 0.1,
-                        g: 0.2,
-                        b: 0.3,
-                        a: 1.0,
-                    },
-                }],
-                depth_stencil_attachment: Some(wgpu::RenderPassDepthStencilAttachmentDescriptor {
-                    attachment: &state.depth_texture.view,
-                    depth_load_op: wgpu::LoadOp::Clear,
-                    depth_store_op: wgpu::StoreOp::Store,
-                    clear_depth: 1.0,
-                    stencil_load_op: wgpu::LoadOp::Clear,
-                    stencil_store_op: wgpu::StoreOp::Store,
-                    clear_stencil: 0,
-                }),
-            });
+            renderer.render(&self.device, &mut encoder, &frame.view, &state.depth_texture.view);
 
-            // TODO
-            // render_pass.set_pipeline(&self.render_pipeline);
+            // tell wgpu to finish the command buffer, and to submit it to the gpu's render queue.
+            // `encoder` must not be borrowed at this point; are previous borrows scoped?
+            self.queue.submit(&[encoder.finish()]);
         }
-
-        // tell wgpu to finish the command buffer, and to submit it to the gpu's render queue
-        // `encoder` must not be borrowed at this point; are previous borrows scoped?
-        self.queue.submit(&[encoder.finish()]);
-    }
-
-    fn update_uniforms(&mut self, state: &mut EngineState) {
-        state.uniforms.update_view_proj(&state.camera);
-
-        // Copy operations are performed on the gpu, so we'll need
-        // a CommandEncoder for that
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
-
-        let staging_buffer = self
-            .device
-            .create_buffer_mapped(1, wgpu::BufferUsage::COPY_SRC)
-            .fill_from_slice(&[state.uniforms]);
-
-        encoder.copy_buffer_to_buffer(
-            &staging_buffer,
-            0,
-            &state.uniform_buffer,
-            0,
-            std::mem::size_of::<Uniforms>() as wgpu::BufferAddress,
-        );
-
-        // We need to remember to submit our CommandEncoder's output
-        // otherwise we won't see any change.
-        self.queue.submit(&[encoder.finish()]);
     }
 
     pub fn compile_shader_modules(
@@ -359,7 +283,6 @@ impl<K: Hash + Eq + 'static> Engine<K> {
             Ok(f) => f,
             Err(e) => return Err(BasicError::from(("couldn't compile fragment shader", e))),
         };
-
 
         let vs_data = match wgpu::read_spirv(vs_spirv) {
             Ok(v) => v,
@@ -383,29 +306,6 @@ impl<K: Hash + Eq + 'static> Engine<K> {
     pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {
         &self.swap_chain_descriptor
     }
-
-    pub fn get_uniform_bind_group_layout(&self) -> &wgpu::BindGroupLayout {
-        &self.uniform_bind_group_layout
-    }
-}
-
-#[repr(C)] // We need this for Rust to store our data correctly for the shaders
-#[derive(Copy, Clone)] // This is so we can store this in a buffer
-pub struct Uniforms {
-    pub view_proj: cgmath::Matrix4<f32>,
-}
-
-impl Uniforms {
-    pub fn new() -> Self {
-        use cgmath::SquareMatrix;
-        Self {
-            view_proj: cgmath::Matrix4::identity(),
-        }
-    }
-
-    pub fn update_view_proj(&mut self, camera: &camera::Camera) {
-        self.view_proj = camera.build_view_projection_matrix();
-    }
 }
 
 #[derive(Debug)]
@@ -420,11 +320,11 @@ impl std::fmt::Display for BasicError {
 }
 
 impl<E: std::fmt::Display> From<(&str, E)> for BasicError {
-    fn from(tuple: (&str, E)) -> Self { 
+    fn from(tuple: (&str, E)) -> Self {
         Self {
             message: format!("{}: {}", tuple.0, tuple.1),
         }
     }
 }
 
-impl std::error::Error for BasicError { }
+impl std::error::Error for BasicError {}
