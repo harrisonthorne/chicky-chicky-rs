@@ -67,9 +67,11 @@ fn main() {
     engine.start();
 }
 
+/// Uniforms are used in the shader for attributes that are essentially global.
 #[repr(C)] // we need this for Rust to store our data correctly for the shaders
 #[derive(Copy, Clone)] // this is so we can store this in a buffer
 pub struct Uniforms {
+    /// The view-projection matrix.
     pub view_proj: cgmath::Matrix4<f32>,
 }
 

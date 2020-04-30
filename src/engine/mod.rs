@@ -14,8 +14,6 @@ pub use camera::*;
 pub use texture::*;
 pub use traits::*;
 
-pub type UseDepth = bool;
-
 pub struct Engine {
     device: wgpu::Device,
     queue: wgpu::Queue,
@@ -110,16 +108,26 @@ impl Engine {
                         }
                         _ => *control_flow = ControlFlow::Wait,
                     }
-                }
+                },
                 Event::MainEventsCleared => {
-                    if self.logic() {
-                        state.window.request_redraw();
+                    let elapsed = self.last_update_time.elapsed().as_secs_f32();
+                    if elapsed >= 1.0 / self.fps {
+                        // only request rendering if something was updated
+                        if self.logic(elapsed) {
+                            state.window.request_redraw();
+                        }
+
+                        self.last_update_time = Instant::now();
+                    } else {
+                        // sleep until the next update. this might be bad, so remove if there are
+                        // problems.
+                        std::thread::sleep(std::time::Duration::from_secs_f32(1.0/self.fps - elapsed));
                     }
-                }
+                },
                 Event::RedrawRequested(_) => {
                     self.render(&mut state);
                     *control_flow = ControlFlow::Wait;
-                }
+                },
                 Event::DeviceEvent { event, .. } => {
                     if self.input(&event) {
                         *control_flow = ControlFlow::Wait;
@@ -136,7 +144,7 @@ impl Engine {
                             _ => *control_flow = ControlFlow::Wait,
                         }
                     }
-                }
+                },
                 _ => *control_flow = ControlFlow::Wait,
             }
         })
@@ -231,19 +239,10 @@ impl Engine {
     }
 
     /// Perform logic for all logicables. Returns true if logic was performed; false otherwise.
-    fn logic(&mut self) -> bool {
+    fn logic(&mut self, delta_secs: f32) -> bool {
         if let Some(updater) = &mut self.runner {
-            // skip logic if we're moving faster than the frame rate
-            let delta_sec = self.last_update_time.elapsed().as_secs_f32();
-            if delta_sec < 1.0 / self.fps {
-                false
-            } else {
-                // update last update time
-                self.last_update_time = Instant::now();
-
-                // update via the updater
-                updater.update(delta_sec)
-            }
+            // update via the updater
+            updater.update(delta_secs)
         } else {
             false
         }

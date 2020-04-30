@@ -43,6 +43,7 @@ impl Game {
             },
         }];
 
+        // determine depth attachment. only ignore depth if the phase is the Interface phase.
         let depth_stencil_attachment = match phase {
             RenderPhase::Interface => None,
             _ => Some(wgpu::RenderPassDepthStencilAttachmentDescriptor {
@@ -67,10 +68,11 @@ impl engine::Runner for Game {
     fn render(
         &self,
         _device: &wgpu::Device,
-        _encoder: &mut wgpu::CommandEncoder,
-        _frame: &wgpu::TextureView,
-        _depth_texture: &wgpu::TextureView,
+        encoder: &mut wgpu::CommandEncoder,
+        frame: &wgpu::TextureView,
+        depth_texture: &wgpu::TextureView,
     ) {
+        self.start_render_pass(RenderPhase::World, encoder, frame, depth_texture);
     }
 
     fn update(&mut self, _delta_sec: f32) -> bool {
