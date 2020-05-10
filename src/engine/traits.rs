@@ -4,10 +4,16 @@ use winit::event::{ModifiersState, MouseButton, MouseScrollDelta, VirtualKeyCode
 pub trait Runner {
     /// Do logic on and update the game. This function should handle the logic of other objects in
     /// the game as well. This might include physics, animation, what have you.
-    fn update(&mut self, delta_sec: f32) -> bool;
+    fn update(&mut self, _delta_sec: f32, device: &wgpu::Device, queue: &mut wgpu::Queue) -> bool;
 
     /// Renders the contents of the game.
-    fn render(&self, device: &wgpu::Device, encoder: &mut wgpu::CommandEncoder, frame: &wgpu::TextureView, depth_texture: &wgpu::TextureView);
+    fn render(
+        &self,
+        device: &wgpu::Device,
+        encoder: &mut wgpu::CommandEncoder,
+        frame: &wgpu::TextureView,
+        depth_texture: &wgpu::TextureView,
+    );
 }
 
 /// A simple abstraction for user input.

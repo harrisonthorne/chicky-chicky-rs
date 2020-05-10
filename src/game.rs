@@ -1,35 +1,25 @@
-use crate::engine;
-use crate::world::World;
+use crate::blocks::{Block, BlockType};
 
-pub struct Game {
-    world: Option<World>,
-    uniform_bind_group: wgpu::BindGroup,
-    uniform_bind_group_layout: wgpu::BindGroupLayout,
-    block_render_pipeline: wgpu::RenderPipeline,
+pub(crate) struct Game {
+    // world: Option<World>,
+    tmp_block: Block,
 }
 
 impl Game {
     /// Decided to pass in bind groups and pipelines so that this file doesn't become too crowded.
-    pub fn new(
-        uniform_bind_group_layout: wgpu::BindGroupLayout,
-        uniform_bind_group: wgpu::BindGroup,
-        block_render_pipeline: wgpu::RenderPipeline,
-    ) -> Self {
+    pub fn new() -> Self {
         Self {
-            uniform_bind_group,
-            uniform_bind_group_layout,
-            block_render_pipeline,
-            world: None,
+            // world: None,
+            tmp_block: Block::from(BlockType::Grass),
         }
     }
 
-    fn start_render_pass(
-        &self,
+    fn start_render_pass<'a>(
         phase: RenderPhase,
-        encoder: &mut wgpu::CommandEncoder,
-        frame: &wgpu::TextureView,
-        depth_texture: &wgpu::TextureView,
-    ) {
+        encoder: &'a mut wgpu::CommandEncoder,
+        frame: &'a wgpu::TextureView,
+        depth_texture: &'a wgpu::TextureView,
+    ) -> wgpu::RenderPass<'a> {
         let color_attachments = &[wgpu::RenderPassColorAttachmentDescriptor {
             attachment: &frame,
             resolve_target: None,
@@ -60,23 +50,25 @@ impl Game {
         encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments,
             depth_stencil_attachment,
-        });
-    }
-}
-
-impl engine::Runner for Game {
-    fn render(
-        &self,
-        _device: &wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder,
-        frame: &wgpu::TextureView,
-        depth_texture: &wgpu::TextureView,
-    ) {
-        self.start_render_pass(RenderPhase::World, encoder, frame, depth_texture);
+        })
     }
 
-    fn update(&mut self, _delta_sec: f32) -> bool {
-        false
+    pub fn render(&self, payload: &mut crate::RenderPayload) {
+        let mut world_render_pass: wgpu::RenderPass = Self::start_render_pass(
+            RenderPhase::World,
+            payload.encoder,
+            payload.frame,
+            payload.depth_texture,
+        );
+
+        world_render_pass.set_pipeline(payload.block_render_pipeline);
+
+        self.tmp_block.render(
+            &mut world_render_pass,
+            payload.uniform_bind_group,
+            payload.cube_vertex_buffer,
+            payload.textures,
+        );
     }
 }
 

@@ -34,7 +34,7 @@ pub trait Killable {
 
 /// Renderable describes an object that can be rendered.
 pub trait Renderable {
-    fn render(&self);
+    fn render(&self, render_pass: &wgpu::RenderPass);
 }
 
 /// Logicable describes an object that can be updated, such as an object with physics or an

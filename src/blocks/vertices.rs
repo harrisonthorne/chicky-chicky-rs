@@ -5,7 +5,7 @@ const HALF_BLOCK_WIDTH: f32 = BLOCK_WIDTH / 2.0;
 
 // TODO fix uv coordinates
 // indices are not possible with differing uv coordinates
-const CUBE_VERTICES: &[Vertex] = &[
+pub const CUBE_VERTICES: &[Vertex] = &[
     //  X, Y, Z, U, V
     // Bottom
     Vertex {
@@ -158,3 +158,8 @@ const CUBE_VERTICES: &[Vertex] = &[
         uv_coords: [0.5, 0.5],
     },
 ];
+
+pub fn make_cube_vertex_buffer(device: &wgpu::Device) -> wgpu::Buffer {
+    device
+        .create_buffer_with_data(bytemuck::cast_slice(CUBE_VERTICES), wgpu::BufferUsage::VERTEX)
+}

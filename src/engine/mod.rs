@@ -7,7 +7,7 @@ use std::time::Instant;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
-    window::{Window, WindowBuilder},
+    window::Window,
 };
 
 pub use camera::*;
@@ -15,6 +15,9 @@ pub use texture::*;
 pub use traits::*;
 
 pub struct Engine {
+    window: Window,
+    window_size: winit::dpi::PhysicalSize<u32>,
+
     device: wgpu::Device,
     queue: wgpu::Queue,
     swap_chain_descriptor: wgpu::SwapChainDescriptor,
@@ -24,11 +27,6 @@ pub struct Engine {
     input_listeners: Vec<Box<dyn InputListener>>,
     runner: Option<Box<dyn Runner>>,
     modifiers: ModifiersState,
-}
-
-struct EngineState {
-    window: Window,
-    window_size: winit::dpi::PhysicalSize<u32>,
 
     surface: wgpu::Surface,
     swap_chain: wgpu::SwapChain,
@@ -39,11 +37,24 @@ struct EngineState {
 }
 
 impl Engine {
-    pub fn new(fps: f32) -> Self {
+    pub async fn new(fps: f32, window: Window) -> Self {
+        // The surface is used to create the swap_chain
+        let surface = wgpu::Surface::create(&window);
+
+        let window_size = window.inner_size();
+
         let (device, queue) = {
             // the adapter is used to create the device and the queue
-            let adapter = wgpu::Adapter::request(&Default::default()).unwrap();
-            adapter.request_device(&Default::default())
+            let adapter = wgpu::Adapter::request(
+                &wgpu::RequestAdapterOptions {
+                    power_preference: wgpu::PowerPreference::Default,
+                    compatible_surface: Some(&surface),
+                },
+                wgpu::BackendBit::PRIMARY,
+            )
+            .await
+            .unwrap();
+            adapter.request_device(&Default::default()).await
         };
 
         // Here we are defining and creating the swap_chain.
@@ -59,108 +70,10 @@ impl Engine {
             format: wgpu::TextureFormat::Bgra8UnormSrgb,
             width: 100,
             height: 100,
-            present_mode: wgpu::PresentMode::Vsync,
+            present_mode: wgpu::PresentMode::Fifo,
         };
 
-        Self {
-            fps,
-            device,
-            queue,
-            swap_chain_descriptor,
-            last_update_time: Instant::now(),
-            input_listeners: Vec::new(),
-            modifiers: Default::default(),
-            runner: None,
-        }
-    }
-
-    /// Consumes the Engine and starts it.
-    pub fn start(mut self) -> ! {
-        let event_loop = EventLoop::new();
-
-        let mut state = self.make_state(&event_loop);
-
-        event_loop.run(move |event, _, control_flow| {
-            match event {
-                Event::WindowEvent {
-                    ref event,
-                    window_id,
-                } if window_id == state.window.id() => {
-                    match event {
-                        WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                        WindowEvent::KeyboardInput { input, .. } => match input {
-                            // exit on <esc>
-                            KeyboardInput {
-                                state: ElementState::Pressed,
-                                virtual_keycode: Some(VirtualKeyCode::Escape),
-                                ..
-                            } => *control_flow = ControlFlow::Exit,
-                            _ => *control_flow = ControlFlow::Wait,
-                        },
-                        WindowEvent::Resized(physical_size) => {
-                            self.resize(*physical_size, &mut state);
-                            *control_flow = ControlFlow::Wait;
-                        }
-                        WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                            // new_inner_size is &mut, so we have to dereference it twice
-                            self.resize(**new_inner_size, &mut state);
-                            *control_flow = ControlFlow::Wait;
-                        }
-                        _ => *control_flow = ControlFlow::Wait,
-                    }
-                },
-                Event::MainEventsCleared => {
-                    let elapsed = self.last_update_time.elapsed().as_secs_f32();
-                    if elapsed >= 1.0 / self.fps {
-                        // only request rendering if something was updated
-                        if self.logic(elapsed) {
-                            state.window.request_redraw();
-                        }
-
-                        self.last_update_time = Instant::now();
-                    } else {
-                        // sleep until the next update. this might be bad, so remove if there are
-                        // problems.
-                        std::thread::sleep(std::time::Duration::from_secs_f32(1.0/self.fps - elapsed));
-                    }
-                },
-                Event::RedrawRequested(_) => {
-                    self.render(&mut state);
-                    *control_flow = ControlFlow::Wait;
-                },
-                Event::DeviceEvent { event, .. } => {
-                    if self.input(&event) {
-                        *control_flow = ControlFlow::Wait;
-                    } else {
-                        match event {
-                            DeviceEvent::Key(input) => {
-                                match input.state {
-                                    ElementState::Pressed => if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
-                                        *control_flow = ControlFlow::Exit;
-                                    }
-                                    _ => *control_flow = ControlFlow::Wait,
-                                }
-                            }
-                            _ => *control_flow = ControlFlow::Wait,
-                        }
-                    }
-                },
-                _ => *control_flow = ControlFlow::Wait,
-            }
-        })
-    }
-
-    fn make_state(&mut self, event_loop: &EventLoop<()>) -> EngineState {
-        let window = WindowBuilder::new().build(event_loop).unwrap();
-
-        let window_size = window.inner_size();
-
-        // The surface is used to create the swap_chain
-        let surface = wgpu::Surface::create(&window);
-
-        let swap_chain = self
-            .device
-            .create_swap_chain(&surface, &self.swap_chain_descriptor);
+        let swap_chain = device.create_swap_chain(&surface, &swap_chain_descriptor);
 
         // make camera
         let camera = camera::Camera {
@@ -170,24 +83,102 @@ impl Engine {
             target: (0.0, 0.0, 0.0).into(),
             // which way is "up"
             up: cgmath::Vector3::unit_y(),
-            aspect: self.swap_chain_descriptor.width as f32
-                / self.swap_chain_descriptor.height as f32,
+            aspect: swap_chain_descriptor.width as f32 / swap_chain_descriptor.height as f32,
             fovy: 45.0,
             znear: 0.1,
             zfar: 100.0,
         };
 
-        let depth_texture =
-            texture::Texture::make_depth_texture(&self.device, &self.swap_chain_descriptor);
+        let depth_texture = texture::Texture::make_depth_texture(&device, &swap_chain_descriptor);
 
-        EngineState {
+        Self {
             window,
             window_size,
-            surface,
-            swap_chain,
-            depth_texture,
+            fps,
+            device,
+            queue,
+            swap_chain_descriptor,
+            last_update_time: Instant::now(),
+            input_listeners: Vec::new(),
+            modifiers: Default::default(),
+            runner: None,
+
             camera,
+            surface,
+            depth_texture,
+            swap_chain,
         }
+    }
+
+    /// Consumes the Engine and starts it.
+    pub fn start<T>(mut self, event_loop: EventLoop<T>) -> ! {
+        event_loop.run(move |event, _, control_flow| {
+            *control_flow = ControlFlow::Poll;
+            match event {
+                Event::WindowEvent {
+                    ref event,
+                    window_id,
+                } if window_id == self.window.id() => match event {
+                    WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                    WindowEvent::KeyboardInput { input, .. } => match input {
+                        // exit on <esc>
+                        KeyboardInput {
+                            state: ElementState::Pressed,
+                            virtual_keycode: Some(VirtualKeyCode::Escape),
+                            ..
+                        } => *control_flow = ControlFlow::Exit,
+                        _ => (),
+                    },
+                    WindowEvent::Resized(physical_size) => {
+                        self.resize(*physical_size);
+                    }
+                    WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                        // new_inner_size is &mut, so we have to dereference it twice
+                        self.resize(**new_inner_size);
+                    }
+                    _ => (),
+                },
+                Event::MainEventsCleared => {
+                    let elapsed = self.last_update_time.elapsed().as_secs_f32();
+                    if elapsed >= 1.0 / self.fps {
+                        // only request rendering if something was updated
+                        if self.logic(elapsed) {
+                            self.window.request_redraw();
+                        }
+
+                        self.last_update_time = Instant::now();
+                    } else {
+                        // sleep until the next update. this might be bad, so remove if there are
+                        // problems.
+                        std::thread::sleep(std::time::Duration::from_secs_f32(
+                            1.0 / self.fps - elapsed,
+                        ));
+                    }
+                }
+                Event::RedrawRequested(_) => {
+                    self.render();
+                    *control_flow = ControlFlow::Wait;
+                }
+                Event::DeviceEvent { event, .. } => {
+                    if self.input(&event) {
+                        *control_flow = ControlFlow::Wait;
+                    } else {
+                        match event {
+                            DeviceEvent::Key(input) => match input.state {
+                                ElementState::Pressed => {
+                                    if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
+                                        *control_flow = ControlFlow::Exit;
+                                    }
+                                }
+                                _ => *control_flow = ControlFlow::Wait,
+                            },
+                            _ => *control_flow = ControlFlow::Wait,
+                        }
+                    }
+                }
+                _ => *control_flow = ControlFlow::Wait,
+            }
+        })
     }
 
     /// Sets the runnrer that will update and render the scene for the Engine.
@@ -199,16 +190,16 @@ impl Engine {
     /// swap_chain everytime the window's size changes. That's the reason we store the logical
     /// size and the swap_chain_descriptor used to create the swapchain. With all of these, the resize method is
     /// very simple.
-    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>, state: &mut EngineState) {
-        state.window_size = new_size;
+    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+        self.window_size = new_size;
 
         self.swap_chain_descriptor.width = new_size.width;
         self.swap_chain_descriptor.height = new_size.height;
 
-        state.swap_chain = self
+        self.swap_chain = self
             .device
-            .create_swap_chain(&state.surface, &self.swap_chain_descriptor);
-        state.depth_texture =
+            .create_swap_chain(&self.surface, &self.swap_chain_descriptor);
+        self.depth_texture =
             texture::Texture::make_depth_texture(&self.device, &self.swap_chain_descriptor);
     }
 
@@ -219,14 +210,16 @@ impl Engine {
             let input_processed = match event {
                 DeviceEvent::ModifiersChanged(state) => {
                     self.modifiers = *state;
-                    return true
+                    return true;
                 }
-                DeviceEvent::Key(input) => {
-                    match input.state {
-                        ElementState::Pressed => input_listener.key_down(input.virtual_keycode, self.modifiers),
-                        ElementState::Released => input_listener.key_up(input.virtual_keycode, self.modifiers),
+                DeviceEvent::Key(input) => match input.state {
+                    ElementState::Pressed => {
+                        input_listener.key_down(input.virtual_keycode, self.modifiers)
                     }
-                }
+                    ElementState::Released => {
+                        input_listener.key_up(input.virtual_keycode, self.modifiers)
+                    }
+                },
                 _ => false,
             };
 
@@ -242,26 +235,31 @@ impl Engine {
     fn logic(&mut self, delta_secs: f32) -> bool {
         if let Some(updater) = &mut self.runner {
             // update via the updater
-            updater.update(delta_secs)
+            updater.update(delta_secs, &self.device, &mut self.queue)
         } else {
             false
         }
     }
 
-    fn render(&mut self, state: &mut EngineState) {
+    fn render(&mut self) {
         if let Some(renderer) = &self.runner {
             // First we need to get a frame to render to. This will include a wgpu::Texture and
             // wgpu::TextureView that will hold the actual image we're drawing to
-            let frame = state.swap_chain.get_next_texture();
+            let frame = self.swap_chain.get_next_texture().unwrap();
 
             // We also need to create a CommandEncoder to create the actual commands to send to the gpu. Most
             // modern graphics frameworks expect commands to be stored in a command buffer before being sent to
             // the gpu. The encoder builds a command buffer that we can then send to the gpu.
             let mut encoder = self
                 .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("render encoder") });
 
-            renderer.render(&self.device, &mut encoder, &frame.view, &state.depth_texture.view);
+            renderer.render(
+                &self.device,
+                &mut encoder,
+                &frame.view,
+                &self.depth_texture.view,
+            );
 
             // tell wgpu to finish the command buffer, and to submit it to the gpu's render queue.
             // `encoder` must not be borrowed at this point; are previous borrows scoped?
@@ -302,6 +300,10 @@ impl Engine {
         &self.device
     }
 
+    pub fn get_queue_mut(&mut self) -> &mut wgpu::Queue {
+        &mut self.queue
+    }
+
     pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {
         &self.swap_chain_descriptor
     }
@@ -327,3 +329,5 @@ impl<E: std::fmt::Display> From<(&str, E)> for BasicError {
 }
 
 impl std::error::Error for BasicError {}
+
+// vim: foldmethod=syntax

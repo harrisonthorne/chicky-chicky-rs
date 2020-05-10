@@ -66,7 +66,7 @@ impl Logicable for Chicken {
 }
 
 impl Renderable for Chicken {
-    fn render(&self) {
+    fn render(&self, _: &wgpu::RenderPass) {
         todo!()
     }
 }
@@ -105,7 +105,7 @@ impl Character for Chicken {
 
     fn attack<K: Killable>(&self, _with: Option<&items::Item>, _power: f32, _who: K) {}
 
-    fn render(&self) { }
+    fn render(&self) {}
 }
 
 impl Killable for Chicken {

@@ -1,5 +1,4 @@
 use super::*;
-use crate::traits::Renderable;
 
 pub const CHUNK_SIZE: usize = 64;
 
@@ -32,11 +31,22 @@ impl Chunk {
     }
 
     /// Renders the Chunk.
-    fn render(&self) {
+    fn render<'a>(
+        &'a self,
+        render_pass: &'a mut wgpu::RenderPass<'a>,
+        uniform_bind_group: &'a wgpu::BindGroup,
+        cube_vertex_buffer: &'a wgpu::Buffer,
+        textures: &'a textures::BlockTextures,
+    ) {
         for i in 0..self.blocks.len() {
             for j in 0..self.blocks[i].len() {
                 for k in 0..self.blocks[i][j].len() {
-                    self.blocks[i][j][k].render();
+                    self.blocks[i][j][k].render(
+                        render_pass,
+                        uniform_bind_group,
+                        cube_vertex_buffer,
+                        textures,
+                    );
                 }
             }
         }

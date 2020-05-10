@@ -16,17 +16,6 @@ impl Camera {
         // warps the scene for perspective and depth
         let proj = cgmath::perspective(cgmath::Deg(self.fovy), self.aspect, self.znear, self.zfar);
 
-        OPENGL_TO_WGPU_MATRIX * proj * view
+        proj * view
     }
 }
-
-/// https://matthewwellings.com/blog/the-new-vulkan-coordinate-system/
-/// the cgmath package is designed to work with opengl, but vulkan has a different coordinate
-/// system.
-#[rustfmt::skip]
-pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
-    1.0, 0.0, 0.0, 0.0,
-    0.0, -1.0, 0.0, 0.0,
-    0.0, 0.0, 0.5, 0.0,
-    0.0, 0.0, 0.5, 1.0,
-);

@@ -2,7 +2,7 @@
 
 layout(location=0) in vec3 a_position;
 layout(location=1) in vec2 a_tex_coords;
-layout(location=2) in mat4 a_model_matrix;
+/* layout(location=2) in mat4 a_model_matrix; */
 
 layout(location=0) out vec2 v_tex_coords;
 
@@ -13,5 +13,5 @@ uniform Uniforms {
 
 void main() {
     v_tex_coords = a_tex_coords;
-    gl_Position = u_view_proj * a_model_matrix * vec4(a_position, 1.0);
+    gl_Position = u_view_proj * /*a_model_matrix **/ vec4(a_position, 1.0);
 }

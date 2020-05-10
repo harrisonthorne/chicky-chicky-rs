@@ -9,12 +9,16 @@ impl Vertex {
     pub const SIZE: u64 = std::mem::size_of::<Self>() as u64;
 }
 
-pub fn make_block_render_pipeline(
-    engine: &crate::engine::Engine,
-    uniform_bind_group_layout: &wgpu::BindGroupLayout,
-) -> Result<wgpu::RenderPipeline, Box<dyn std::error::Error>> {
-    let device = engine.get_device();
+unsafe impl bytemuck::Pod for Vertex {}
+unsafe impl bytemuck::Zeroable for Vertex {}
 
+/// Note: Why are we passing in block_texture_bind_group_layout when we could just make it here? I
+/// think making it more than once causes inconsistencies between bind groups.
+pub fn make_block_render_pipeline(
+    engine: &mut crate::engine::Engine,
+    uniform_bind_group_layout: &wgpu::BindGroupLayout,
+    block_texture_bind_group_layout: &wgpu::BindGroupLayout,
+) -> Result<wgpu::RenderPipeline, Box<dyn std::error::Error>> {
     // describes how colors are stored and processed throughout the pipeline
     let color_states = [wgpu::ColorStateDescriptor {
         format: engine.get_swap_chain_descriptor().format,
@@ -25,19 +29,18 @@ pub fn make_block_render_pipeline(
         write_mask: wgpu::ColorWrite::ALL,
     }];
 
-    // BindGroupLayout: describes a set of resources and how they can be accessed by a shader. this
-    // creates a BindGroup using a BindGroupLayout:
-    let texture_bind_group_layout = make_texture_bind_group_layout(device);
-
     // compile texture shaders
     let (vs_module, fs_module) = engine.compile_shader_modules(
         include_str!("../shaders/block.vert"),
         include_str!("../shaders/block.frag"),
     )?;
 
-    let render_pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-        bind_group_layouts: &[&texture_bind_group_layout, &uniform_bind_group_layout],
-    });
+    let render_pipeline_layout =
+        engine
+            .get_device()
+            .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+                bind_group_layouts: &[&block_texture_bind_group_layout, &uniform_bind_group_layout],
+            });
 
     let block_vertex_buffer_descriptors = super::Block::vertex_buffer_descriptors();
 
@@ -50,25 +53,7 @@ pub fn make_block_render_pipeline(
         true,
     );
 
-    Ok(device.create_render_pipeline(&block_render_pipeline_descriptor))
-}
-
-fn make_texture_bind_group_layout(device: &wgpu::Device) -> wgpu::BindGroupLayout {
-    device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-        bindings: &[
-            wgpu::BindGroupLayoutBinding {
-                binding: 0,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::SampledTexture {
-                    multisampled: false,
-                    dimension: wgpu::TextureViewDimension::D2,
-                },
-            },
-            wgpu::BindGroupLayoutBinding {
-                binding: 1,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::Sampler,
-            },
-        ],
-    })
+    Ok(engine
+        .get_device()
+        .create_render_pipeline(&block_render_pipeline_descriptor))
 }

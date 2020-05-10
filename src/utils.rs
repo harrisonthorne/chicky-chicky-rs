@@ -48,10 +48,6 @@ pub fn make_render_pipeline_descriptor<'a>(
         // depth
         depth_stencil_state,
 
-        // for indices
-        index_format: wgpu::IndexFormat::Uint32,
-
-        vertex_buffers,
         sample_count: 1,
 
         // specifies which samples should be active; in this case, all
@@ -60,6 +56,10 @@ pub fn make_render_pipeline_descriptor<'a>(
 
         // covers antialiasing; setting to false for now
         alpha_to_coverage_enabled: false,
+
+        vertex_state: wgpu::VertexStateDescriptor {
+            index_format: wgpu::IndexFormat::Uint16,
+            vertex_buffers,
+        },
     }
 }
-

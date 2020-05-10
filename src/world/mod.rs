@@ -1,6 +1,6 @@
 mod climate;
 
-use crate::blocks::chunk::Chunk;
+use crate::blocks::{BlockTextures, Chunk};
 use std::collections::VecDeque;
 
 // NOTE: potentially allowing infinite worlds
@@ -11,14 +11,16 @@ pub struct World {
     chunks: VecDeque<VecDeque<VecDeque<Chunk>>>,
     seed: i64,
     render_distance: i32,
+    textures: BlockTextures,
 }
 
 impl World {
-    fn new(seed: i64) -> Self {
+    fn new(seed: i64, textures: BlockTextures) -> Self {
         Self {
             chunks: Default::default(),
             seed,
             render_distance: 6,
+            textures,
         }
     }
 
