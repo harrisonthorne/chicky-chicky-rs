@@ -112,6 +112,8 @@ impl Engine {
 
     /// Consumes the Engine and starts it.
     pub fn start<T>(mut self, event_loop: EventLoop<T>) -> ! {
+        let mut frame_count = 0;
+        let mut last_fps_report = Instant::now();
         event_loop.run(move |event, _, control_flow| {
             *control_flow = ControlFlow::Poll;
             match event {
@@ -157,6 +159,12 @@ impl Engine {
                 }
                 Event::RedrawRequested(_) => {
                     self.render();
+                    frame_count += 1;
+                    if last_fps_report.elapsed() >= std::time::Duration::from_secs(1) {
+                        println!("{} fps", frame_count);
+                        frame_count = 0;
+                        last_fps_report = Instant::now();
+                    }
                     *control_flow = ControlFlow::Wait;
                 }
                 Event::DeviceEvent { event, .. } => {
@@ -252,10 +260,13 @@ impl Engine {
             // the gpu. The encoder builds a command buffer that we can then send to the gpu.
             let mut encoder = self
                 .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("render encoder") });
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("render encoder"),
+                });
 
             renderer.render(
                 &self.device,
+                &mut self.queue,
                 &mut encoder,
                 &frame.view,
                 &self.depth_texture.view,

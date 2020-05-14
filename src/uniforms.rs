@@ -31,8 +31,9 @@ impl Uniforms {
 
         // Copy operations are performed on the gpu, so we'll need
         // a CommandEncoder for that
-        let mut encoder =
-            device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: Some("uniforms update command encoder") });
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
+            label: Some("uniforms update command encoder"),
+        });
 
         let staging_buffer = device
             .create_buffer_with_data(bytemuck::cast_slice(&[*self]), wgpu::BufferUsage::COPY_SRC);

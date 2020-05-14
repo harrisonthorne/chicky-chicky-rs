@@ -1,7 +1,6 @@
 use super::render::Vertex;
 
-const BLOCK_WIDTH: f32 = 1.0;
-const HALF_BLOCK_WIDTH: f32 = BLOCK_WIDTH / 2.0;
+const HALF_BLOCK_WIDTH: f32 = super::Block::WIDTH / 2.0;
 
 // TODO fix uv coordinates
 // indices are not possible with differing uv coordinates
@@ -160,6 +159,8 @@ pub const CUBE_VERTICES: &[Vertex] = &[
 ];
 
 pub fn make_cube_vertex_buffer(device: &wgpu::Device) -> wgpu::Buffer {
-    device
-        .create_buffer_with_data(bytemuck::cast_slice(CUBE_VERTICES), wgpu::BufferUsage::VERTEX)
+    device.create_buffer_with_data(
+        bytemuck::cast_slice(CUBE_VERTICES),
+        wgpu::BufferUsage::VERTEX,
+    )
 }

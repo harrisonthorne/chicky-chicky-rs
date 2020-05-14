@@ -1,8 +1,8 @@
-use crate::blocks::{Block, BlockType};
+use crate::blocks::Chunk;
 
 pub(crate) struct Game {
     // world: Option<World>,
-    tmp_block: Block,
+    tmp_chunk: Chunk,
 }
 
 impl Game {
@@ -10,7 +10,7 @@ impl Game {
     pub fn new() -> Self {
         Self {
             // world: None,
-            tmp_block: Block::from(BlockType::Grass),
+            tmp_chunk: Chunk::generate(0, 0, 0),
         }
     }
 
@@ -63,11 +63,15 @@ impl Game {
 
         world_render_pass.set_pipeline(payload.block_render_pipeline);
 
-        self.tmp_block.render(
-            &mut world_render_pass,
-            payload.uniform_bind_group,
+        self.tmp_chunk.render(
+            payload.block_position_uniform_bind_group,
+            payload.block_position_uniform_buffer,
             payload.cube_vertex_buffer,
+            payload.device,
+            payload.queue,
+            &mut world_render_pass,
             payload.textures,
+            payload.uniform_bind_group,
         );
     }
 }

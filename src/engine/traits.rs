@@ -10,6 +10,7 @@ pub trait Runner {
     fn render(
         &self,
         device: &wgpu::Device,
+        queue: &mut wgpu::Queue,
         encoder: &mut wgpu::CommandEncoder,
         frame: &wgpu::TextureView,
         depth_texture: &wgpu::TextureView,

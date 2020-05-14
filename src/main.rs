@@ -16,11 +16,9 @@ mod uniforms;
 mod utils;
 mod world;
 
-use winit::{
-    event_loop::EventLoop,
-    window::WindowBuilder,
-};
+use blocks::render::BlockPositionUniform;
 use futures::executor;
+use winit::{event_loop::EventLoop, window::WindowBuilder};
 
 fn main() {
     let event_loop = EventLoop::new();
@@ -28,30 +26,38 @@ fn main() {
 
     let mut engine = executor::block_on(engine::Engine::new(60.0, window));
 
-    let block_texture_bind_group_layout = engine.get_device().create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-        bindings: &[
-            wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::SampledTexture {
-                    multisampled: false,
-                    dimension: wgpu::TextureViewDimension::D2,
-                    component_type: wgpu::TextureComponentType::Uint,
-                },
-            },
-            wgpu::BindGroupLayoutEntry {
-                binding: 1,
-                visibility: wgpu::ShaderStage::FRAGMENT,
-                ty: wgpu::BindingType::Sampler { comparison: false },
-            },
-        ],
-        label: None,
-    });
+    // textures
+
+    let block_texture_bind_group_layout =
+        engine
+            .get_device()
+            .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                bindings: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::SampledTexture {
+                            multisampled: false,
+                            dimension: wgpu::TextureViewDimension::D2,
+                            component_type: wgpu::TextureComponentType::Uint,
+                        },
+                    },
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler { comparison: false },
+                    },
+                ],
+                label: None,
+            });
 
     let default_textures = {
         use blocks::BlockTextures;
 
-        let (textures, cmds) = match BlockTextures::default_textures(engine.get_device(), &block_texture_bind_group_layout) {
+        let (textures, cmds) = match BlockTextures::default_textures(
+            engine.get_device(),
+            &block_texture_bind_group_layout,
+        ) {
             Ok(tc) => tc,
             Err(e) => {
                 eprintln!("couldn't make default textures: {}", e);
@@ -64,12 +70,14 @@ fn main() {
         textures
     };
 
-    // uniforms
+    // uniforms and buffer
+
     let uniforms = uniforms::Uniforms::new();
 
-    let uniform_buffer = engine
-        .get_device()
-        .create_buffer_with_data(bytemuck::cast_slice(&[uniforms]), wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST);
+    let uniform_buffer = engine.get_device().create_buffer_with_data(
+        bytemuck::cast_slice(&[uniforms]),
+        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+    );
 
     let uniform_bind_group_layout =
         engine
@@ -103,16 +111,59 @@ fn main() {
             label: Some("uniform bind group"),
         });
 
-    let block_render_pipeline =
-        match blocks::render::make_block_render_pipeline(&mut engine, &uniform_bind_group_layout, &block_texture_bind_group_layout) {
-            Ok(p) => p,
-            Err(e) => {
-                eprintln!("{}", e);
-                std::process::exit(1);
-            }
-        };
+
+    // cube vertex buffer
 
     let cube_vertex_buffer = blocks::vertices::make_cube_vertex_buffer(engine.get_device());
+
+    // block position uniforms and buffer
+
+    let default_block_position_uniform = BlockPositionUniform::default();
+    let block_position_uniform_buffer = engine.get_device().create_buffer_with_data(
+        bytemuck::cast_slice(&[default_block_position_uniform]),
+        wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
+    );
+
+    let block_position_uniform_bind_group_layout =
+        engine
+            .get_device()
+            .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                bindings: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+                    visibility: wgpu::ShaderStage::VERTEX,
+                    ty: wgpu::BindingType::UniformBuffer { dynamic: false },
+                }],
+                label: Some("block position uniform bind group layout descriptor"),
+            });
+
+    let block_position_uniform_bind_group =
+        engine
+            .get_device()
+            .create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &block_position_uniform_bind_group_layout,
+                bindings: &[wgpu::Binding {
+                    binding: 0,
+                    resource: wgpu::BindingResource::Buffer {
+                        buffer: &block_position_uniform_buffer,
+                        range: 0..std::mem::size_of_val(&uniforms) as wgpu::BufferAddress,
+                    },
+                }],
+                label: Some("uniform bind group"),
+            });
+
+    // block render pipeline
+    let block_render_pipeline = match blocks::render::make_block_render_pipeline(
+        &mut engine,
+        &block_texture_bind_group_layout,
+        &uniform_bind_group_layout,
+        &block_position_uniform_bind_group_layout,
+    ) {
+        Ok(p) => p,
+        Err(e) => {
+            eprintln!("{}", e);
+            std::process::exit(1);
+        }
+    };
 
     let sc_desc = engine.get_swap_chain_descriptor();
     let camera = engine::camera::Camera {
@@ -135,6 +186,8 @@ fn main() {
         uniform_bind_group,
         uniform_bind_group_layout,
         block_render_pipeline,
+        block_position_uniform_buffer,
+        block_position_uniform_bind_group,
         textures: default_textures,
 
         cube_vertex_buffer,
@@ -153,6 +206,8 @@ struct MainRunner {
     uniform_bind_group: wgpu::BindGroup,
     uniform_bind_group_layout: wgpu::BindGroupLayout,
     block_render_pipeline: wgpu::RenderPipeline,
+    block_position_uniform_buffer: wgpu::Buffer,
+    block_position_uniform_bind_group: wgpu::BindGroup,
     textures: blocks::textures::BlockTextures,
 
     cube_vertex_buffer: wgpu::Buffer,
@@ -170,12 +225,15 @@ impl engine::Runner for MainRunner {
 
     fn render(
         &self,
-        _device: &wgpu::Device,
+        device: &wgpu::Device,
+        queue: &mut wgpu::Queue,
         encoder: &mut wgpu::CommandEncoder,
         frame: &wgpu::TextureView,
         depth_texture: &wgpu::TextureView,
     ) {
         let mut payload = RenderPayload {
+            device,
+            queue,
             encoder,
             frame,
             depth_texture,
@@ -183,6 +241,8 @@ impl engine::Runner for MainRunner {
             cube_vertex_buffer: &self.cube_vertex_buffer,
             textures: &self.textures,
             uniform_bind_group: &self.uniform_bind_group,
+            block_position_uniform_buffer: &self.block_position_uniform_buffer,
+            block_position_uniform_bind_group: &self.block_position_uniform_bind_group,
         };
 
         #[allow(clippy::single_match)]
@@ -199,6 +259,8 @@ enum GameState {
 }
 
 struct RenderPayload<'a> {
+    device: &'a wgpu::Device,
+    queue: &'a mut wgpu::Queue,
     encoder: &'a mut wgpu::CommandEncoder,
     frame: &'a wgpu::TextureView,
     depth_texture: &'a wgpu::TextureView,
@@ -206,4 +268,6 @@ struct RenderPayload<'a> {
     cube_vertex_buffer: &'a wgpu::Buffer,
     textures: &'a blocks::BlockTextures,
     uniform_bind_group: &'a wgpu::BindGroup,
+    block_position_uniform_buffer: &'a wgpu::Buffer,
+    block_position_uniform_bind_group: &'a wgpu::BindGroup,
 }

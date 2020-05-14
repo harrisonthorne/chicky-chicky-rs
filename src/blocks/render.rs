@@ -16,8 +16,9 @@ unsafe impl bytemuck::Zeroable for Vertex {}
 /// think making it more than once causes inconsistencies between bind groups.
 pub fn make_block_render_pipeline(
     engine: &mut crate::engine::Engine,
-    uniform_bind_group_layout: &wgpu::BindGroupLayout,
     block_texture_bind_group_layout: &wgpu::BindGroupLayout,
+    uniform_bind_group_layout: &wgpu::BindGroupLayout,
+    block_position_uniform_bind_group_layout: &wgpu::BindGroupLayout,
 ) -> Result<wgpu::RenderPipeline, Box<dyn std::error::Error>> {
     // describes how colors are stored and processed throughout the pipeline
     let color_states = [wgpu::ColorStateDescriptor {
@@ -39,7 +40,11 @@ pub fn make_block_render_pipeline(
         engine
             .get_device()
             .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                bind_group_layouts: &[&block_texture_bind_group_layout, &uniform_bind_group_layout],
+                bind_group_layouts: &[
+                    &block_texture_bind_group_layout,
+                    &uniform_bind_group_layout,
+                    &block_position_uniform_bind_group_layout,
+                ],
             });
 
     let block_vertex_buffer_descriptors = super::Block::vertex_buffer_descriptors();
@@ -57,3 +62,22 @@ pub fn make_block_render_pipeline(
         .get_device()
         .create_render_pipeline(&block_render_pipeline_descriptor))
 }
+
+#[repr(C)] // we need this for Rust to store our data correctly for the shaders
+#[derive(Copy, Clone)] // this is so we can store this in a buffer
+pub struct BlockPositionUniform {
+    pub mat: cgmath::Matrix4<f64>,
+}
+
+impl Default for BlockPositionUniform {
+    fn default() -> Self {
+        use cgmath::SquareMatrix;
+
+        Self {
+            mat: cgmath::Matrix4::identity(),
+        }
+    }
+}
+
+unsafe impl bytemuck::Pod for BlockPositionUniform {}
+unsafe impl bytemuck::Zeroable for BlockPositionUniform {}
