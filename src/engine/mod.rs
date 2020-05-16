@@ -160,17 +160,17 @@ impl Engine {
                 Event::RedrawRequested(_) => {
                     self.render();
                     frame_count += 1;
-                    if last_fps_report.elapsed() >= std::time::Duration::from_secs(1) {
-                        println!("{} fps", frame_count);
+
+                    // report fps
+                    let elapsed = last_fps_report.elapsed();
+                    if elapsed >= std::time::Duration::from_secs(1) {
+                        println!("{} fps", frame_count as f32 / elapsed.as_secs_f32());
                         frame_count = 0;
                         last_fps_report = Instant::now();
                     }
-                    *control_flow = ControlFlow::Wait;
                 }
                 Event::DeviceEvent { event, .. } => {
-                    if self.input(&event) {
-                        *control_flow = ControlFlow::Wait;
-                    } else {
+                    if !self.input(&event) {
                         match event {
                             DeviceEvent::Key(input) => match input.state {
                                 ElementState::Pressed => {
@@ -178,18 +178,18 @@ impl Engine {
                                         *control_flow = ControlFlow::Exit;
                                     }
                                 }
-                                _ => *control_flow = ControlFlow::Wait,
+                                _ => (),
                             },
-                            _ => *control_flow = ControlFlow::Wait,
+                            _ => (),
                         }
                     }
                 }
-                _ => *control_flow = ControlFlow::Wait,
+                _ => (),
             }
         })
     }
 
-    /// Sets the runnrer that will update and render the scene for the Engine.
+    /// Sets the runner that will update and render the scene for the Engine.
     pub fn set_runner<R: Runner + 'static>(&mut self, r: R) {
         self.runner = Some(Box::new(r));
     }
