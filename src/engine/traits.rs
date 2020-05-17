@@ -40,7 +40,7 @@ pub trait InputListener {
 
     /// Handles a movement of the mouse cursor. Returns true if input was processed. Otherwise,
     /// return false to pass input onto the next listener.
-    fn cursor_move(&mut self, position: PhysicalPosition<f64>, modifiers: ModifiersState) -> bool {
+    fn cursor_move(&mut self, position: PhysicalPosition<f32>, modifiers: ModifiersState) -> bool {
         false
     }
 

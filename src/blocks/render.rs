@@ -66,7 +66,7 @@ pub fn make_block_render_pipeline(
 #[repr(C)] // we need this for Rust to store our data correctly for the shaders
 #[derive(Copy, Clone)] // this is so we can store this in a buffer
 pub struct BlockPositionUniform {
-    pub mat: cgmath::Matrix4<f64>,
+    pub mat: cgmath::Matrix4<f32>,
 }
 
 impl Default for BlockPositionUniform {

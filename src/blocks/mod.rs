@@ -11,33 +11,18 @@ pub use self::vertices::*;
 pub struct Block {
     block_type: BlockType,
     health: f32,
-    lifespan: f32,
 
     /// If Some, offset the Block.
-    position_offset: Option<cgmath::Vector3<f64>>,
+    position_offset: Option<cgmath::Vector3<f32>>,
 }
 
 impl From<BlockType> for Block {
     fn from(ty: BlockType) -> Self {
-        let lifespan = match ty {
-            BlockType::Dirt => 10.0,
-            BlockType::Grass => 15.0,
-            BlockType::Stone => 50.0,
-            BlockType::Sand => 5.0,
-            BlockType::Air => 0.0,
-            _ => {
-                eprintln!(
-                    "BlockType `{:?}` not implemented. No texture will be rendered!",
-                    ty
-                );
-                0.0
-            }
-        };
+        let lifespan = Self::lifespan_of(ty);
 
         Self {
             block_type: ty,
             health: lifespan,
-            lifespan,
             position_offset: None,
         }
     }
@@ -91,6 +76,23 @@ impl Block {
         render_pass.set_bind_group(2, block_position_uniform_bind_group, &[]);
         render_pass.set_vertex_buffer(0, &cube_vertex_buffer, 0, 0);
         render_pass.draw(0..CUBE_VERTICES.len() as u32, 0..1);
+    }
+
+    pub fn lifespan_of(ty: BlockType) -> f32 {
+        match ty {
+            BlockType::Dirt => 10.0,
+            BlockType::Grass => 15.0,
+            BlockType::Stone => 50.0,
+            BlockType::Sand => 5.0,
+            BlockType::Air => 0.0,
+            _ => {
+                eprintln!(
+                    "BlockType `{:?}` not implemented. Lifespan unknown!",
+                    ty
+                );
+                0.0
+            }
+        }
     }
 }
 

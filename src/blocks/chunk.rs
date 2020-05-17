@@ -10,14 +10,14 @@ pub struct Chunk {
     chunk_j: i64,
     chunk_k: i64,
 
-    chunk_position: cgmath::Vector3<f64>,
+    chunk_position: cgmath::Vector3<f32>,
 }
 
 impl Chunk {
     pub fn generate(chunk_i: i64, chunk_j: i64, chunk_k: i64) -> Self {
-        let chunk_x = (CHUNK_SIZE as f64 * chunk_i as f64) * Block::WIDTH as f64;
-        let chunk_y = (CHUNK_SIZE as f64 * chunk_j as f64) * Block::WIDTH as f64;
-        let chunk_z = (CHUNK_SIZE as f64 * chunk_k as f64) * Block::WIDTH as f64;
+        let chunk_x = (CHUNK_SIZE as f32 * chunk_i as f32) * Block::WIDTH as f32;
+        let chunk_y = (CHUNK_SIZE as f32 * chunk_j as f32) * Block::WIDTH as f32;
+        let chunk_z = (CHUNK_SIZE as f32 * chunk_k as f32) * Block::WIDTH as f32;
         let chunk_position = (chunk_x, chunk_y, chunk_z).into();
 
         let mut c = Self {
@@ -68,10 +68,10 @@ impl Chunk {
                     let block = &self.blocks[i][j][k];
 
                     // the block's position within the chunk
-                    let block_grid_x = (i as f32 * Block::WIDTH) as f64;
-                    let block_grid_y = (j as f32 * Block::WIDTH) as f64;
-                    let block_grid_z = (k as f32 * Block::WIDTH) as f64;
-                    let block_grid_position: cgmath::Vector3<f64> =
+                    let block_grid_x = (i as f32 * Block::WIDTH) as f32;
+                    let block_grid_y = (j as f32 * Block::WIDTH) as f32;
+                    let block_grid_z = (k as f32 * Block::WIDTH) as f32;
+                    let block_grid_position: cgmath::Vector3<f32> =
                         (block_grid_x, block_grid_y, block_grid_z).into();
 
                     // the block's position within the *world*
