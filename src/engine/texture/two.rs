@@ -1,22 +1,22 @@
-use std::error::Error;
-use std::fmt;
 use std::path::Path;
+use super::errors::TextureError;
 
-pub struct Texture {
+pub struct Texture2d {
     pub texture: wgpu::Texture,
     pub view: wgpu::TextureView,
     pub sampler: wgpu::Sampler,
 }
 
-impl Texture {
+impl Texture2d {
     pub const DEPTH_FORMAT: wgpu::TextureFormat = wgpu::TextureFormat::Depth32Float;
 
     pub fn load<P: AsRef<Path>>(
         device: &wgpu::Device,
         path: P,
+        label: Option<&str>,
     ) -> Result<(Self, wgpu::CommandBuffer), TextureError> {
         let img = image::open(path).map_err(TextureError::from_error)?;
-        Self::from_image(device, img)
+        Self::from_image(device, img, label)
     }
 
     pub fn make_depth_texture(device: &wgpu::Device, sc_desc: &wgpu::SwapChainDescriptor) -> Self {
@@ -66,15 +66,17 @@ impl Texture {
     pub fn from_bytes(
         device: &wgpu::Device,
         bytes: &[u8],
+        label: Option<&str>,
     ) -> Result<(Self, wgpu::CommandBuffer), TextureError> {
         let img = image::load_from_memory(bytes)
-            .map_err(|e| TextureError::with_detail(e, "loading image from bytes"))?;
-        Self::from_image(device, img)
+            .map_err(|e| TextureError::from_error_with_detail(e, "loading image from bytes"))?;
+        Self::from_image(device, img, label)
     }
 
     pub fn from_image(
         device: &wgpu::Device,
         img: image::DynamicImage,
+        label: Option<&str>,
     ) -> Result<(Self, wgpu::CommandBuffer), TextureError> {
         let rgba = img.into_rgba();
         let dimensions = rgba.dimensions();
@@ -98,12 +100,12 @@ impl Texture {
             format: wgpu::TextureFormat::Rgba8UnormSrgb,
 
             // SAMPLED: tells wgpu that we want to use this texture in shaders;
-            // COPY_DST: we want to copy data to this texture
+            // COPY_DST: this is our copy destination
             usage: wgpu::TextureUsage::SAMPLED | wgpu::TextureUsage::COPY_DST,
-            label: None,
+            label,
         });
 
-        // COPY_SRC: copy it to our texture
+        // COPY_SRC: copy from this buffer
         let buffer = device
             .create_buffer_with_data(bytemuck::cast_slice(&rgba), wgpu::BufferUsage::COPY_SRC);
 
@@ -146,7 +148,7 @@ impl Texture {
         });
 
         Ok((
-            Texture {
+            Texture2d {
                 texture,
                 view,
                 sampler,
@@ -155,37 +157,3 @@ impl Texture {
         ))
     }
 }
-
-#[derive(Debug)]
-pub struct TextureError {
-    error: Box<dyn Error>,
-    detail: Option<String>,
-}
-
-impl TextureError {
-    fn from_error<E: Error + 'static>(error: E) -> Self {
-        Self {
-            error: Box::new(error),
-            detail: None,
-        }
-    }
-
-    fn with_detail<E: Error + 'static>(error: E, detail: &str) -> Self {
-        Self {
-            error: Box::new(error),
-            detail: Some(String::from(detail)),
-        }
-    }
-}
-
-impl fmt::Display for TextureError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        if let Some(detail) = &self.detail {
-            write!(f, "{}: {}", detail, self.error)
-        } else {
-            write!(f, "{}", self.error)
-        }
-    }
-}
-
-impl Error for TextureError {}

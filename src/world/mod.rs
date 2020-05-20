@@ -1,6 +1,7 @@
 mod climate;
 
-use crate::blocks::{BlockTextures, Chunk};
+use crate::blocks::Chunk;
+use crate::textures::BlockTextures;
 use std::collections::VecDeque;
 
 // NOTE: potentially allowing infinite worlds

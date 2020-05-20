@@ -5,7 +5,6 @@ const HALF_BLOCK_WIDTH: f32 = super::Block::WIDTH / 2.0;
 // TODO fix uv coordinates
 // indices are not possible with differing uv coordinates
 pub const CUBE_VERTICES: &[Vertex] = &[
-    //  X, Y, Z, U, V
     // Bottom
     Vertex {
         position: [-HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH, -HALF_BLOCK_WIDTH],

@@ -11,6 +11,7 @@ mod game;
 mod items;
 mod maths;
 mod sprite;
+mod textures;
 mod traits;
 mod uniforms;
 mod utils;
@@ -52,7 +53,7 @@ fn main() {
             });
 
     let default_textures = {
-        use blocks::BlockTextures;
+        use textures::BlockTextures;
 
         let (textures, cmds) = match BlockTextures::default_textures(
             engine.get_device(),
@@ -208,7 +209,7 @@ struct MainRunner {
     block_render_pipeline: wgpu::RenderPipeline,
     block_position_uniform_buffer: wgpu::Buffer,
     block_position_uniform_bind_group: wgpu::BindGroup,
-    textures: blocks::textures::BlockTextures,
+    textures: textures::BlockTextures,
 
     cube_vertex_buffer: wgpu::Buffer,
 
@@ -266,7 +267,7 @@ struct RenderPayload<'a> {
     depth_texture: &'a wgpu::TextureView,
     block_render_pipeline: &'a wgpu::RenderPipeline,
     cube_vertex_buffer: &'a wgpu::Buffer,
-    textures: &'a blocks::BlockTextures,
+    textures: &'a textures::BlockTextures,
     uniform_bind_group: &'a wgpu::BindGroup,
     block_position_uniform_buffer: &'a wgpu::Buffer,
     block_position_uniform_bind_group: &'a wgpu::BindGroup,

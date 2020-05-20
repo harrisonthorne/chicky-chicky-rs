@@ -31,7 +31,7 @@ pub struct Engine {
     surface: wgpu::Surface,
     swap_chain: wgpu::SwapChain,
 
-    depth_texture: texture::Texture,
+    depth_texture: texture::Texture2d,
 
     camera: camera::Camera,
 }
@@ -89,7 +89,7 @@ impl Engine {
             zfar: 100.0,
         };
 
-        let depth_texture = texture::Texture::make_depth_texture(&device, &swap_chain_descriptor);
+        let depth_texture = texture::Texture2d::make_depth_texture(&device, &swap_chain_descriptor);
 
         Self {
             window,
@@ -208,7 +208,7 @@ impl Engine {
             .device
             .create_swap_chain(&self.surface, &self.swap_chain_descriptor);
         self.depth_texture =
-            texture::Texture::make_depth_texture(&self.device, &self.swap_chain_descriptor);
+            texture::Texture2d::make_depth_texture(&self.device, &self.swap_chain_descriptor);
     }
 
     /// input() returns a bool to indicate whether an event has been fully processed. If the method

@@ -16,7 +16,7 @@ pub fn make_render_pipeline_descriptor<'a>(
 
     let depth_stencil_state = if use_depth {
         Some(wgpu::DepthStencilStateDescriptor {
-            format: crate::engine::Texture::DEPTH_FORMAT,
+            format: crate::engine::Texture2d::DEPTH_FORMAT,
             depth_write_enabled: true,
             depth_compare: wgpu::CompareFunction::Less,
             stencil_front: wgpu::StencilStateFaceDescriptor::IGNORE,

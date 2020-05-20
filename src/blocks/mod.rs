@@ -7,6 +7,8 @@ pub use self::chunk::*;
 pub use self::textures::*;
 pub use self::vertices::*;
 
+use crate::textures::BlockTextures;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Block {
     block_type: BlockType,
