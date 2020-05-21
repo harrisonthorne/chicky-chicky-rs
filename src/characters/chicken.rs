@@ -2,7 +2,7 @@ use crate::characters::{Character, CharacterAction, Direction, FacingDirection};
 use crate::engine::physics::PhysicalObject;
 use crate::items;
 use crate::items::{Backpack, Item, ItemStack};
-use crate::maths::AABC;
+use crate::maths::AABB;
 use crate::traits::{Killable, Logicable, Renderable};
 use cgmath::Vector3;
 
@@ -45,7 +45,7 @@ impl Default for Chicken {
         Self {
             physical: PhysicalObject::new(
                 2.0,
-                AABC {
+                AABB {
                     center_pos: Vector3::from((0.0, 0.0, 0.0)),
                     half_size: Vector3::from((0.0, 0.0, 0.0)),
                 },

@@ -15,7 +15,7 @@ impl Game {
     }
 
     fn start_render_pass<'a>(
-        phase: RenderPhase,
+        _phase: RenderPhase,
         encoder: &'a mut wgpu::CommandEncoder,
         frame: &'a wgpu::TextureView,
         depth_texture: &'a wgpu::TextureView,
@@ -34,18 +34,15 @@ impl Game {
         }];
 
         // determine depth attachment. only ignore depth if the phase is the Interface phase.
-        let depth_stencil_attachment = match phase {
-            RenderPhase::Interface => None,
-            _ => Some(wgpu::RenderPassDepthStencilAttachmentDescriptor {
-                attachment: depth_texture,
-                depth_load_op: wgpu::LoadOp::Clear,
-                depth_store_op: wgpu::StoreOp::Store,
-                clear_depth: 1.0,
-                stencil_load_op: wgpu::LoadOp::Clear,
-                stencil_store_op: wgpu::StoreOp::Store,
-                clear_stencil: 0,
-            }),
-        };
+        let depth_stencil_attachment = Some(wgpu::RenderPassDepthStencilAttachmentDescriptor {
+            attachment: depth_texture,
+            depth_load_op: wgpu::LoadOp::Clear,
+            depth_store_op: wgpu::StoreOp::Store,
+            clear_depth: 1.0,
+            stencil_load_op: wgpu::LoadOp::Clear,
+            stencil_store_op: wgpu::StoreOp::Store,
+            clear_stencil: 0,
+        });
 
         encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments,
@@ -63,16 +60,7 @@ impl Game {
 
         world_render_pass.set_pipeline(payload.block_render_pipeline);
 
-        self.tmp_chunk.render(
-            payload.block_position_uniform_bind_group,
-            payload.block_position_uniform_buffer,
-            payload.cube_vertex_buffer,
-            payload.device,
-            payload.queue,
-            &mut world_render_pass,
-            payload.textures,
-            payload.uniform_bind_group,
-        );
+        self.tmp_chunk.render();
     }
 }
 
@@ -80,9 +68,9 @@ enum RenderPhase {
     /// Draw the world: blocks, weather, particles, and more.
     World,
 
-    /// Draw characters.
-    Characters,
+    // /// Draw characters.
+    // Characters,
 
-    /// Draw the user interface: health bars, backpack view, buttons, et cetera.
-    Interface,
+    // /// Draw the user interface: health bars, backpack view, buttons, et cetera.
+    // Interface,
 }

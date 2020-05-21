@@ -1,13 +1,9 @@
 pub mod chunk;
 pub mod render;
 pub mod textures;
-pub mod vertices;
 
 pub use self::chunk::*;
 pub use self::textures::*;
-pub use self::vertices::*;
-
-use crate::textures::BlockTextures;
 
 #[derive(Clone, Copy, Debug)]
 pub struct Block {
@@ -31,13 +27,13 @@ impl From<BlockType> for Block {
 }
 
 impl Block {
-    pub const WIDTH: f32 = 0.5;
+    // pub const WIDTH: f32 = 0.5;
 
     pub fn vertex_buffer_descriptors<'a>() -> &'a [wgpu::VertexBufferDescriptor<'a>] {
         use std::mem::size_of;
 
         &[wgpu::VertexBufferDescriptor {
-            stride: render::Vertex::SIZE,
+            stride: render::ChunkMeshVertex::SIZE,
             step_mode: wgpu::InputStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttributeDescriptor {
@@ -52,32 +48,6 @@ impl Block {
                 },
             ],
         }]
-    }
-
-    pub fn render<'a>(
-        &self,
-        block_position_uniform_bind_group: &'a wgpu::BindGroup,
-        cube_vertex_buffer: &'a wgpu::Buffer,
-        render_pass: &mut wgpu::RenderPass<'a>,
-        textures: &'a BlockTextures,
-        uniform_bind_group: &'a wgpu::BindGroup,
-    ) {
-        let block_texture = match self.block_type {
-            BlockType::Air => return,
-            BlockType::Dirt => &textures.dirt,
-            BlockType::Grass => &textures.grass,
-            BlockType::Sand => &textures.sand,
-            _ => {
-                println!("[WARNING] block tried to render but texture isn't used or available in Block::render: {:?}", self.block_type);
-                return;
-            }
-        };
-
-        render_pass.set_bind_group(0, block_texture.get_bind_group(), &[]);
-        render_pass.set_bind_group(1, uniform_bind_group, &[]);
-        render_pass.set_bind_group(2, block_position_uniform_bind_group, &[]);
-        render_pass.set_vertex_buffer(0, &cube_vertex_buffer, 0, 0);
-        render_pass.draw(0..CUBE_VERTICES.len() as u32, 0..1);
     }
 
     pub fn lifespan_of(ty: BlockType) -> f32 {

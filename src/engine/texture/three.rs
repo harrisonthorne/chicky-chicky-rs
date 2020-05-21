@@ -1,5 +1,4 @@
 use super::errors::TextureError;
-use std::path::Path;
 
 pub struct Texture3d {
     pub texture: wgpu::Texture,
@@ -60,12 +59,12 @@ impl Texture3d {
             sampler,
             size,
             layers,
-            label: label.map(|s| String::from(s)),
+            label: label.map(String::from),
         }
     }
 
     pub fn set_layer_from_bytes(
-        &mut self,
+        &self,
         device: &wgpu::Device,
         index: u32,
         bytes: &[u8],
@@ -79,7 +78,7 @@ impl Texture3d {
     }
 
     pub fn set_layer_from_image(
-        &mut self,
+        &self,
         device: &wgpu::Device,
         index: u32,
         img: image::DynamicImage,
@@ -120,7 +119,7 @@ impl Texture3d {
         Ok(cmd_buffer)
     }
 
-    fn check_index(&mut self, index: u32) -> Result<(), TextureError> {
+    fn check_index(&self, index: u32) -> Result<(), TextureError> {
         if index >= self.layers {
             let label = if let Some(l) = &self.label {
                 &l

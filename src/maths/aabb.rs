@@ -1,17 +1,19 @@
+#![allow(dead_code)]
+
 use cgmath::Vector3;
 
-/// AABC is an Axis-Aligned Bounding Cube. it is used to check
+/// AABB is an Axis-Aligned Bounding Box. it is used to check
 /// for collisions in collision detection.
 #[derive(Debug)]
-pub struct AABC {
+pub struct AABB {
     pub center_pos: Vector3<f32>,
     pub half_size: Vector3<f32>,
 }
 
-impl AABC {
+impl AABB {
     // Returns true if the AABC is touching the
     // other AABC
-    pub fn collides_with(&self, other: &AABC) -> bool {
+    pub fn collides_with(&self, other: &AABB) -> bool {
         // AABBs are in collision with each other if and only
         // if, on all axes, the distance between the center of
         // the AABBs is less than the sum of half of the size of

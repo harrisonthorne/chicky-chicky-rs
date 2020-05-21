@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod chicken;
 
 pub use chicken::*;
@@ -21,12 +23,11 @@ pub trait Character: Killable + Logicable + Renderable {
     fn jump(&mut self, sup: bool); // Do something when the space bar is pressed
     fn stop(&mut self); // Nothing is happening anymore; stop movement
 
-    /// Initiates an attack by the Controllable. Returns
-    /// whatever the Controllable might be holding, the
-    /// attack power, and where the Controllable was aiming
+    /// Initiates an attack by the Controllable. Returns whatever the Controllable might be
+    /// holding, the attack power, and where the Controllable was aiming
     fn attack<K: Killable>(&self, with: Option<&items::Item>, power: f32, who: K);
 
-    /// REnders the character.
+    /// Renders the character.
     fn render(&self);
 }
 
@@ -53,7 +54,7 @@ impl Default for CharacterAction {
     }
 }
 
-/// Right or Left, telling which direction a character (or whatever) is facing
+/// Right or Left, telling which direction a character (or whatever sprite) is facing
 #[derive(Debug)]
 pub enum FacingDirection {
     Right,

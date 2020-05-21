@@ -25,11 +25,11 @@ pub struct PhysicalObject {
     was_pushing_wall: bool,
     was_at_ceiling: bool,
 
-    hitbox: maths::AABC, // hitbox for collision calculation, but not kill calculation
+    hitbox: maths::AABB, // hitbox for collision calculation, but not kill calculation
 }
 
 impl PhysicalObject {
-    pub fn new(mass: f32, physics_box: maths::AABC) -> Self {
+    pub fn new(mass: f32, physics_box: maths::AABB) -> Self {
         Self {
             frozen: false,
 

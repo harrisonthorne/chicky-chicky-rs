@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 pub mod camera;
 pub mod physics;
 pub mod texture;
@@ -32,8 +34,6 @@ pub struct Engine {
     swap_chain: wgpu::SwapChain,
 
     depth_texture: texture::Texture2d,
-
-    camera: camera::Camera,
 }
 
 impl Engine {
@@ -75,20 +75,6 @@ impl Engine {
 
         let swap_chain = device.create_swap_chain(&surface, &swap_chain_descriptor);
 
-        // make camera
-        let camera = camera::Camera {
-            // position the camera one unit up and 2 units back
-            eye: (0.0, 1.0, -2.0).into(),
-            // have it look at the origin
-            target: (0.0, 0.0, 0.0).into(),
-            // which way is "up"
-            up: cgmath::Vector3::unit_y(),
-            aspect: swap_chain_descriptor.width as f32 / swap_chain_descriptor.height as f32,
-            fovy: 45.0,
-            znear: 0.1,
-            zfar: 100.0,
-        };
-
         let depth_texture = texture::Texture2d::make_depth_texture(&device, &swap_chain_descriptor);
 
         Self {
@@ -103,7 +89,6 @@ impl Engine {
             modifiers: Default::default(),
             runner: None,
 
-            camera,
             surface,
             depth_texture,
             swap_chain,
@@ -122,14 +107,13 @@ impl Engine {
                     window_id,
                 } if window_id == self.window.id() => match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                    WindowEvent::KeyboardInput { input, .. } => match input {
+                    WindowEvent::KeyboardInput { input, .. } => if let KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::Escape),
+                        ..
+                    } = input {
                         // exit on <esc>
-                        KeyboardInput {
-                            state: ElementState::Pressed,
-                            virtual_keycode: Some(VirtualKeyCode::Escape),
-                            ..
-                        } => *control_flow = ControlFlow::Exit,
-                        _ => (),
+                        *control_flow = ControlFlow::Exit;
                     },
                     WindowEvent::Resized(physical_size) => {
                         self.resize(*physical_size);
@@ -171,16 +155,12 @@ impl Engine {
                 }
                 Event::DeviceEvent { event, .. } => {
                     if !self.input(&event) {
-                        match event {
-                            DeviceEvent::Key(input) => match input.state {
-                                ElementState::Pressed => {
-                                    if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
-                                        *control_flow = ControlFlow::Exit;
-                                    }
+                        if let DeviceEvent::Key(input) = event {
+                            if let ElementState::Pressed = input.state {
+                                if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
+                                    *control_flow = ControlFlow::Exit;
                                 }
-                                _ => (),
-                            },
-                            _ => (),
+                            }
                         }
                     }
                 }
@@ -309,10 +289,6 @@ impl Engine {
 
     pub fn get_device(&self) -> &wgpu::Device {
         &self.device
-    }
-
-    pub fn get_queue_mut(&mut self) -> &mut wgpu::Queue {
-        &mut self.queue
     }
 
     pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {
