@@ -71,8 +71,9 @@ impl Texture3d {
     ) -> Result<wgpu::CommandBuffer, TextureError> {
         self.check_index(index)?;
 
-        let img = image::load_from_memory(bytes)
-            .map_err(|e| TextureError::from_error_with_detail(e, "setting layer from bytes (loading image)"))?;
+        let img = image::load_from_memory(bytes).map_err(|e| {
+            TextureError::from_error_with_detail(e, "setting layer from bytes (loading image)")
+        })?;
 
         self.set_layer_from_image(device, index, img)
     }
@@ -115,7 +116,7 @@ impl Texture3d {
         let cmd_buffer = encoder.finish();
 
         // NOTE: 3d texture not working as hoped? recreate `view` here
-        
+
         Ok(cmd_buffer)
     }
 

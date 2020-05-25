@@ -107,14 +107,17 @@ impl Engine {
                     window_id,
                 } if window_id == self.window.id() => match event {
                     WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                    WindowEvent::KeyboardInput { input, .. } => if let KeyboardInput {
-                        state: ElementState::Pressed,
-                        virtual_keycode: Some(VirtualKeyCode::Escape),
-                        ..
-                    } = input {
-                        // exit on <esc>
-                        *control_flow = ControlFlow::Exit;
-                    },
+                    WindowEvent::KeyboardInput { input, .. } => {
+                        if let KeyboardInput {
+                            state: ElementState::Pressed,
+                            virtual_keycode: Some(VirtualKeyCode::Escape),
+                            ..
+                        } = input
+                        {
+                            // exit on <esc>
+                            *control_flow = ControlFlow::Exit;
+                        }
+                    }
                     WindowEvent::Resized(physical_size) => {
                         self.resize(*physical_size);
                     }
@@ -289,6 +292,10 @@ impl Engine {
 
     pub fn get_device(&self) -> &wgpu::Device {
         &self.device
+    }
+
+    pub fn get_queue(&self) -> &wgpu::Queue {
+        &self.queue
     }
 
     pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {

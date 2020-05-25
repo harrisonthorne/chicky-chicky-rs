@@ -17,14 +17,14 @@ mod uniforms;
 mod utils;
 mod world;
 
-use futures::executor;
 use winit::{event_loop::EventLoop, window::WindowBuilder};
 
-fn main() {
+#[async_std::main]
+async fn main() {
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut engine = executor::block_on(engine::Engine::new(60.0, window));
+    let mut engine = engine::Engine::new(60.0, window).await;
 
     // make camera
     // let camera = camera::Camera {
@@ -44,48 +44,48 @@ fn main() {
 
     let block_texture_bind_group_layout =
         engine
-        .get_device()
-        .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            bindings: &[
-                wgpu::BindGroupLayoutEntry {
-                    binding: 0,
-                    visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::SampledTexture {
-                        multisampled: false,
-                        dimension: wgpu::TextureViewDimension::D2,
-                        component_type: wgpu::TextureComponentType::Uint,
+            .get_device()
+            .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                bindings: &[
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 0,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::SampledTexture {
+                            multisampled: false,
+                            dimension: wgpu::TextureViewDimension::D2,
+                            component_type: wgpu::TextureComponentType::Uint,
+                        },
                     },
-                },
-                wgpu::BindGroupLayoutEntry {
-                    binding: 1,
-                    visibility: wgpu::ShaderStage::FRAGMENT,
-                    ty: wgpu::BindingType::Sampler { comparison: false },
-                },
-            ],
-            label: None,
-        });
+                    wgpu::BindGroupLayoutEntry {
+                        binding: 1,
+                        visibility: wgpu::ShaderStage::FRAGMENT,
+                        ty: wgpu::BindingType::Sampler { comparison: false },
+                    },
+                ],
+                label: None,
+            });
 
-    // let texture_dimensions = (16, 16);
+    let texture_dimensions = (16, 16);
 
-    // let default_textures = {
-    //     use textures::BlockTextures;
+    let default_textures = {
+        use textures::BlockTextures;
 
-    //     let (textures, cmds) = match BlockTextures::default_textures(
-    //         engine.get_device(),
-    //         texture_dimensions,
-    //         &block_texture_bind_group_layout,
-    //     ) {
-    //         Ok(tc) => tc,
-    //         Err(e) => {
-    //             eprintln!("couldn't make default textures: {}", e);
-    //             std::process::exit(1);
-    //         }
-    //     };
+        let (textures, cmds) = match BlockTextures::default_textures(
+            engine.get_device(),
+            texture_dimensions,
+            &block_texture_bind_group_layout,
+        ) {
+            Ok(tc) => tc,
+            Err(e) => {
+                eprintln!("couldn't make default textures: {}", e);
+                std::process::exit(1);
+            }
+        };
 
-    //     engine.get_queue_mut().submit(&cmds);
+        engine.get_queue().submit(&cmds);
 
-    //     textures
-    // };
+        textures
+    };
 
     // uniforms and buffer
 
@@ -98,35 +98,35 @@ fn main() {
 
     let uniform_bind_group_layout =
         engine
+            .get_device()
+            .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+                bindings: &[wgpu::BindGroupLayoutEntry {
+                    binding: 0,
+
+                    // camera manipulates vertices, hence visible to vertex shader stages
+                    visibility: wgpu::ShaderStage::VERTEX,
+
+                    ty: wgpu::BindingType::UniformBuffer {
+                        // buffer will not change size
+                        dynamic: false,
+                    },
+                }],
+                label: Some("uniform bind group layout"),
+            });
+
+    let uniform_bind_group = engine
         .get_device()
-        .create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            bindings: &[wgpu::BindGroupLayoutEntry {
+        .create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &uniform_bind_group_layout,
+            bindings: &[wgpu::Binding {
                 binding: 0,
-
-                // camera manipulates vertices, hence visible to vertex shader stages
-                visibility: wgpu::ShaderStage::VERTEX,
-
-                ty: wgpu::BindingType::UniformBuffer {
-                    // buffer will not change size
-                    dynamic: false,
+                resource: wgpu::BindingResource::Buffer {
+                    buffer: &uniform_buffer,
+                    range: 0..std::mem::size_of_val(&uniforms) as wgpu::BufferAddress,
                 },
             }],
-            label: Some("uniform bind group layout"),
+            label: Some("uniform bind group"),
         });
-
-    // let uniform_bind_group = engine
-    //     .get_device()
-    //     .create_bind_group(&wgpu::BindGroupDescriptor {
-    //         layout: &uniform_bind_group_layout,
-    //         bindings: &[wgpu::Binding {
-    //             binding: 0,
-    //             resource: wgpu::BindingResource::Buffer {
-    //                 buffer: &uniform_buffer,
-    //                 range: 0..std::mem::size_of_val(&uniforms) as wgpu::BufferAddress,
-    //             },
-    //         }],
-    //         label: Some("uniform bind group"),
-    //     });
 
     // chunk render pipeline
     let block_render_pipeline = match blocks::render::make_chunk_render_pipeline(
@@ -152,19 +152,18 @@ fn main() {
         zfar: 10000.0,
     };
 
-    let game = game::Game::new();
+    let game = game::Game::new().await;
 
     let runner = MainRunner {
         state: GameState::Game(Box::new(game)),
 
         uniforms,
         uniform_buffer,
-        // uniform_bind_group,
-        // uniform_bind_group_layout,
+        uniform_bind_group,
+        uniform_bind_group_layout,
         block_render_pipeline,
-        // textures: default_textures,
-
         camera,
+        block_textures: default_textures,
     };
 
     engine.set_runner(runner);
@@ -176,18 +175,23 @@ struct MainRunner {
 
     uniforms: uniforms::Uniforms,
     uniform_buffer: wgpu::Buffer,
-    // uniform_bind_group: wgpu::BindGroup,
-    // uniform_bind_group_layout: wgpu::BindGroupLayout,
-    block_render_pipeline: wgpu::RenderPipeline,
-    // textures: textures::BlockTextures,
+    uniform_bind_group: wgpu::BindGroup,
+    uniform_bind_group_layout: wgpu::BindGroupLayout,
 
     camera: engine::camera::Camera,
+
+    block_textures: textures::BlockTextures,
+    block_render_pipeline: wgpu::RenderPipeline,
 }
 
 impl engine::Runner for MainRunner {
     fn update(&mut self, _delta_sec: f32, device: &wgpu::Device, queue: &mut wgpu::Queue) -> bool {
         self.uniforms
             .update(device, &self.camera, &mut self.uniform_buffer, queue);
+        
+        match &mut self.state {
+            GameState::Game(g) => g.logic(device),
+        }
 
         true
     }
@@ -207,8 +211,8 @@ impl engine::Runner for MainRunner {
             frame,
             depth_texture,
             block_render_pipeline: &self.block_render_pipeline,
-            // textures: &self.textures,
-            // uniform_bind_group: &self.uniform_bind_group,
+            uniform_bind_group: &self.uniform_bind_group,
+            block_texture_bind_group: &self.block_textures.get_bind_group(),
         };
 
         #[allow(clippy::single_match)]
@@ -230,6 +234,6 @@ struct RenderPayload<'a> {
     frame: &'a wgpu::TextureView,
     depth_texture: &'a wgpu::TextureView,
     block_render_pipeline: &'a wgpu::RenderPipeline,
-    // textures: &'a textures::BlockTextures,
-    // uniform_bind_group: &'a wgpu::BindGroup,
+    block_texture_bind_group: &'a wgpu::BindGroup,
+    uniform_bind_group: &'a wgpu::BindGroup,
 }

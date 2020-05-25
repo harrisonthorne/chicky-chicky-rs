@@ -27,13 +27,13 @@ impl From<BlockType> for Block {
 }
 
 impl Block {
-    // pub const WIDTH: f32 = 0.5;
+    pub const WIDTH: f32 = 0.5;
 
     pub fn vertex_buffer_descriptors<'a>() -> &'a [wgpu::VertexBufferDescriptor<'a>] {
         use std::mem::size_of;
 
         &[wgpu::VertexBufferDescriptor {
-            stride: render::ChunkMeshVertex::SIZE,
+            stride: chunk::ChunkMeshVertex::SIZE,
             step_mode: wgpu::InputStepMode::Vertex,
             attributes: &[
                 wgpu::VertexAttributeDescriptor {
@@ -58,17 +58,25 @@ impl Block {
             BlockType::Sand => 5.0,
             BlockType::Air => 0.0,
             _ => {
-                eprintln!(
-                    "BlockType `{:?}` not implemented. Lifespan unknown!",
-                    ty
-                );
+                eprintln!("BlockType `{:?}` not implemented. Lifespan unknown!", ty);
                 0.0
             }
         }
     }
+
+    pub fn should_skip_mesh(&self) -> bool {
+        self.block_type == BlockType::Air
+    }
+
+    pub fn is_see_through(&self) -> bool {
+        match self.block_type {
+            BlockType::Air | BlockType::Glass => true,
+            _ => false,
+        }
+    }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum BlockType {
     Air,
@@ -86,4 +94,5 @@ pub enum BlockType {
     WoodPlanks,
     Furnace,
     Leaves,
+    Glass,
 }

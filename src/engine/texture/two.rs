@@ -1,5 +1,5 @@
-use std::path::Path;
 use super::errors::TextureError;
+use std::path::Path;
 
 pub struct Texture2d {
     pub texture: wgpu::Texture,

@@ -1,18 +1,3 @@
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct ChunkMeshVertex {
-    pub position: [f32; 3],
-    pub uv_coords: [f32; 2],
-    pub texture_layer: u32,
-}
-
-impl ChunkMeshVertex {
-    pub const SIZE: u64 = std::mem::size_of::<Self>() as u64;
-}
-
-unsafe impl bytemuck::Pod for ChunkMeshVertex {}
-unsafe impl bytemuck::Zeroable for ChunkMeshVertex {}
-
 /// Note: Why are we passing in block_texture_bind_group_layout when we could just make it here? I
 /// think making it more than once causes inconsistencies between bind groups.
 pub fn make_chunk_render_pipeline(
@@ -40,10 +25,7 @@ pub fn make_chunk_render_pipeline(
         engine
             .get_device()
             .create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                bind_group_layouts: &[
-                    &block_texture_bind_group_layout,
-                    &uniform_bind_group_layout,
-                ],
+                bind_group_layouts: &[&block_texture_bind_group_layout, &uniform_bind_group_layout],
             });
 
     let chunk_vertex_buffer_descriptors = super::Block::vertex_buffer_descriptors();

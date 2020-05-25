@@ -1,7 +1,7 @@
 mod errors;
 
-pub mod two;
 pub mod three;
+pub mod two;
 
-pub use two::*;
 pub use three::*;
+pub use two::*;

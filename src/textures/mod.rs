@@ -1,17 +1,62 @@
 #![allow(dead_code)]
 
-use crate::engine;
 use crate::blocks::BlockType;
+use crate::engine;
+use crate::world::Direction;
+use std::convert::TryFrom;
 use std::error::Error;
 use std::fmt::{self, Display, Formatter};
-use std::convert::TryFrom;
 
 const BLOCK_TEXTURE_COUNT: u32 = 4;
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum BlockTextureIndex {
     Dirt,
     Grass,
     Stone,
-    Sand
+    Sand,
+}
+
+impl BlockTextureIndex {
+    pub fn from_type_and_direction(
+        ty: BlockType,
+        direction: Direction,
+    ) -> Result<Self, NoSuchBlockTextureError> {
+        match direction {
+            Direction::Up => Self::get_top(ty),
+            Direction::Down => Self::get_bottom(ty),
+            _ => Self::get_side(ty),
+        }
+    }
+
+    fn get_top(ty: BlockType) -> Result<Self, NoSuchBlockTextureError> {
+        Ok(match ty {
+            BlockType::Sand => Self::Sand,
+            BlockType::Dirt => Self::Dirt,
+            BlockType::Grass => Self::Grass,
+            BlockType::Stone => Self::Stone,
+            _ => return Err(NoSuchBlockTextureError { for_type: ty }),
+        })
+    }
+
+    fn get_bottom(ty: BlockType) -> Result<Self, NoSuchBlockTextureError> {
+        Ok(match ty {
+            BlockType::Sand => Self::Sand,
+            BlockType::Dirt => Self::Dirt,
+            BlockType::Grass => Self::Dirt,
+            BlockType::Stone => Self::Stone,
+            _ => return Err(NoSuchBlockTextureError { for_type: ty }),
+        })
+    }
+
+    fn get_side(ty: BlockType) -> Result<Self, NoSuchBlockTextureError> {
+        Ok(match ty {
+            BlockType::Sand => Self::Sand,
+            BlockType::Dirt => Self::Dirt,
+            BlockType::Grass => Self::Grass,
+            BlockType::Stone => Self::Stone,
+            _ => return Err(NoSuchBlockTextureError { for_type: ty }),
+        })
+    }
 }
 
 impl TryFrom<BlockType> for BlockTextureIndex {
@@ -23,9 +68,7 @@ impl TryFrom<BlockType> for BlockTextureIndex {
             BlockType::Grass => Self::Grass,
             BlockType::Stone => Self::Stone,
             BlockType::Sand => Self::Sand,
-            _ => return Err(Self::Error {
-                for_type: t,
-            }),
+            _ => return Err(Self::Error { for_type: t }),
         })
     }
 }
@@ -37,7 +80,11 @@ pub struct NoSuchBlockTextureError {
 
 impl Display for NoSuchBlockTextureError {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "no texture available for block type `{:?}`", self.for_type)
+        write!(
+            f,
+            "no texture available for block type `{:?}`",
+            self.for_type
+        )
     }
 }
 
@@ -54,23 +101,44 @@ impl BlockTextures {
         texture_dimensions: (u32, u32),
         block_texture_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Result<(Self, Vec<wgpu::CommandBuffer>), Box<dyn Error>> {
-        let textures = engine::Texture3d::new(device, texture_dimensions, BLOCK_TEXTURE_COUNT, Some("block textures"));
+        let textures = engine::Texture3d::new(
+            device,
+            texture_dimensions,
+            BLOCK_TEXTURE_COUNT,
+            Some("block textures"),
+        );
 
-        let dirt_cmd = textures.set_layer_from_bytes(device, BlockTextureIndex::Dirt as u32,
-            include_bytes!("../../assets/images/blocks/dirt.png")).map_err(|e|
-            MakeTextureError::new("dirt", e))?;
+        let dirt_cmd = textures
+            .set_layer_from_bytes(
+                device,
+                BlockTextureIndex::Dirt as u32,
+                include_bytes!("../../assets/images/blocks/dirt.png"),
+            )
+            .map_err(|e| MakeTextureError::new("dirt", e))?;
 
-        let grass_cmd = textures.set_layer_from_bytes(device, BlockTextureIndex::Grass as u32,
-            include_bytes!("../../assets/images/blocks/grass.png")).map_err(|e|
-            MakeTextureError::new("grass", e))?;
+        let grass_cmd = textures
+            .set_layer_from_bytes(
+                device,
+                BlockTextureIndex::Grass as u32,
+                include_bytes!("../../assets/images/blocks/grass.png"),
+            )
+            .map_err(|e| MakeTextureError::new("grass", e))?;
 
-        let stone_cmd = textures.set_layer_from_bytes(device, BlockTextureIndex::Stone as u32,
-            include_bytes!("../../assets/images/blocks/stone.png")).map_err(|e|
-            MakeTextureError::new("stone", e))?;
+        let stone_cmd = textures
+            .set_layer_from_bytes(
+                device,
+                BlockTextureIndex::Stone as u32,
+                include_bytes!("../../assets/images/blocks/stone.png"),
+            )
+            .map_err(|e| MakeTextureError::new("stone", e))?;
 
-        let sand_cmd = textures.set_layer_from_bytes(device, BlockTextureIndex::Sand as u32,
-            include_bytes!("../../assets/images/blocks/sand.png")).map_err(|e|
-            MakeTextureError::new("sand", e))?;
+        let sand_cmd = textures
+            .set_layer_from_bytes(
+                device,
+                BlockTextureIndex::Sand as u32,
+                include_bytes!("../../assets/images/blocks/sand.png"),
+            )
+            .map_err(|e| MakeTextureError::new("sand", e))?;
 
         let commands = vec![dirt_cmd, stone_cmd, grass_cmd, sand_cmd];
 

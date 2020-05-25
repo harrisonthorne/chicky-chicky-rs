@@ -55,3 +55,20 @@ impl World {
         // }
     }
 }
+
+#[derive(Debug, Copy, Clone)]
+pub enum Axis {
+    X,
+    Y,
+    Z,
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum Direction {
+    North,
+    South,
+    East,
+    West,
+    Up,
+    Down,
+}

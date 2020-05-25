@@ -7,10 +7,10 @@ pub(crate) struct Game {
 
 impl Game {
     /// Decided to pass in bind groups and pipelines so that this file doesn't become too crowded.
-    pub fn new() -> Self {
+    pub async fn new() -> Self {
         Self {
             // world: None,
-            tmp_chunk: Chunk::generate(0, 0, 0),
+            tmp_chunk: Chunk::generate(0, 0, 0).await,
         }
     }
 
@@ -50,6 +50,10 @@ impl Game {
         })
     }
 
+    pub fn logic(&mut self, device: &wgpu::Device) {
+        self.tmp_chunk.logic(device);
+    }
+
     pub fn render(&self, payload: &mut crate::RenderPayload) {
         let mut world_render_pass: wgpu::RenderPass = Self::start_render_pass(
             RenderPhase::World,
@@ -60,7 +64,7 @@ impl Game {
 
         world_render_pass.set_pipeline(payload.block_render_pipeline);
 
-        self.tmp_chunk.render();
+        self.tmp_chunk.render(&mut world_render_pass, payload.block_texture_bind_group);
     }
 }
 
