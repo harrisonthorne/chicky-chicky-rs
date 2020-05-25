@@ -5,6 +5,7 @@
 #![deny(clippy::shadow_unrelated)]
 
 mod blocks;
+mod camera;
 mod characters;
 mod engine;
 mod game;
@@ -142,7 +143,7 @@ async fn main() {
     };
 
     let sc_desc = engine.get_swap_chain_descriptor();
-    let camera = engine::camera::Camera {
+    let camera = camera::Camera {
         eye: (0.0, 2.0, -2.0).into(),
         target: (0.0, 0.0, 0.0).into(),
         up: cgmath::Vector3::unit_y(),
@@ -160,7 +161,7 @@ async fn main() {
         uniforms,
         uniform_buffer,
         uniform_bind_group,
-        uniform_bind_group_layout,
+        // uniform_bind_group_layout,
         block_render_pipeline,
         camera,
         block_textures: default_textures,
@@ -176,9 +177,9 @@ struct MainRunner {
     uniforms: uniforms::Uniforms,
     uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
-    uniform_bind_group_layout: wgpu::BindGroupLayout,
+    // uniform_bind_group_layout: wgpu::BindGroupLayout,
 
-    camera: engine::camera::Camera,
+    camera: camera::Camera,
 
     block_textures: textures::BlockTextures,
     block_render_pipeline: wgpu::RenderPipeline,

@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-pub mod camera;
 pub mod physics;
 pub mod texture;
 pub mod traits;
@@ -12,7 +11,6 @@ use winit::{
     window::Window,
 };
 
-pub use camera::*;
 pub use texture::*;
 pub use traits::*;
 

@@ -1,4 +1,4 @@
-/// Note: Why are we passing in block_texture_bind_group_layout when we could just make it here? I
+/// NOTE: Why are we passing in block_texture_bind_group_layout when we could just make it here? I
 /// think making it more than once causes inconsistencies between bind groups.
 pub fn make_chunk_render_pipeline(
     engine: &mut crate::engine::Engine,

@@ -1,4 +1,4 @@
-use crate::engine::Camera;
+use crate::camera::Camera;
 
 /// Uniforms are used in the shader for attributes that are essentially global.
 #[repr(C)] // we need this for Rust to store our data correctly for the shaders
@@ -54,5 +54,3 @@ impl Uniforms {
 
 unsafe impl bytemuck::Pod for Uniforms {}
 unsafe impl bytemuck::Zeroable for Uniforms {}
-
-// vim: foldmethod=syntax
