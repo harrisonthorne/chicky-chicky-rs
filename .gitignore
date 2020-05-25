@@ -3,3 +3,4 @@ Netrw*
 target/
 *.pdf
 clippy.err
+*.xopp~
