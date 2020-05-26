@@ -1,6 +1,5 @@
 #![allow(dead_code)]
 
-pub mod physics;
 pub mod texture;
 pub mod traits;
 

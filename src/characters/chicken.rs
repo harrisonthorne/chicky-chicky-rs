@@ -1,5 +1,5 @@
 use crate::characters::{Character, CharacterAction, Direction, FacingDirection};
-use crate::engine::physics::PhysicalObject;
+use crate::physics::PhysicalObject;
 use crate::items;
 use crate::items::{Backpack, Item, ItemStack};
 use crate::maths::AABB;

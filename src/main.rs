@@ -11,6 +11,7 @@ mod engine;
 mod game;
 mod items;
 mod maths;
+mod physics;
 mod sprite;
 mod textures;
 mod traits;
@@ -153,7 +154,7 @@ async fn main() {
         zfar: 10000.0,
     };
 
-    let game = game::Game::new().await;
+    let game = game::Game::new(engine.get_device()).await;
 
     let runner = MainRunner {
         state: GameState::Game(Box::new(game)),
@@ -191,7 +192,7 @@ impl engine::Runner for MainRunner {
             .update(device, &self.camera, &mut self.uniform_buffer, queue);
         
         match &mut self.state {
-            GameState::Game(g) => g.logic(device),
+            GameState::Game(g) => g.logic(device, queue),
         }
 
         true
