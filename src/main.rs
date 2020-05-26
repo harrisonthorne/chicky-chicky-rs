@@ -28,20 +28,6 @@ async fn main() {
 
     let mut engine = engine::Engine::new(60.0, window).await;
 
-    // make camera
-    // let camera = camera::Camera {
-    //     // position the camera one unit up and 2 units back
-    //     eye: (0.0, 1.0, -2.0).into(),
-    //     // have it look at the origin
-    //     target: (0.0, 0.0, 0.0).into(),
-    //     // which way is "up"
-    //     up: cgmath::Vector3::unit_y(),
-    //     aspect: swap_chain_descriptor.width as f32 / swap_chain_descriptor.height as f32,
-    //     fovy: 45.0,
-    //     znear: 0.1,
-    //     zfar: 100.0,
-    // };
-
     // textures
 
     let block_texture_bind_group_layout =
@@ -143,16 +129,7 @@ async fn main() {
         }
     };
 
-    let sc_desc = engine.get_swap_chain_descriptor();
-    let camera = camera::Camera {
-        eye: (0.0, 2.0, -2.0).into(),
-        target: (0.0, 0.0, 0.0).into(),
-        up: cgmath::Vector3::unit_y(),
-        aspect: sc_desc.width as f32 / sc_desc.height as f32,
-        fovy: 70.0,
-        znear: 0.001,
-        zfar: 10000.0,
-    };
+    let camera = camera::Camera::default();
 
     let game = game::Game::new(engine.get_device()).await;
 
