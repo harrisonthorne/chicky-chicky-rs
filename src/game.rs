@@ -49,9 +49,11 @@ impl Game {
             depth_stencil_attachment,
         });
 
+        #[allow(clippy::single_match)]
         match phase {
             RenderPhase::World => {
                 pass.set_pipeline(payload.block_render_pipeline);
+                pass.set_bind_group(0, payload.block_texture_bind_group, &[]);
             }
             _ => {}
         }
@@ -74,6 +76,7 @@ impl Game {
     }
 }
 
+#[allow(dead_code)]
 enum RenderPhase {
     /// Draw the world: blocks, weather, particles, and more.
     World,

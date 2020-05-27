@@ -17,7 +17,7 @@ impl Uniforms {
     }
 
     fn update_view_proj(&mut self, camera: &Camera) {
-        self.view_proj = camera.get_view_projection_matrix().clone();
+        self.view_proj = *camera.get_view_projection_matrix();
     }
 
     pub fn update(

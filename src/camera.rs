@@ -90,7 +90,7 @@ impl CameraBuilder {
     }
 
     /// Convenience method for `aspect_ratio`.
-    pub fn viewport_width_height(mut self, width: f32, height: f32) -> Self {
+    pub fn viewport_width_height(self, width: f32, height: f32) -> Self {
         self.aspect_ratio(width / height)
     }
 
@@ -144,38 +144,46 @@ impl CameraBuilder {
 
 pub struct CameraController {
     speed: f32,
+    mouse_sensitivity: f32,
     is_up_pressed: bool,
     is_down_pressed: bool,
     is_forward_pressed: bool,
     is_backward_pressed: bool,
     is_left_pressed: bool,
     is_right_pressed: bool,
+
+    position: cgmath::Point3<f32>,
+    rotation: cgmath::Vector3<f32>,
 }
 
 impl CameraController {
-    pub fn new(speed: f32) -> Self {
+    pub fn new(speed: f32, mouse_sensitivity: f32) -> Self {
         Self {
             speed,
+            mouse_sensitivity,
             is_up_pressed: false,
             is_down_pressed: false,
             is_forward_pressed: false,
             is_backward_pressed: false,
             is_left_pressed: false,
             is_right_pressed: false,
+
+            position: (0.0, 0.0, 0.0).into(),
+            rotation: (0.0, 0.0, 0.0).into(),
         }
     }
 
-    pub fn process_events(&mut self, event: &WindowEvent) -> bool {
+    pub fn input(&mut self, event: &DeviceEvent) -> bool {
         match event {
-            WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
-                        state,
-                        virtual_keycode: Some(keycode),
-                        ..
-                    },
+            DeviceEvent::Motion { axis, value } => {
+                println!("axis: {}, value: {}", axis, value);
+                false
+            }
+            DeviceEvent::Key(KeyboardInput {
+                state,
+                virtual_keycode: Some(keycode),
                 ..
-            } => {
+            }) => {
                 let is_pressed = *state == ElementState::Pressed;
                 match keycode {
                     VirtualKeyCode::Space => {
@@ -210,23 +218,13 @@ impl CameraController {
     }
 
     pub fn update_camera(&self, camera: &mut crate::camera::Camera) {
-        use cgmath::InnerSpace;
-        let forward = (camera.target - camera.eye).normalize();
+        camera.eye = self.position;
+        camera.target = {
+            let x = self.position.x + self.rotation.x.to_radians().sin();
+            let y = self.position.y + self.rotation.y.to_radians().sin();
+            let z = self.position.x + self.rotation.z.to_radians().cos();
 
-        if self.is_forward_pressed {
-            camera.eye += forward * self.speed;
-        }
-        if self.is_backward_pressed {
-            camera.eye -= forward * self.speed;
-        }
-
-        let right = forward.cross(camera.up);
-
-        if self.is_right_pressed {
-            camera.eye += right * self.speed;
-        }
-        if self.is_left_pressed {
-            camera.eye -= right * self.speed;
-        }
+            (x, y, z).into()
+        };
     }
 }

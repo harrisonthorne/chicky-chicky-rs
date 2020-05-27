@@ -2,6 +2,7 @@
 
 layout(location=0) in vec2 v_tex_coords;
 layout(location=1) in int layer;
+
 layout(location=0) out vec4 f_color;
 
 // uniform uses `set` and `binding`

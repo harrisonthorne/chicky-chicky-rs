@@ -195,23 +195,7 @@ impl Engine {
     /// returns true, the main loop won't process the event any further.
     fn input(&mut self, event: &DeviceEvent) -> bool {
         for input_listener in &mut self.input_listeners {
-            let input_processed = match event {
-                DeviceEvent::ModifiersChanged(state) => {
-                    self.modifiers = *state;
-                    return true;
-                }
-                DeviceEvent::Key(input) => match input.state {
-                    ElementState::Pressed => {
-                        input_listener.key_down(input.virtual_keycode, self.modifiers)
-                    }
-                    ElementState::Released => {
-                        input_listener.key_up(input.virtual_keycode, self.modifiers)
-                    }
-                },
-                _ => false,
-            };
-
-            if input_processed {
+            if input_listener.input(event) {
                 return true;
             }
         }

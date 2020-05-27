@@ -1,5 +1,6 @@
 //! chicky-chicky-rs
 
+#![allow(dead_code)]
 #![warn(missing_docs)]
 #![deny(unused_variables)]
 #![deny(clippy::shadow_unrelated)]
@@ -19,7 +20,7 @@ mod uniforms;
 mod utils;
 mod world;
 
-use winit::{event_loop::EventLoop, window::WindowBuilder};
+use winit::{event_loop::EventLoop, window::WindowBuilder, event::DeviceEvent};
 
 #[async_std::main]
 async fn main() {
@@ -130,6 +131,7 @@ async fn main() {
     };
 
     let camera = camera::Camera::default();
+    let camera_controller = camera::CameraController::new(0.5, 1.0);
 
     let game = game::Game::new(engine.get_device()).await;
 
@@ -142,6 +144,7 @@ async fn main() {
         // uniform_bind_group_layout,
         block_render_pipeline,
         camera,
+        camera_controller,
         block_textures: default_textures,
     };
 
@@ -158,6 +161,7 @@ struct MainRunner {
     // uniform_bind_group_layout: wgpu::BindGroupLayout,
 
     camera: camera::Camera,
+    camera_controller: camera::CameraController,
 
     block_textures: textures::BlockTextures,
     block_render_pipeline: wgpu::RenderPipeline,
@@ -198,6 +202,12 @@ impl engine::Runner for MainRunner {
         match &self.state {
             GameState::Game(g) => g.render(&mut payload),
         }
+    }
+}
+
+impl engine::InputListener for MainRunner {
+    fn input(&mut self, event: &DeviceEvent) -> bool {
+        self.camera_controller.input(event)
     }
 }
 
