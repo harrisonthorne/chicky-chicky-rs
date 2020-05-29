@@ -28,7 +28,7 @@ pub fn make_chunk_render_pipeline(
                 bind_group_layouts: &[&block_texture_bind_group_layout, &uniform_bind_group_layout],
             });
 
-    let chunk_vertex_buffer_descriptors = super::Block::vertex_buffer_descriptors();
+    let chunk_vertex_buffer_descriptors = super::ChunkMeshVertex::vertex_buffer_descriptors();
 
     let chunk_render_pipeline_descriptor = crate::utils::make_render_pipeline_descriptor(
         &render_pipeline_layout,

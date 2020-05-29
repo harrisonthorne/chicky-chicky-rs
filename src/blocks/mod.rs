@@ -29,27 +29,6 @@ impl From<BlockType> for Block {
 impl Block {
     pub const WIDTH: f32 = 0.5;
 
-    pub fn vertex_buffer_descriptors<'a>() -> &'a [wgpu::VertexBufferDescriptor<'a>] {
-        use std::mem::size_of;
-
-        &[wgpu::VertexBufferDescriptor {
-            stride: chunk::ChunkMeshVertex::SIZE,
-            step_mode: wgpu::InputStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttributeDescriptor {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float3,
-                },
-                wgpu::VertexAttributeDescriptor {
-                    offset: size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float2,
-                },
-            ],
-        }]
-    }
-
     pub fn lifespan_of(ty: BlockType) -> f32 {
         match ty {
             BlockType::Dirt => 10.0,

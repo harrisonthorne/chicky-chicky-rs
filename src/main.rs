@@ -22,12 +22,12 @@ mod world;
 
 use winit::{event_loop::EventLoop, window::WindowBuilder, event::DeviceEvent};
 
-#[async_std::main]
-async fn main() {
+fn main() {
+    println!("PRINTING ON MAIN");
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
 
-    let mut engine = engine::Engine::new(60.0, window).await;
+    let mut engine = async_std::task::block_on(engine::Engine::new(60.0, window));
 
     // textures
 
@@ -41,7 +41,7 @@ async fn main() {
                         visibility: wgpu::ShaderStage::FRAGMENT,
                         ty: wgpu::BindingType::SampledTexture {
                             multisampled: false,
-                            dimension: wgpu::TextureViewDimension::D2,
+                            dimension: wgpu::TextureViewDimension::D3,
                             component_type: wgpu::TextureComponentType::Uint,
                         },
                     },
@@ -133,7 +133,7 @@ async fn main() {
     let camera = camera::Camera::default();
     let camera_controller = camera::CameraController::new(0.5, 1.0);
 
-    let game = game::Game::new(engine.get_device()).await;
+    let game = game::Game::new(engine.get_device());
 
     let runner = MainRunner {
         state: GameState::Game(Box::new(game)),
@@ -168,7 +168,12 @@ struct MainRunner {
 }
 
 impl engine::Runner for MainRunner {
+    fn input(&mut self, event: &DeviceEvent) -> bool {
+        self.camera_controller.input(event)
+    }
+
     fn update(&mut self, _delta_sec: f32, device: &wgpu::Device, queue: &mut wgpu::Queue) -> bool {
+        self.camera_controller.update_camera(&mut self.camera);
         self.uniforms
             .update(device, &self.camera, &mut self.uniform_buffer, queue);
         
@@ -182,7 +187,6 @@ impl engine::Runner for MainRunner {
     fn render(
         &self,
         _device: &wgpu::Device,
-        _queue: &mut wgpu::Queue,
         encoder: &mut wgpu::CommandEncoder,
         frame: &wgpu::TextureView,
         depth_texture: &wgpu::TextureView,
@@ -202,12 +206,6 @@ impl engine::Runner for MainRunner {
         match &self.state {
             GameState::Game(g) => g.render(&mut payload),
         }
-    }
-}
-
-impl engine::InputListener for MainRunner {
-    fn input(&mut self, event: &DeviceEvent) -> bool {
-        self.camera_controller.input(event)
     }
 }
 

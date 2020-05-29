@@ -175,9 +175,10 @@ impl CameraController {
 
     pub fn input(&mut self, event: &DeviceEvent) -> bool {
         match event {
-            DeviceEvent::Motion { axis, value } => {
-                println!("axis: {}, value: {}", axis, value);
-                false
+            DeviceEvent::MouseMotion { delta: (x, y) } => {
+                self.rotation.x = self.rotation.y + (*x as f32 * 10.0 * self.mouse_sensitivity);
+                self.rotation.y = (self.rotation.x + (*y as f32 * 10.0 * self.mouse_sensitivity)).min(90.0).max(-90.0);
+                true
             }
             DeviceEvent::Key(KeyboardInput {
                 state,

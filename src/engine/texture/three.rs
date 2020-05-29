@@ -26,7 +26,7 @@ impl Texture3d {
         let texture = device.create_texture(&wgpu::TextureDescriptor {
             label,
             size,
-            array_layer_count: layers,
+            array_layer_count: 1,
             mip_level_count: 1,
             sample_count: 1,
 

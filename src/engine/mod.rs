@@ -23,7 +23,6 @@ pub struct Engine {
 
     fps: f32,
     last_update_time: Instant,
-    input_listeners: Vec<Box<dyn InputListener>>,
     runner: Option<Box<dyn Runner>>,
     modifiers: ModifiersState,
 
@@ -34,7 +33,7 @@ pub struct Engine {
 }
 
 impl Engine {
-    pub async fn new(fps: f32, window: Window) -> Self {
+    pub async fn new(fps: f32, window: Window) -> Engine {
         // The surface is used to create the swap_chain
         let surface = wgpu::Surface::create(&window);
 
@@ -82,7 +81,6 @@ impl Engine {
             queue,
             swap_chain_descriptor,
             last_update_time: Instant::now(),
-            input_listeners: Vec::new(),
             modifiers: Default::default(),
             runner: None,
 
@@ -90,6 +88,117 @@ impl Engine {
             depth_texture,
             swap_chain,
         }
+    }
+
+    /// Sets the runner that will update and render the scene for the Engine.
+    pub fn set_runner<R: Runner + 'static>(&mut self, r: R) {
+        self.runner = Some(Box::new(r));
+    }
+
+    /// If we want to support resizing in our application, we're going to need to recreate the
+    /// swap_chain everytime the window's size changes. That's the reason we store the logical
+    /// size and the swap_chain_descriptor used to create the swapchain. With all of these, the resize method is
+    /// very simple.
+    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
+        self.window_size = new_size;
+
+        self.swap_chain_descriptor.width = new_size.width;
+        self.swap_chain_descriptor.height = new_size.height;
+
+        self.swap_chain = self
+            .device
+            .create_swap_chain(&self.surface, &self.swap_chain_descriptor);
+        self.depth_texture =
+            texture::Texture2d::make_depth_texture(&self.device, &self.swap_chain_descriptor);
+    }
+
+    /// input() returns a bool to indicate whether an event has been fully processed. If the method
+    /// returns true, the main loop won't process the event any further.
+    fn input(&mut self, event: &DeviceEvent) -> bool {
+        if let Some(runner) = &mut self.runner {
+            runner.input(event)
+        } else {
+            false
+        }
+    }
+
+    /// Perform logic for all logicables. Returns true if logic was performed; false otherwise.
+    fn logic(&mut self, delta_secs: f32) -> bool {
+        if let Some(updater) = &mut self.runner {
+            // update via the updater
+            updater.update(delta_secs, &self.device, &mut self.queue)
+        } else {
+            false
+        }
+    }
+
+    fn render(&mut self) {
+        if let Some(renderer) = &self.runner {
+            // First we need to get a frame to render to. This will include a wgpu::Texture and
+            // wgpu::TextureView that will hold the actual image we're drawing to
+            let frame = self.swap_chain.get_next_texture().unwrap();
+
+            // We also need to create a CommandEncoder to create the actual commands to send to the gpu. Most
+            // modern graphics frameworks expect commands to be stored in a command buffer before being sent to
+            // the gpu. The encoder builds a command buffer that we can then send to the gpu.
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("render encoder"),
+                });
+
+            renderer.render(
+                &self.device,
+                &mut encoder,
+                &frame.view,
+                &self.depth_texture.view,
+            );
+
+            // tell wgpu to finish the command buffer, and to submit it to the gpu's render queue.
+            // `encoder` must not be borrowed at this point; are previous borrows scoped?
+            self.queue.submit(&[encoder.finish()]);
+        }
+    }
+
+    pub fn compile_shader_modules(
+        &self,
+        vs_src: &str,
+        fs_src: &str,
+    ) -> Result<(wgpu::ShaderModule, wgpu::ShaderModule), BasicError> {
+        let vs_spirv = match glsl_to_spirv::compile(vs_src, glsl_to_spirv::ShaderType::Vertex) {
+            Ok(v) => v,
+            Err(e) => return Err(BasicError::from(("couldn't compile vertex shader", e))),
+        };
+        let fs_spirv = match glsl_to_spirv::compile(fs_src, glsl_to_spirv::ShaderType::Fragment) {
+            Ok(f) => f,
+            Err(e) => return Err(BasicError::from(("couldn't compile fragment shader", e))),
+        };
+
+        let vs_data = match wgpu::read_spirv(vs_spirv) {
+            Ok(v) => v,
+            Err(e) => return Err(BasicError::from(("couldn't read vertex spirv", e))),
+        };
+        let fs_data = match wgpu::read_spirv(fs_spirv) {
+            Ok(f) => f,
+            Err(e) => return Err(BasicError::from(("couldn't read fragment spirv", e))),
+        };
+
+        let vs_module = self.device.create_shader_module(&vs_data);
+        let fs_module = self.device.create_shader_module(&fs_data);
+
+        Ok((vs_module, fs_module))
+    }
+
+    pub fn get_device(&self) -> &wgpu::Device {
+        &self.device
+    }
+
+    pub fn get_queue(&self) -> &wgpu::Queue {
+        &self.queue
+    }
+
+    pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {
+        &self.swap_chain_descriptor
     }
 
     /// Consumes the Engine and starts it.
@@ -167,120 +276,6 @@ impl Engine {
                 _ => (),
             }
         })
-    }
-
-    /// Sets the runner that will update and render the scene for the Engine.
-    pub fn set_runner<R: Runner + 'static>(&mut self, r: R) {
-        self.runner = Some(Box::new(r));
-    }
-
-    /// If we want to support resizing in our application, we're going to need to recreate the
-    /// swap_chain everytime the window's size changes. That's the reason we store the logical
-    /// size and the swap_chain_descriptor used to create the swapchain. With all of these, the resize method is
-    /// very simple.
-    fn resize(&mut self, new_size: winit::dpi::PhysicalSize<u32>) {
-        self.window_size = new_size;
-
-        self.swap_chain_descriptor.width = new_size.width;
-        self.swap_chain_descriptor.height = new_size.height;
-
-        self.swap_chain = self
-            .device
-            .create_swap_chain(&self.surface, &self.swap_chain_descriptor);
-        self.depth_texture =
-            texture::Texture2d::make_depth_texture(&self.device, &self.swap_chain_descriptor);
-    }
-
-    /// input() returns a bool to indicate whether an event has been fully processed. If the method
-    /// returns true, the main loop won't process the event any further.
-    fn input(&mut self, event: &DeviceEvent) -> bool {
-        for input_listener in &mut self.input_listeners {
-            if input_listener.input(event) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    /// Perform logic for all logicables. Returns true if logic was performed; false otherwise.
-    fn logic(&mut self, delta_secs: f32) -> bool {
-        if let Some(updater) = &mut self.runner {
-            // update via the updater
-            updater.update(delta_secs, &self.device, &mut self.queue)
-        } else {
-            false
-        }
-    }
-
-    fn render(&mut self) {
-        if let Some(renderer) = &self.runner {
-            // First we need to get a frame to render to. This will include a wgpu::Texture and
-            // wgpu::TextureView that will hold the actual image we're drawing to
-            let frame = self.swap_chain.get_next_texture().unwrap();
-
-            // We also need to create a CommandEncoder to create the actual commands to send to the gpu. Most
-            // modern graphics frameworks expect commands to be stored in a command buffer before being sent to
-            // the gpu. The encoder builds a command buffer that we can then send to the gpu.
-            let mut encoder = self
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("render encoder"),
-                });
-
-            renderer.render(
-                &self.device,
-                &mut self.queue,
-                &mut encoder,
-                &frame.view,
-                &self.depth_texture.view,
-            );
-
-            // tell wgpu to finish the command buffer, and to submit it to the gpu's render queue.
-            // `encoder` must not be borrowed at this point; are previous borrows scoped?
-            self.queue.submit(&[encoder.finish()]);
-        }
-    }
-
-    pub fn compile_shader_modules(
-        &self,
-        vs_src: &str,
-        fs_src: &str,
-    ) -> Result<(wgpu::ShaderModule, wgpu::ShaderModule), BasicError> {
-        let vs_spirv = match glsl_to_spirv::compile(vs_src, glsl_to_spirv::ShaderType::Vertex) {
-            Ok(v) => v,
-            Err(e) => return Err(BasicError::from(("couldn't compile vertex shader", e))),
-        };
-        let fs_spirv = match glsl_to_spirv::compile(fs_src, glsl_to_spirv::ShaderType::Fragment) {
-            Ok(f) => f,
-            Err(e) => return Err(BasicError::from(("couldn't compile fragment shader", e))),
-        };
-
-        let vs_data = match wgpu::read_spirv(vs_spirv) {
-            Ok(v) => v,
-            Err(e) => return Err(BasicError::from(("couldn't read vertex spirv", e))),
-        };
-        let fs_data = match wgpu::read_spirv(fs_spirv) {
-            Ok(f) => f,
-            Err(e) => return Err(BasicError::from(("couldn't read fragment spirv", e))),
-        };
-
-        let vs_module = self.device.create_shader_module(&vs_data);
-        let fs_module = self.device.create_shader_module(&fs_data);
-
-        Ok((vs_module, fs_module))
-    }
-
-    pub fn get_device(&self) -> &wgpu::Device {
-        &self.device
-    }
-
-    pub fn get_queue(&self) -> &wgpu::Queue {
-        &self.queue
-    }
-
-    pub fn get_swap_chain_descriptor(&self) -> &wgpu::SwapChainDescriptor {
-        &self.swap_chain_descriptor
     }
 }
 

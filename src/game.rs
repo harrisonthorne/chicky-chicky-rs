@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 use crate::blocks::Chunk;
 
 pub(crate) struct Game {
@@ -7,10 +9,12 @@ pub(crate) struct Game {
 
 impl Game {
     /// Decided to pass in bind groups and pipelines so that this file doesn't become too crowded.
-    pub async fn new(device: &wgpu::Device) -> Self {
+    pub fn new(device: &wgpu::Device) -> Self {
+        println!("creating new game");
+        let tmp_chunk = Chunk::generate(0, 0, 0, &device);
         Self {
             // world: None,
-            tmp_chunk: Chunk::generate(0, 0, 0, &device).await,
+            tmp_chunk,
         }
     }
 
@@ -63,7 +67,7 @@ impl Game {
     }
 
     pub fn logic(&mut self, device: &wgpu::Device, queue: &mut wgpu::Queue) {
-        self.tmp_chunk.logic(device, queue);
+        self.tmp_chunk.logic(device);
     }
 
     pub fn render(&self, payload: &mut crate::RenderPayload) {
