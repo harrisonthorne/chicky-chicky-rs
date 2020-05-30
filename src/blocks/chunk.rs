@@ -258,7 +258,7 @@ impl Chunk {
 
     fn get_block_along_layer(&self, along_axis: Axis, layer: usize, i: usize, j: usize) -> &Block {
         match along_axis {
-            Axis::X => &self.blocks[layer][i][j],
+            Axis::X => &self.blocks[layer][j][i], // becuase "i" is the z axis
             Axis::Y => &self.blocks[i][layer][j],
             Axis::Z => &self.blocks[i][j][layer],
         }
