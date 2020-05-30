@@ -45,13 +45,15 @@ impl Game {
                 stencil_load_op: wgpu::LoadOp::Clear,
                 stencil_store_op: wgpu::StoreOp::Store,
                 clear_stencil: 0,
-            })
+            }),
         };
 
-        let mut pass = payload.encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-            color_attachments,
-            depth_stencil_attachment,
-        });
+        let mut pass = payload
+            .encoder
+            .begin_render_pass(&wgpu::RenderPassDescriptor {
+                color_attachments,
+                depth_stencil_attachment,
+            });
 
         #[allow(clippy::single_match)]
         match phase {
@@ -71,10 +73,7 @@ impl Game {
     }
 
     pub fn render(&self, payload: &mut crate::RenderPayload) {
-        let mut world_render_pass = Self::start_render_pass(
-            RenderPhase::World,
-            payload,
-        );
+        let mut world_render_pass = Self::start_render_pass(RenderPhase::World, payload);
 
         self.tmp_chunk.render(&mut world_render_pass);
     }

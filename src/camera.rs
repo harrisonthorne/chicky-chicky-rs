@@ -1,5 +1,7 @@
+use winit::dpi::PhysicalPosition;
 use winit::event::*;
 
+#[derive(Debug)]
 pub struct Camera {
     eye: cgmath::Point3<f32>,
     target: cgmath::Point3<f32>,
@@ -18,7 +20,12 @@ impl Camera {
         let view = cgmath::Matrix4::look_at(self.eye, self.target, self.up);
 
         // warps the scene for perspective and depth
-        let proj = cgmath::perspective(cgmath::Deg(self.fov_y), self.aspect, self.z_near, self.z_far);
+        let proj = cgmath::perspective(
+            cgmath::Deg(self.fov_y),
+            self.aspect,
+            self.z_near,
+            self.z_far,
+        );
 
         self.matrix = proj * view;
     }
@@ -60,7 +67,7 @@ impl Default for CameraBuilder {
             eye: (0.0, 0.0, -5.0).into(),
             target: (0.0, 0.0, 0.0).into(),
             up: cgmath::Vector3::unit_y(),
-            aspect: 16.0/9.0,
+            aspect: 16.0 / 9.0,
             fov_y: 70.0,
             z_near: 0.01,
             z_far: 10000.0,
@@ -154,6 +161,8 @@ pub struct CameraController {
 
     position: cgmath::Point3<f32>,
     rotation: cgmath::Vector3<f32>,
+
+    last_mouse_position: Option<PhysicalPosition<f64>>,
 }
 
 impl CameraController {
@@ -170,62 +179,80 @@ impl CameraController {
 
             position: (0.0, 0.0, 0.0).into(),
             rotation: (0.0, 0.0, 0.0).into(),
+            last_mouse_position: None,
         }
     }
 
-    pub fn input(&mut self, event: &DeviceEvent) -> bool {
-        match event {
-            DeviceEvent::MouseMotion { delta: (x, y) } => {
-                self.rotation.x = self.rotation.y + (*x as f32 * 10.0 * self.mouse_sensitivity);
-                self.rotation.y = (self.rotation.x + (*y as f32 * 10.0 * self.mouse_sensitivity)).min(90.0).max(-90.0);
-                true
-            }
-            DeviceEvent::Key(KeyboardInput {
-                state,
-                virtual_keycode: Some(keycode),
+    pub fn mouse_moved(&mut self, delta_x: f64, delta_y: f64) {
+        self.rotation.x += delta_y as f32 * self.mouse_sensitivity;
+        self.rotation.y += delta_x as f32 * self.mouse_sensitivity;
+
+        self.rotation.x = self.rotation.x.min(90.0).max(-90.0);
+    }
+
+    pub fn input(&mut self, event: &WindowEvent) {
+        if let WindowEvent::KeyboardInput {
+            input:
+                KeyboardInput {
+                    state,
+                    virtual_keycode: Some(keycode),
+                    ..
+                },
                 ..
-            }) => {
-                let is_pressed = *state == ElementState::Pressed;
-                match keycode {
-                    VirtualKeyCode::Space => {
-                        self.is_up_pressed = is_pressed;
-                        true
-                    }
-                    VirtualKeyCode::LShift => {
-                        self.is_down_pressed = is_pressed;
-                        true
-                    }
-                    VirtualKeyCode::W | VirtualKeyCode::Up => {
-                        self.is_forward_pressed = is_pressed;
-                        true
-                    }
-                    VirtualKeyCode::A | VirtualKeyCode::Left => {
-                        self.is_left_pressed = is_pressed;
-                        true
-                    }
-                    VirtualKeyCode::S | VirtualKeyCode::Down => {
-                        self.is_backward_pressed = is_pressed;
-                        true
-                    }
-                    VirtualKeyCode::D | VirtualKeyCode::Right => {
-                        self.is_right_pressed = is_pressed;
-                        true
-                    }
-                    _ => false,
-                }
+        } = event {
+            let is_pressed = *state == ElementState::Pressed;
+            match keycode {
+                VirtualKeyCode::Space => self.is_up_pressed = is_pressed,
+                VirtualKeyCode::LShift => self.is_down_pressed = is_pressed,
+                VirtualKeyCode::W | VirtualKeyCode::Up => self.is_forward_pressed = is_pressed,
+                VirtualKeyCode::A | VirtualKeyCode::Left => self.is_left_pressed = is_pressed,
+                VirtualKeyCode::S | VirtualKeyCode::Down => self.is_backward_pressed = is_pressed,
+                VirtualKeyCode::D | VirtualKeyCode::Right => self.is_right_pressed = is_pressed,
+                _ => (),
             }
-            _ => false,
         }
     }
 
-    pub fn update_camera(&self, camera: &mut crate::camera::Camera) {
+    pub fn update_camera(&mut self, delta_sec: f32, camera: &mut crate::camera::Camera) {
+        let sin_of_yaw = self.rotation.y.to_radians().sin();
+        let cos_of_yaw = self.rotation.y.to_radians().cos();
+
+        if self.is_left_pressed {
+            self.position.x += self.speed * delta_sec * cos_of_yaw;
+            self.position.z -= self.speed * delta_sec * sin_of_yaw;
+        }
+        if self.is_right_pressed {
+            self.position.x -= self.speed * delta_sec * cos_of_yaw;
+            self.position.z += self.speed * delta_sec * sin_of_yaw;
+        }
+
+        if self.is_up_pressed {
+            self.position.y += self.speed * delta_sec;
+        }
+        if self.is_down_pressed {
+            self.position.y -= self.speed * delta_sec;
+        }
+
+        if self.is_forward_pressed {
+            self.position.x += self.speed * delta_sec * sin_of_yaw;
+            self.position.z += self.speed * delta_sec * cos_of_yaw;
+        }
+        if self.is_backward_pressed {
+            self.position.x -= self.speed * delta_sec * sin_of_yaw;
+            self.position.z -= self.speed * delta_sec * cos_of_yaw;
+        }
+
         camera.eye = self.position;
         camera.target = {
-            let x = self.position.x + self.rotation.x.to_radians().sin();
-            let y = self.position.y + self.rotation.y.to_radians().sin();
-            let z = self.position.x + self.rotation.z.to_radians().cos();
+            let sin_of_pitch = self.rotation.x.to_radians().sin();
+            let cos_of_pitch = self.rotation.x.to_radians().cos();
+
+            let x = self.position.x + sin_of_yaw * cos_of_pitch;
+            let y = self.position.y + sin_of_pitch;
+            let z = self.position.z + cos_of_yaw * cos_of_pitch;
 
             (x, y, z).into()
         };
+        camera.update_view_projection_matrix();
     }
 }

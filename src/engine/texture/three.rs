@@ -42,9 +42,9 @@ impl Texture3d {
 
         // Sampler: controls how the Texture is *sampled*.
         let sampler = device.create_sampler(&wgpu::SamplerDescriptor {
-            address_mode_u: wgpu::AddressMode::ClampToEdge,
-            address_mode_v: wgpu::AddressMode::ClampToEdge,
-            address_mode_w: wgpu::AddressMode::ClampToEdge,
+            address_mode_u: wgpu::AddressMode::Repeat,
+            address_mode_v: wgpu::AddressMode::Repeat,
+            address_mode_w: wgpu::AddressMode::Repeat,
             mag_filter: wgpu::FilterMode::Nearest,
             min_filter: wgpu::FilterMode::Nearest,
             mipmap_filter: wgpu::FilterMode::Nearest,
@@ -64,7 +64,7 @@ impl Texture3d {
     }
 
     pub fn set_layer_from_bytes(
-        &self,
+        &mut self,
         device: &wgpu::Device,
         index: u32,
         bytes: &[u8],
@@ -79,7 +79,7 @@ impl Texture3d {
     }
 
     pub fn set_layer_from_image(
-        &self,
+        &mut self,
         device: &wgpu::Device,
         index: u32,
         img: image::DynamicImage,
@@ -116,6 +116,7 @@ impl Texture3d {
         let cmd_buffer = encoder.finish();
 
         // NOTE: 3d texture not working as hoped? recreate `view` here
+        self.view = self.texture.create_default_view();
 
         Ok(cmd_buffer)
     }

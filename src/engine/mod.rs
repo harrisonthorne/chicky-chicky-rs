@@ -112,15 +112,20 @@ impl Engine {
             texture::Texture2d::make_depth_texture(&self.device, &self.swap_chain_descriptor);
     }
 
-    /// input() returns a bool to indicate whether an event has been fully processed. If the method
-    /// returns true, the main loop won't process the event any further.
-    fn input(&mut self, event: &DeviceEvent) -> bool {
+    /// Handles window events.
+    fn window_event(&mut self, event: &WindowEvent, control_flow: &mut ControlFlow) {
         if let Some(runner) = &mut self.runner {
-            runner.input(event)
-        } else {
-            false
+            runner.window_event(event, control_flow);
+        }    
+    }
+
+    /// Handles device events sent by the operating system.
+    fn device_event(&mut self, event: DeviceEvent) {
+        if let Some(runner) = &mut self.runner {
+            runner.device_event(&event)
         }
     }
+
 
     /// Perform logic for all logicables. Returns true if logic was performed; false otherwise.
     fn logic(&mut self, delta_secs: f32) -> bool {
@@ -189,6 +194,10 @@ impl Engine {
         Ok((vs_module, fs_module))
     }
 
+    pub fn get_window(&self) -> &Window {
+        &self.window
+    }
+
     pub fn get_device(&self) -> &wgpu::Device {
         &self.device
     }
@@ -211,28 +220,24 @@ impl Engine {
                 Event::WindowEvent {
                     ref event,
                     window_id,
-                } if window_id == self.window.id() => match event {
-                    WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                    WindowEvent::KeyboardInput { input, .. } => {
-                        if let KeyboardInput {
-                            state: ElementState::Pressed,
-                            virtual_keycode: Some(VirtualKeyCode::Escape),
-                            ..
-                        } = input
-                        {
-                            // exit on <esc>
-                            *control_flow = ControlFlow::Exit;
+                } if window_id == self.window.id() => {
+                    self.window_event(event, control_flow);
+
+                    match event {
+                        WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                        WindowEvent::Resized(physical_size) => {
+                            self.resize(*physical_size);
                         }
+                        WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                            // new_inner_size is &mut, so we have to dereference it twice
+                            self.resize(**new_inner_size);
+                        }
+                        _ => (),
                     }
-                    WindowEvent::Resized(physical_size) => {
-                        self.resize(*physical_size);
-                    }
-                    WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                        // new_inner_size is &mut, so we have to dereference it twice
-                        self.resize(**new_inner_size);
-                    }
-                    _ => (),
-                },
+                }
+                Event::DeviceEvent { event, ..} => {
+                    self.device_event(event);
+                }
                 Event::MainEventsCleared => {
                     let elapsed = self.last_update_time.elapsed().as_secs_f32();
                     if elapsed >= 1.0 / self.fps {
@@ -243,7 +248,7 @@ impl Engine {
 
                         self.last_update_time = Instant::now();
                     } else {
-                        // sleep until the next update. this might be bad, so remove if there are
+                        // sleep until the next update. NOTE: this might be bad, so remove if there are
                         // problems.
                         std::thread::sleep(std::time::Duration::from_secs_f32(
                             1.0 / self.fps - elapsed,
@@ -260,17 +265,6 @@ impl Engine {
                         println!("{} fps", frame_count as f32 / elapsed.as_secs_f32());
                         frame_count = 0;
                         last_fps_report = Instant::now();
-                    }
-                }
-                Event::DeviceEvent { event, .. } => {
-                    if !self.input(&event) {
-                        if let DeviceEvent::Key(input) = event {
-                            if let ElementState::Pressed = input.state {
-                                if let Some(VirtualKeyCode::Escape) = input.virtual_keycode {
-                                    *control_flow = ControlFlow::Exit;
-                                }
-                            }
-                        }
                     }
                 }
                 _ => (),

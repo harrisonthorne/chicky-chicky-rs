@@ -12,7 +12,6 @@ pub struct Chunk {
     // chunk_i: i64,
     // chunk_j: i64,
     // chunk_k: i64,
-
     /// The vertex buffer for the chunk mesh. Because it can't be initialized at first, we'll make
     /// it an Option so it can be set to Some when it's ready.
     block_mesh_buffer: Option<wgpu::Buffer>,
@@ -78,7 +77,12 @@ impl Chunk {
     /// bound to the render pass.
     pub fn render<'a>(&'a self, render_pass: &mut wgpu::RenderPass<'a>) {
         if let Some(vertex_buffer) = &self.block_mesh_buffer {
-            render_pass.set_vertex_buffer(0, vertex_buffer, 0, self.vertex_count as u64 * ChunkMeshVertex::SIZE);
+            render_pass.set_vertex_buffer(
+                0,
+                vertex_buffer,
+                0,
+                self.vertex_count as u64 * ChunkMeshVertex::SIZE,
+            );
             render_pass.draw(0..self.vertex_count as u32, 0..1);
         }
     }
@@ -95,12 +99,12 @@ impl Chunk {
         // save the number of vertices
         self.vertex_count = vertices.len();
 
-
         let vertex_slice = &vertices[..];
         let casted_slice = bytemuck::cast_slice(vertex_slice);
 
         // copy vertices to the vertex buffer
-        self.block_mesh_buffer = Some(device.create_buffer_with_data(casted_slice, wgpu::BufferUsage::VERTEX));
+        self.block_mesh_buffer =
+            Some(device.create_buffer_with_data(casted_slice, wgpu::BufferUsage::VERTEX));
     }
 
     // TODO: potentially separate traversals by Direction instead of Axis to further cull adjacent
@@ -134,12 +138,7 @@ impl Chunk {
                     // traverse along the "i" axis first, getting the ending_point's `i` (start
                     // at/skip i + 1 because the block at i is the reference_block, which doesn't
                     // need to be matched to itself, silly :))
-                    for (k, flag_row) in visited_mask
-                        .iter_mut()
-                        .enumerate()
-                        .take(CHUNK_BLOCK_WIDTH)
-                        .skip(i + 1)
-                    {
+                    for (k, flag_row) in visited_mask.iter_mut().enumerate().skip(i + 1) {
                         // if blocks are still the same type, move the ending_point
                         if self
                             .get_block_along_layer(along_axis, layer, k, j)
@@ -195,7 +194,6 @@ impl Chunk {
 
                         if should_advance {
                             ending_point.1 = l;
-
                         // then we'll move onto the next row
                         } else {
                             // if we came across a block that doesn't match in this row, we have to
@@ -282,7 +280,7 @@ impl Chunk {
             start_grid_pos.2 as f32 * Block::WIDTH,
         ];
 
-        // the bottom, south-west vertex position of the cuboid
+        // the bottom, south-east vertex position of the cuboid
         let base_vertex_pos = [
             self.chunk_position[0] + block_grid_pos[0],
             self.chunk_position[1] + block_grid_pos[1],
@@ -296,31 +294,31 @@ impl Chunk {
                 Direction::North => {
                     let z = base_vertex_pos[2] + Block::WIDTH;
                     (
-                        [base_vertex_pos[0] + quad_width, base_vertex_pos[1], z],
                         [base_vertex_pos[0], base_vertex_pos[1], z],
-                        [base_vertex_pos[0], base_vertex_pos[1] + quad_height, z],
+                        [base_vertex_pos[0] + quad_width, base_vertex_pos[1], z],
                         [
                             base_vertex_pos[0] + quad_width,
                             base_vertex_pos[1] + quad_height,
                             z,
                         ],
+                        [base_vertex_pos[0], base_vertex_pos[1] + quad_height, z],
                     )
                 }
                 Direction::South => {
                     let z = base_vertex_pos[2];
                     (
-                        [base_vertex_pos[0], base_vertex_pos[1], z],
                         [base_vertex_pos[0] + quad_width, base_vertex_pos[1], z],
+                        [base_vertex_pos[0], base_vertex_pos[1], z],
+                        [base_vertex_pos[0], base_vertex_pos[1] + quad_height, z],
                         [
                             base_vertex_pos[0] + quad_width,
                             base_vertex_pos[1] + quad_height,
                             z,
                         ],
-                        [base_vertex_pos[0], base_vertex_pos[1] + quad_height, z],
                     )
                 }
                 Direction::East => {
-                    let x = base_vertex_pos[0] + Block::WIDTH;
+                    let x = base_vertex_pos[0];
                     (
                         [x, base_vertex_pos[1], base_vertex_pos[2]],
                         [x, base_vertex_pos[1], base_vertex_pos[2] + quad_width],
@@ -333,7 +331,7 @@ impl Chunk {
                     )
                 }
                 Direction::West => {
-                    let x = base_vertex_pos[0];
+                    let x = base_vertex_pos[0] + Block::WIDTH;
                     (
                         [x, base_vertex_pos[1], base_vertex_pos[2] + quad_width],
                         [x, base_vertex_pos[1], base_vertex_pos[2]],
@@ -348,27 +346,27 @@ impl Chunk {
                 Direction::Up => {
                     let y = base_vertex_pos[1] + Block::WIDTH;
                     (
-                        [base_vertex_pos[0], y, base_vertex_pos[2]],
                         [base_vertex_pos[0] + quad_width, y, base_vertex_pos[2]],
+                        [base_vertex_pos[0], y, base_vertex_pos[2]],
+                        [base_vertex_pos[0], y, base_vertex_pos[2] + quad_height],
                         [
                             base_vertex_pos[0] + quad_width,
                             y,
                             base_vertex_pos[2] + quad_height,
                         ],
-                        [base_vertex_pos[0], y, base_vertex_pos[2] + quad_height],
                     )
                 }
                 Direction::Down => {
                     let y = base_vertex_pos[1];
                     (
-                        [base_vertex_pos[0] + quad_width, y, base_vertex_pos[2]],
                         [base_vertex_pos[0], y, base_vertex_pos[2]],
-                        [base_vertex_pos[0], y, base_vertex_pos[2] + quad_height],
+                        [base_vertex_pos[0] + quad_width, y, base_vertex_pos[2]],
                         [
                             base_vertex_pos[0] + quad_width,
                             y,
                             base_vertex_pos[2] + quad_height,
                         ],
+                        [base_vertex_pos[0], y, base_vertex_pos[2] + quad_height],
                     )
                 }
             };

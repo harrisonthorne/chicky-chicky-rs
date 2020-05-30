@@ -101,7 +101,7 @@ impl BlockTextures {
         texture_dimensions: (u32, u32),
         block_texture_bind_group_layout: &wgpu::BindGroupLayout,
     ) -> Result<(Self, Vec<wgpu::CommandBuffer>), Box<dyn Error>> {
-        let textures = engine::Texture3d::new(
+        let mut textures = engine::Texture3d::new(
             device,
             texture_dimensions,
             BLOCK_TEXTURE_COUNT,

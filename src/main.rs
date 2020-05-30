@@ -20,12 +20,20 @@ mod uniforms;
 mod utils;
 mod world;
 
-use winit::{event_loop::EventLoop, window::WindowBuilder, event::DeviceEvent};
+use winit::{
+    event::*,
+    event_loop::{ControlFlow, EventLoop},
+    window::WindowBuilder,
+};
 
 fn main() {
     println!("PRINTING ON MAIN");
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
+
+    window.set_title("Chicky Chicky");
+    window.set_cursor_grab(true).expect("couldn't grab cursor");
+    window.set_cursor_visible(false);
 
     let mut engine = async_std::task::block_on(engine::Engine::new(60.0, window));
 
@@ -131,7 +139,7 @@ fn main() {
     };
 
     let camera = camera::Camera::default();
-    let camera_controller = camera::CameraController::new(0.5, 1.0);
+    let camera_controller = camera::CameraController::new(5.0, 1.0);
 
     let game = game::Game::new(engine.get_device());
 
@@ -159,7 +167,6 @@ struct MainRunner {
     uniform_buffer: wgpu::Buffer,
     uniform_bind_group: wgpu::BindGroup,
     // uniform_bind_group_layout: wgpu::BindGroupLayout,
-
     camera: camera::Camera,
     camera_controller: camera::CameraController,
 
@@ -168,15 +175,35 @@ struct MainRunner {
 }
 
 impl engine::Runner for MainRunner {
-    fn input(&mut self, event: &DeviceEvent) -> bool {
-        self.camera_controller.input(event)
+    fn window_event(&mut self, event: &WindowEvent, control_flow: &mut ControlFlow) {
+        if let WindowEvent::KeyboardInput {
+            input:
+                KeyboardInput {
+                    state: ElementState::Pressed,
+                    virtual_keycode: Some(VirtualKeyCode::Q),
+                    ..
+                },
+                ..
+        } = event
+        {
+            *control_flow = ControlFlow::Exit;
+        } else {
+            self.camera_controller.input(event);
+        }
     }
 
-    fn update(&mut self, _delta_sec: f32, device: &wgpu::Device, queue: &mut wgpu::Queue) -> bool {
-        self.camera_controller.update_camera(&mut self.camera);
+    fn device_event(&mut self, event: &DeviceEvent) {
+        if let DeviceEvent::MouseMotion { delta: (x, y) } = event {
+            self.camera_controller.mouse_moved(*x, *y);
+        }
+    }
+
+    fn update(&mut self, delta_sec: f32, device: &wgpu::Device, queue: &mut wgpu::Queue) -> bool {
+        self.camera_controller
+            .update_camera(delta_sec, &mut self.camera);
         self.uniforms
             .update(device, &self.camera, &mut self.uniform_buffer, queue);
-        
+
         match &mut self.state {
             GameState::Game(g) => g.logic(device, queue),
         }
