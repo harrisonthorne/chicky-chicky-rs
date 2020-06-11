@@ -57,6 +57,10 @@ impl BlockTextureIndex {
             _ => return Err(NoSuchBlockTextureError { for_type: ty }),
         })
     }
+
+    pub fn to_tex_coord(self) -> f32 {
+        (self as u32) as f32 / (BLOCK_TEXTURE_COUNT as f32)
+    }
 }
 
 impl TryFrom<BlockType> for BlockTextureIndex {

@@ -1,3 +1,5 @@
+#![allow(unused_variables)]
+
 use super::*;
 use crate::blocks::Block;
 use crate::textures::BlockTextureIndex;
@@ -371,34 +373,36 @@ impl Chunk {
                 }
             };
 
+        let texture_layer_coord = texture_layer.to_tex_coord();
+
         let (lower_left, lower_right, upper_right, upper_left) = (
             ChunkMeshVertex {
                 position: lower_left_pos,
-                uv_coords: [0.0, quad_height as f32],
-                texture_layer: texture_layer as u32,
+                uv_coords: [0.0, height as f32],
+                texture_layer_coord,
             },
             ChunkMeshVertex {
                 position: lower_right_pos,
-                uv_coords: [quad_width as f32, quad_height as f32],
-                texture_layer: texture_layer as u32,
+                uv_coords: [width as f32, height as f32],
+                texture_layer_coord,
             },
             ChunkMeshVertex {
                 position: upper_right_pos,
-                uv_coords: [quad_width as f32, 0.0],
-                texture_layer: texture_layer as u32,
+                uv_coords: [width as f32, 0.0],
+                texture_layer_coord,
             },
             ChunkMeshVertex {
                 position: upper_left_pos,
                 uv_coords: [0.0, 0.0],
-                texture_layer: texture_layer as u32,
+                texture_layer_coord,
             },
         );
 
         vec![
             lower_left,
-            upper_right,
+            lower_right,
             upper_left,
-            lower_left,
+            upper_left,
             lower_right,
             upper_right,
         ]
@@ -410,7 +414,7 @@ impl Chunk {
 pub struct ChunkMeshVertex {
     pub position: [f32; 3],
     pub uv_coords: [f32; 2],
-    pub texture_layer: u32,
+    pub texture_layer_coord: f32,
 }
 
 impl ChunkMeshVertex {
@@ -436,7 +440,7 @@ impl ChunkMeshVertex {
                 wgpu::VertexAttributeDescriptor {
                     offset: size_of::<[f32; 5]>() as wgpu::BufferAddress,
                     shader_location: 2,
-                    format: wgpu::VertexFormat::Uint,
+                    format: wgpu::VertexFormat::Float
                 },
             ],
         }]
